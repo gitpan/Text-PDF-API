@@ -7,18 +7,20 @@ a nice API around the Text::PDF::* modules created by Martin Hosken.
 
 WARNING
 	
-	Sorry but this release of Text::PDF::API requires at least 
-	Text::PDF 0.12 	because of the incompatible changes in that 
-	version !!!!!
+	Sorry but this release of Text::PDF::API now comes bundled
+	with fixed versions of Text::PDF and Font::TTF because of 
+	the various changes in that module-distributions !!!!!
 
 
 CHANGES IN VERSIONS 0.699.x (Development Branch)
 
-	.  added experimental support of utf8-strings
+	.  added alpha-stage support of utf8-strings
 	.  adobe-like handling of glyph-encoding of type1-fonts
 	.  jpeg is now a native supported bitmap-format 
 	.  a tutorial and/or examples still have to written :(
 	.  bugfixing
+	.  incorporated recent versions of Font::TTF and Text::PDF
+		both for ease of installation and fixing bugs
 
 
 FEATURES
@@ -28,12 +30,13 @@ FEATURES
 	.  Supports the 14 base PDF Core Fonts 
 	.  Supports TrueType fonts 
 	.  Supports Adobe-Type1 Fonts (pfb/pfa/afm) 
-	.  Supports native Embedding of bitmap images (jpeg,ppm,png)
-	.  Supports Embedding of bitmap images via plugins (gif,bmp,ppm)
+	.  Supports native Embedding of bitmap images (jpeg,ppm,png,gif)
 
 
 UN-FEATURES (which will one day be fixed)
 
+	.  Gif support is currently only enabled on non-M$ platforms
+		and require a working c-compiler
 	.  Documentation is currently rather sparse
 	.  This is beta code in development which works 
 	   for my apps. but may not for yours :)
@@ -45,19 +48,10 @@ This module set requires you to have installed the following other perl modules:
 
 	Module		Required for
 	------------------------------------------------------
-	Text::PDF	 - PDF object primitives
-	Font::TTF	 - Truetype Font Information
 	Compress::Zlib	 - Compression of PDF object streams
-
-If you want to embed images via plugins you might want to look for the following modules:
-
-	Text::PDF::API::GIF Text::PDF::API::PPM Text::PDF::API::BMP
 
 
 NOTES
-
-Embedding of images via plugins is new and may be buggy !
-BMP embedding currently works only on little-endian architectures :((
 
 For Type1 font support to work correctly you have to have a postscript font file,
 either binary (pfb) or ascii (pfa) format and an adobe font metrics file (afm).

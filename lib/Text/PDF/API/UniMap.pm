@@ -133,19 +133,26 @@ sub new {
 	$encoding=~s/[^a-z0-9\-]+//cgi;
 	bless($this,$class);
 	my $buf;
-	my $unimapdir; map {
-		if(-d "$_/Text/PDF/API/UniMap"){
-			$unimapdir="$_/Text/PDF/API/UniMap";
+	my $unimap;
+	map {
+		if(-e "$_/$encoding.map"){
+			$unimap="$_/$encoding.map";
 		}
-	} @INC;
-	if(! -e "$unimapdir/$encoding.map") {
+	}
+	( map {
+		if(-d "$_/Text/PDF/API/UniMap"){
+			"$_/Text/PDF/API/UniMap";
+		}
+	} @INC );
+	## if(! -e "$unimapdir/$encoding.map") {
+	if(! -e $unimap) {
 		die " $encoding not supported.";
 	} else {
 		$this->{'enc'} = $encoding;
 		$this->{'u2c'} = {};
 		$this->{'c2u'} = {};
 		$this->{'c2n'} = {};
-		open(INF,"$unimapdir/$encoding.map");
+		open(INF,"$unimap");
 		binmode(INF);
 		read(INF,$buf,4);
 		while(!eof(INF)) {

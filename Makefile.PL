@@ -5,6 +5,18 @@ use ExtUtils::MakeMaker;
 require 'version.perl';
 
 $versionfile='version.perl';
+
+print "Current version is: ".$version->{'v_short'}." on a ";
+
+if($^O eq 'MSWin32') {
+	use Config;
+	print $Config{'archname'}."\n";
+} else {
+	`cp gif/Makefile.PL.org gif/Makefile.PL`;
+	`cp gif/giflib/Makefile.PL.org gif/giflib/Makefile.PL`;
+	print `./shtool guessos`."\n";
+}
+        
 WriteMakefile (
 	NAME		=>	"Text::PDF::API",
 	VERSION		=>	$version->{'v_short'},
@@ -18,19 +30,9 @@ WriteMakefile (
 	PREREQ_PM	=>	{
 					'Compress::Zlib'	=> 1.03,
         				'Font::TTF::Font'	=> 0.22,
-        				'Text::PDF::File'	=> 0.12,
 				},
 );
 
-print "Current version is: ".$version->{'v_short'}." on a ";
-
-if($^O eq 'MSWin32') {
-	use Config;
-	print $Config{'archname'}."\n";
-} else {
-	print `./shtool guessos`."\n";
-}
-        
 print "Making html documentation in docs ... ";
 `pod2html lib/Text/PDF/API.pm >docs/pdf-api.pm.html`;
 if(-f 'docs/pdf-api.pm.html') {print "ok.\n"} else {print "not ok.\n"}

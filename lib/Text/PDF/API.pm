@@ -47,7 +47,7 @@ sub genKEY {
 
 sub getDefault {
 	my ($this,$parameter,$default)=@_;
-	if(grep(/$parameter/i,@Text::PDF::API::parameterlist)) {
+##	if(grep(/$parameter/i,@Text::PDF::API::parameterlist)) {
 		if(defined($this->{'DEFAULT'}{lc($parameter)})) {
 			return ($this->{'DEFAULT'}{lc($parameter)});
 		} elsif(defined($default)) {
@@ -55,19 +55,19 @@ sub getDefault {
 		} else {
 			return undef;
 		}
-	} else {
-		$this->_error('getDefault',"illegal parameter ($parameter)");
-		return undef;
-	}
+##	} else {
+##		$this->_error('getDefault',"illegal parameter ($parameter)");
+##		return undef;
+##	}
 }
 
 sub setDefault {
 	my ($this,$parameter,$value)=@_;
-	if(grep(/$parameter/i,@Text::PDF::API::parameterlist)) {
+##	if(grep(/$parameter/i,@Text::PDF::API::parameterlist)) {
 		$this->{'DEFAULT'}{lc($parameter)}=$value;
-	} else {
-		$this->_error('setDefault',"illegal parameter ($parameter)");
-	}
+##	} else {
+##		$this->_error('setDefault',"illegal parameter ($parameter)");
+##	}
 }
 sub _getCurrent {
 	my ($this,$parameter)=@_;
@@ -176,6 +176,13 @@ sub newpage {
 	}
 	if(!defined($this->_getCurrent('PageContext'))) {
 		$this->{'PAGE'} = Text::PDF::Page->new($this->{'PDF'},$this->{'ROOT'});
+	#	$this->{'PAGE'}->{'ProcSet'} = PDFArray(
+	#		PDFName('PDF'),
+	#		PDFName('Text'),
+	#		PDFName('ImageB'),
+	#		PDFName('ImageC'),
+	#		PDFName('ImageI')
+	#	);
 		push(@{$this->{'PAGES'}},$this->{'PAGE'});
 		$this->_setCurrent('PageContext',$#{$pdf->{'PAGES'}});
 		if(defined($width) && !defined($height)) {
@@ -413,7 +420,11 @@ sub newFontTTF {
 		$fontname=$fontype.'x'.$fontkey;
 		$fontfile=$this->resolveFontFile($file);
 		die "can not find requested font '$file'" unless($fontfile);
-		$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname);
+		if($this->getDefault('subset',0)) {
+			$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname, -subset => 1);
+		} else {
+			$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname);
+		}
 
 		$this->{'FONTS'}->{$fontkey}={
 			'type'	=> $fontype,
@@ -653,6 +664,9 @@ sub useFont {
 	$this->{'CURRENT'}{'font'}{'Size'}=$size;
 	$this->{'CURRENT'}{'font'}{'Type'}=$this->{'FONTS'}->{$fontkey}{'type'};
 	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc || 'latin1';
+	if(!$this->{'UNIMAPS'}->{$enc}) {
+		$this->{'UNIMAPS'}->{$enc}=Text::PDF::API::UniMap->new($enc);
+	}
 	return($this->{'CURRENT'}{'font'}{'PDFN'});
 }
 
@@ -969,6 +983,7 @@ sub textNewLine {
 sub textAdd {
 	my ($this,$text)=@_;
 	$this->initFontCurrent;
+	my $g;
 	my $k=$this->{'CURRENT'}{'font'}{'Key'};
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
 	if( lc($enc) eq 'utf8' ) {
@@ -989,14 +1004,18 @@ sub textAdd {
 			$this->_addtopage(unpack('H2',"$c"));
 		} elsif((lc($enc) eq 'ucs2') && ($this->{'FONTS'}->{$k}->{'type'} eq 'TT')) {
 			$c.=shift(@chars); 
-			$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{unpack('n',"$c")}));
+			$g=$this->{'FONTS'}{$k}{"u2g"}{unpack('n',"$c")};
+			vec($this->{'FONTS'}{$k}->{'pdfobj'}->{' subvec'},$g,1)=1 if($this->getDefault('subset',0));
+			$this->_addtopage(sprintf('%04x',$g));
 		} else {
 			if($this->{'CURRENT'}{'font'}{'Type'} eq 'AC') {
 				$this->_addtopage(unpack('H2',"$c"));
 			} elsif($this->{'CURRENT'}{'font'}{'Type'} eq 'PS') {
 				$this->_addtopage(unpack('H2',"$c"));
 			} else {
-				$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))}));
+				$g=$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))};
+				vec($this->{'FONTS'}{$k}->{'pdfobj'}->{' subvec'},$g,1)=1 if($this->getDefault('subset',0));
+				$this->_addtopage(sprintf('%04x',$g));
 			}
 		}
 	}
@@ -1465,6 +1484,37 @@ sub closePath {
 sub endPath{
 	my ($this)=@_;
 	$this->_addtopage("n\n");
+}
+
+sub clipPath{
+	my ($this,$nz)=@_;
+	$nz= (!$nz) ? 'W' : 'W*' ;
+	$this->_addtopage("$nz\n");
+}
+
+sub shadePath {
+	my ($this,$sh,@cord)=@_;
+	my @tm=(
+		$cord[2]-$cord[0] , 0,
+		0                 , $cord[3]-$cord[1],
+		$cord[0]          , $cord[1]
+	);
+        ## $this->{'PAGE'}->{'Resources'}=$this->{'PAGE'}->{'Resources'} || PDFDict();
+        ## $this->{'PAGE'}->{'Resources'}->{'Shading'}=$this->{'PAGE'}->{'Resources'}->{'Shading'} || PDFDict();
+        ## $this->{'PAGE'}->{'Resources'}->{'Shading'}->{$sh}=$this->{'ROOT'}->{'Resources'}->{'Shading'}->{$sh};
+	$this->_addtopage(" q \n");
+	$this->_addtopage(sprintf("%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f cm\n",@tm));
+	$this->_addtopage(" /$sh sh \n");
+	$this->_addtopage(" Q \n");
+}
+
+sub shadeAdd {
+	my ($this,$obj,$name)=@_;
+	my $key='SHx'.( $name ? $name : genKEY(scalar localtime()));
+	$this->{'PDF'}->new_obj($obj);
+        $this->{'ROOT'}->{'Resources'}->{'Shading'}=$this->{'ROOT'}->{'Resources'}->{'Shading'} || PDFDict();
+        $this->{'ROOT'}->{'Resources'}->{'Shading'}->{$key}=$obj;
+	return($key);
 }
 
 sub rectXY {
