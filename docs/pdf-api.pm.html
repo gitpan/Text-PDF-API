@@ -208,47 +208,12 @@ Gets the default font search directory.
 Adds a directory to the font search path.
 
 </P>
-<DT><STRONG><A NAME="item__pdf_newFont">$pdf-&gt;newFont $name, $ttfile [, $encoding ]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_newFont">$pdf-&gt;newFont $name, $ttfile</A></STRONG><DD>
 <DT><STRONG>$pdf-&gt;newFont $name</STRONG><DD>
 <P>
 Adds a new font to the pdf-object. Based on the fonts name either a core,
 truetype or postscript font is assumed: TrueType have a ',' between the
 family and style names whereas the postscript and core fonts use a '-'.
-
-</P>
-<P>
-Postscript fonts are encoded based on platform:
-
-</P>
-<P>
-<PRE>        Mac     =&gt; MacRoman
-        MSWin32 =&gt; WinAnsi
-        Other   =&gt; ISO-8559-1
-</PRE>
-</P>
-<P>
-The supported encodings of truetype fonts currently include: 
-
-</P>
-<P>
-<PRE>        AdobeStandard, AdobeSymbol, ZapfDingbats, 
-        ISOLatin1, MacRoman, 
-        MicrosoftAnsi (WinAnsi, CP1250), 
-        MicrosoftSymbol (WinSymbol, Symbol)
-</PRE>
-</P>
-<P>
-if the encoding is not specified ISO-8859-1 is used instead.
-
-</P>
-<P>
-The pdf-core-fonts Symbol and ZapfDingbats are left as is.
-
-</P>
-<P>
-If you would like to use the same font with different encodings just call
-newFont with a different <CODE>$encoding</CODE> parameter, fontcaching will
-avoid double embedding.
 
 </P>
 <P>
@@ -264,8 +229,8 @@ This is a shortcut to add all pdf-core-fonts to the pdf-object.
 <DT><STRONG><A NAME="item__pdf_useFont">$pdf-&gt;useFont $name, $size,$encoding</A></STRONG><DD>
 <P>
 This selects the font at the specified size and encoding. The font must
-have been loaded with the same <CODE>$name</CODE> and
-<CODE>$encoding</CODE> parameters with $pdf-&gt;newFont
+have been loaded with the same <CODE>$name</CODE> parameter with
+$pdf-&gt;newFont
 
 </P>
 <DT><STRONG><A NAME="item__pdf_setFontTranslate">$pdf-&gt;setFontTranslate $tx, $ty</A></STRONG><DD>
@@ -575,7 +540,7 @@ fixed calcTextWidth to allow the type1 core fonts to be measured too. added
 showTextXY_R and _C functions for alignment procedures :)
 
 </P>
-<DT><STRONG>Version 0.04</STRONG><DD>
+<DT><STRONG>Version 0.04-0.43</STRONG><DD>
 <P>
 rewrite of type1 core-font handling to ease development support for other
 type1 fonts in future releases of Text::PDF and Text::PDF::API.
@@ -587,6 +552,12 @@ small bugfixes in calcTextWidth and showTextXY_[RC].
 </P>
 <P>
 small documentation update
+
+</P>
+<DT><STRONG>Version 0.05 (Oct. 2000)</STRONG><DD>
+<P>
+major rewrite to use Unicode::Map8 instead of the homegrown functions :) ,
+add another dependency but at least a fast one
 
 </P>
 </DL>

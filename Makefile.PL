@@ -15,7 +15,7 @@ WriteMakefile (
 	PREREQ_PM	=>	{
 					'Compress::Zlib'	=> 1.03,
         				'Font::TTF::Font'	=> 0.16,
-        				'Text::PDF::File'	=> 0.09,
+        				'Text::PDF::File'	=> 0.12,
         				'Digest::MD5'		=> 2.09,
 					'Math::Matrix'		=> 0,
 				},

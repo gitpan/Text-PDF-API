@@ -4,6 +4,12 @@ There seem to be a growing plethora of Perl modules for creating and
 manipulating PDF files. This module is a exception, since it provides
 a nice API around the Text::PDF::* modules created by Martin Hosken.
 
+WARNING
+	
+	Sorry but this release of Text::PDF::API requires at least 
+	Text::PDF 0.12 	because of the incompatible changes in that 
+	version !!!!!
+
 
 FEATURES
 

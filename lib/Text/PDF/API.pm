@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.042";
+$VERSION = "0.05";
 
 use Text::PDF::File;
 use Text::PDF::Page;
@@ -94,7 +94,7 @@ sub new {
 			$this->_error('new',"illegal parameter ($parameter='".$defaults{$parameter}."')");
 		}
 	}
-	$this->{'PDF'}->{'Version'} = $this->getDefault('PdfVersion',3);
+	$this->{'PDF'}->{' version'} = $this->getDefault('PdfVersion',3);
 	return $this;
 }
 
@@ -217,6 +217,7 @@ sub setFontDir {
 	$this->{'FONTDIR'}=$dir;
 	return $lastfd;
 }
+
 sub getFontDir {
 	my ($this,$dir)=@_;
 	return $this->{'FONTDIR'};
@@ -226,6 +227,28 @@ sub addFontPath {
 	my ($this,$dir)=@_;
 	if(!$this->{'FONTPATH'}){ $this->{'FONTPATH'}=[];}
 	push(@{$this->{'FONTPATH'}},$dir);
+}
+
+sub lookUPc2u {
+	my ($this,$enc,$char)=@_;
+	use Unicode::Map8;
+	my $m= Unicode::Map8->new($enc);
+	return($m->to_char16($char));
+}
+
+sub lookUPu2c {
+	my ($this,$enc,$char)=@_;
+	use Unicode::Map8;
+	my $m= Unicode::Map8->new($enc);
+	return($m->to_char8($char));
+}
+
+sub lookUPu2n {
+	my ($this,$ucode)=@_;
+}
+
+sub lookUPn2c {
+	my ($this,$name)=@_;
 }
 
 sub lookUpEncoding {
@@ -252,18 +275,25 @@ sub resolveFontFile {
 	my $this=shift @_;
 	my $file=shift @_;
 	my $fontfile=undef;
+	map {
+		$fontfile="$_/PDF/API/fonts/$file";
+		if(-e $fontfile) { return $fontfile; }
+	} @INC;
 	if( -e $this->{'FONTDIR'}.'/'.$file ) {
 		$fontfile=$this->{'FONTDIR'}.'/'.$file;
+		return $fontfile;
 	} elsif ( -e $file ) {
 		$fontfile=$file;
+		return $fontfile;
 	} else {
 		foreach my $dir (@{$this->{'FONTPATH'}}) {
 			if( -e $dir.'/'.$file ) {
 				$fontfile=$dir.'/'.$file;
+				return $fontfile;
 			}
 		}
 	}
-	return $fontfile;
+	return undef;
 }
 
 sub newFont {
@@ -327,13 +357,13 @@ sub newFont {
 		$font=$this->{'FONTS'}->{$fontkey}->{'pdfobj'};
 	} 
 
-	if($^O eq "MacOS") {
-		($encoding)=$this->addEncoding(shift @_ || 'MacRoman');
-	} elsif ($^O eq "MSWin32") {
-		($encoding)=$this->addEncoding(shift @_ || 'MicrosoftAnsi');
-	} else {
-		($encoding)=$this->addEncoding(shift @_ || 'Latin1');
-	}
+	#if($^O eq "MacOS") {
+	#	($encoding)=$this->addEncoding(shift @_ || 'MacRoman');
+	#} elsif ($^O eq "MSWin32") {
+	#	($encoding)=$this->addEncoding(shift @_ || 'MicrosoftAnsi');
+	#} else {
+	#	($encoding)=$this->addEncoding(shift @_ || 'Latin1');
+	#}
 
 	if(grep(/$name/,@Text::PDF::API::CORETYPEFONTS)) {
 		if(!$font->{'Encoding'}){
@@ -345,12 +375,12 @@ sub newFont {
 				$font->{'Encoding'}->{'BaseEncoding'}=PDFName('WinAnsiEncoding');
 			} else {
 				$font->{'Encoding'}->{'BaseEncoding'}=PDFName('WinAnsiEncoding');
-				$font->{'Encoding'}->{'Differences'}=PDFArray();
-				foreach my $x (1..255) {
-					if($this->{'ENCODINGS'}->{'ISOLatin1'}{'e2n'}{$x}) {
-						$font->{'Encoding'}->{'Differences'}->add_elements(PDFNum($x),PDFName($this->{'ENCODINGS'}->{'ISOLatin1'}{'e2n'}{$x}));
-					}
-				}
+			#	$font->{'Encoding'}->{'Differences'}=PDFArray();
+			#	foreach my $x (1..255) {
+			#		if($this->{'ENCODINGS'}->{'ISOLatin1'}{'e2n'}{$x}) {
+			#			$font->{'Encoding'}->{'Differences'}->add_elements(PDFNum($x),PDFName($this->{'ENCODINGS'}->{'ISOLatin1'}{'e2n'}{$x}));
+			#		}
+			#	}
 			}
 		}
 	} elsif(grep(/$name/,@Text::PDF::API::CORESYMBOLFONTS)) {
@@ -369,18 +399,6 @@ sub newFont {
 				$this->{'FONTS'}->{$fontkey}->{'u2g'}{$map[$x]}=$x;
 				$this->{'FONTS'}->{$fontkey}->{'u2w'}{$map[$x]}=$ttf->{'hmtx'}{'advance'}[$x]/$upem;
 			}
-		}
-		if(!$this->{'FONTS'}->{$fontkey}->{"e2g_$encoding"}) {
-			$this->{'FONTS'}->{$fontkey}->{"e2g_$encoding"}=();
-			$this->{'FONTS'}->{$fontkey}->{"e2w_$encoding"}=();
-		}
-		foreach my $x (0..255) {
-			$glyph = $this->{'FONTS'}->{$fontkey}->{'u2g'}{$this->lookUpEncoding($encoding,$x)}
-				|| $ttf->{'post'}{'STRINGS'}{'space'}
-				|| $ttf->{'cmap'}->ms_lookup(0x0020)
-				|| 1;
-			$this->{'FONTS'}->{$fontkey}->{"e2g_$encoding"}{$x}=$glyph;
-			$this->{'FONTS'}->{$fontkey}->{"e2w_$encoding"}{$x}=$ttf->{'hmtx'}{'advance'}[$glyph]/$upem;
 		}
 	} else {
 		$this->_error('newFont',"unresolved encoding dependency name='$name', type='$fontype', encoding='$encoding' ");
@@ -443,7 +461,7 @@ sub useFont {
 	$this->{'CURRENT'}{'font'}{'PDFN'}=$this->_getFontpdfname($name);
 	$this->{'CURRENT'}{'font'}{'Size'}=$size;
 	$this->{'CURRENT'}{'font'}{'Type'}=$this->{'FONTS'}->{$fontkey}{'type'};
-	($this->{'CURRENT'}{'font'}{'Encoding'})=$this->addEncoding($enc || 'Latin1');
+	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc || 'Latin1';
 
 }
 
@@ -582,7 +600,7 @@ sub calcTextWidth {
 		$wm=$font->width($text)*$size;
 	} elsif($type EQ 'TT0') {
 		foreach my $c (split(//,$text)) {
-			$wm+=$this->{'FONTS'}{$k}{"e2w_$enc"}{unpack('C',$c)}*$size;
+			$wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
 		}
 	}
 	return $wm;
@@ -610,14 +628,13 @@ sub setTextRendering  {
 
 sub showText {
 	my ($this,$text)=@_;
-
 	$this->initFontCurrent;
 	my $k=$this->{'CURRENT'}{'font'}{'Key'};
 	my $font=$this->{'CURRENT'}{'font'}{'PDFN'};
 	my $size=$this->{'CURRENT'}{'font'}{'Size'};
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
 	my @tm=@{$this->{'CURRENT'}{'font'}{'Matrix'}};
-
+	
 	my $cs=$this->{'CURRENT'}{'font'}{'CharSpacing'} || 0;
 	my $ws=$this->{'CURRENT'}{'font'}{'WordSpacing'} || 0;
 	my $tl=$this->{'CURRENT'}{'font'}{'TextLeading'} || 0;
@@ -629,7 +646,7 @@ sub showText {
 		if($this->{'CURRENT'}{'font'}{'Type'} EQ 'CORE') {
 			$this->_addtopage(sprintf('%02x',unpack('C',$c)));
 		} else {
-			$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"e2g_$enc"}{unpack('C',$c)}));
+			$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))}));
 		}
 	}
 	$this->_addtopage("> Tj ET\n");
@@ -1166,7 +1183,7 @@ Gets the default font search directory.
 
 Adds a directory to the font search path.
 
-=item $pdf->newFont $name, $ttfile [, $encoding ]
+=item $pdf->newFont $name, $ttfile
 
 =item $pdf->newFont $name 
 
@@ -1174,27 +1191,6 @@ Adds a new font to the pdf-object. Based on the fonts name
 either a core, truetype or postscript font is assumed:
 TrueType have a ',' between the family and style names whereas
 the postscript and core fonts use a '-'.
-
-Postscript fonts are encoded based on platform:
-
-	Mac	=> MacRoman
-	MSWin32	=> WinAnsi
-	Other	=> ISO-8559-1
-
-The supported encodings of truetype fonts currently include: 
-
-	AdobeStandard, AdobeSymbol, ZapfDingbats, 
-	ISOLatin1, MacRoman, 
-	MicrosoftAnsi (WinAnsi, CP1250), 
-	MicrosoftSymbol (WinSymbol, Symbol)
-
-if the encoding is not specified ISO-8859-1 is used instead.
-
-The pdf-core-fonts Symbol and ZapfDingbats are left as is.
-
-If you would like to use the same font with different encodings
-just call newFont with a different $encoding parameter, fontcaching
-will avoid double embedding.
 
 B<BEWARE:> Postscript fonts other than the core fonts are not supported 
 AND you have only one encoding available for the core fonts.
@@ -1206,8 +1202,8 @@ This is a shortcut to add all pdf-core-fonts to the pdf-object.
 =item $pdf->useFont $name, $size,$encoding
 
 This selects the font at the specified size and encoding.
-The font must have been loaded with the same $name and $encoding
-parameters with $pdf->newFont
+The font must have been loaded with the same $name 
+parameter with $pdf->newFont
 
 =item $pdf->setFontTranslate $tx, $ty
 
@@ -1523,7 +1519,7 @@ added circle and ellipsis drawing functions
 fixed calcTextWidth to allow the type1 core fonts to be measured too.
 added showTextXY_R and _C functions for alignment procedures :)
 
-=item Version 0.04
+=item Version 0.04-0.43
 
 rewrite of type1 core-font handling to ease development support for 
 other type1 fonts in future releases of Text::PDF and Text::PDF::API.
@@ -1531,6 +1527,12 @@ other type1 fonts in future releases of Text::PDF and Text::PDF::API.
 small bugfixes in calcTextWidth and showTextXY_[RC].
 
 small documentation update
+
+
+=item Version 0.05 (Oct. 2000)
+
+major rewrite to use Unicode::Map8 instead of the homegrown functions :)
+, add another dependency but at least a fast one
 
 =back
 

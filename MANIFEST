@@ -3,6 +3,8 @@ readme.txt
 license.txt
 Makefile.PL
 docs/pdf-api.pm.html
+examples/example1.pl
+examples/example2.pl
 lib/Text/PDF/API.pm
 lib/Text/PDF/API/Encoding.pm
 lib/Text/PDF/API/Encoding/AdobeStandard.pm
@@ -14,3 +16,6 @@ lib/Text/PDF/API/Encoding/MacRoman.pm
 lib/Text/PDF/API/Encoding/MicrosoftSymbol.pm
 lib/Text/PDF/API/Encoding/MicrosoftAnsi.pm
 lib/Text/PDF/API/Image.pm
+lib/Text/PDF/API/fonts/.pdfapi
+lib/Text/PDF/API/fonts/mystic-etchings-normal.txt
+lib/Text/PDF/API/fonts/mystic-etchings-normal.ttf
