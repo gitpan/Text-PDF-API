@@ -86,13 +86,13 @@
 
 =head3 Generic Issues
 
-=item Q: How do i do a "hello world" example in ::API ?
+=item Q: "How do i do a 'hello world' example in ::API ?"
 
 B<A:> The quick source to this would be:
 
 	use Text::PDF::API;
 	$pdf=Text::PDF::API->new;
-	$pdf->newFont('Helvetica');
+	$pdf->newFontCore('Helvetica');
 	$pdf->newpage();
 	$pdf->useFont('Helvetica',20);
 	$pdf->showTextXY(20,750,"Hello PDF World !");
@@ -106,7 +106,7 @@ The resultant output can be seen L<here|PDF-API-FAQ.hello.pdf>.
 
         use Text::PDF::API;
         $pdf=Text::PDF::API->new;
-        $pdf->newFont('Helvetica');
+        $pdf->newFontCore('Helvetica');
         $pdf->newpage();
         $pdf->useFont('Helvetica',20);
         $pdf->showTextXY(20,750,"Hello PDF World !");
@@ -118,21 +118,21 @@ The resultant output can be seen L<here|PDF-API-FAQ.hello.pdf>.
 
 =head3 Font Issues
 
-=item Q: How can i use the truetype-font "xx" with ::API ?
+=item Q: "How can i use the truetype-font 'xx' with ::API ?"
 
 B<A:> Simply use newFontTTF instead of newFont
 
 	$pdf->newFontTTF('my_xx_ttf,font',$xx_ttf_file);
 	$pdf->useFont('my_xx_ttf,font',20); 
 
-=item Q: How can i use the postscript-font "yy" with ::API ?
+=item Q: "How can i use the postscript-font 'yy' with ::API ?"
 
 B<A:> Substitute newFontPS for newFont
 
 	$pdf->newFontPS('my_yyfont',$yy_afm_file,$yy_pfb_file);
 	$pdf->useFont('my_yyfont',20); 
 
-=item Q: Why do i need these funny "afm" files when using postscript fonts ?
+=item Q: "Why do i need these funny 'afm' files when using postscript fonts ?"
 
 B<A:> Adobe Type1 Postscript fonts are usually spread over a bunch of files,
 all with the following naming format:
@@ -159,7 +159,7 @@ See the B<readme> on how to work around this !
 
 =head3 Text Issues
 
-=item Q: if i use textParagraph or textNewLine, why are the lines printer over each other ?
+=item Q: "if i use textParagraph or textNewLine, why are the lines printer over each other ?"
 
 B<A:> Because you didn't set text-leading to something reasonable !
 
@@ -171,6 +171,13 @@ For a graphical explanation refer to: I<"5.2.4 Leading" in "PDF Reference second
 =head3 Graphical Issues
 
 =head3 Image Issues
+
+=head3 Printing Issues
+
+=item Q: "Why Ghostscript doesn't convert the pdf files for my printer ?"
+
+B<A:> Upgrade to a recent version of ghostscript, they have improved the 
+pdf interpreter. Ghostscript 6.50 seems to work well !
 
 =head2 Author
 

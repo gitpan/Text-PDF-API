@@ -107,6 +107,7 @@ sub resolveFontFile {
 sub readAFM {
 	my ($self,$file)=@_;
 	$self->{' AFM'}={};
+	if(! -e $file) {die "file='$file' not existant.";}
 	open(AFMF, $file) or die "Can't find the AFM file for $file";
 	local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
 	while ($_=<AFMF>) {
@@ -310,6 +311,7 @@ sub readPSF {
 sub parsePS {
 	my ($self,$file,$noFM)=@_;
 	my ($l,$l1,$l2,$l3,$stream,@lines,$line,$head,$body,$tail);
+	if(! -e $file) {die "file='$file' not existant.";}
 	$l=-s $file;
 	open(INF,$file);
 	binmode(INF);
@@ -383,7 +385,7 @@ sub parsePS {
 }
 
 sub encodeProper {
-	my ($self, $encoding, @glyphs) = @_;
+	my ($self, $encoding, $first,$last, @glyphs) = @_;
 	my (@w);
 
 	if($encoding) {
@@ -413,7 +415,7 @@ sub encodeProper {
 		my $notdefbefore=1;
 		@w=();
 		if(@glyphs){
-			foreach my $w (0..255){
+			foreach my $w ($first..$last) {
 				if($glyphs[$w] eq '.notdef') {
 					$notdefbefore=1;
 					next;
@@ -428,7 +430,11 @@ sub encodeProper {
 			$self->{'Encoding'}->{'Differences'}=PDFArray(@w);
 		}
 	}
-	@w = map { PDFNum($self->{' AFM'}->{'wx'}{$_ || '.notdef'} || 0) } @{$self->{' AFM'}->{'char'}};
+	@w = map { 
+		PDFNum($self->{' AFM'}->{'wx'}{$_ || '.notdef'} || 0) 
+	} map {
+		$self->{' AFM'}->{'char'}[$_]	
+	} ($first..$last);
 	$self->{'Widths'}=PDFArray(@w);
 
 }
@@ -443,11 +449,11 @@ sub newNonEmbed {
 	$self->{'Type'} = PDFName("Font");
 	$self->{'Subtype'} = PDFName("Type1");
 	$self->{'BaseFont'} = PDFName($self->{' AFM'}->{'fontname'});
-	$self->{'FirstChar'} = PDFNum('0');
-	$self->{'LastChar'} = PDFNum('255');
+	$self->{'FirstChar'} = PDFNum(32);
+	$self->{'LastChar'} = PDFNum(255);
 	$self->{'Name'} = PDFName($pdfname);
 
-	$self->encodeProper($encoding, @glyphs);
+	$self->encodeProper($encoding, 32, 255, @glyphs);
 	
 	$self->{'FontDescriptor'}=PDFDict();
 	$self->{'FontDescriptor'}->{'Type'}=PDFName('FontDescriptor');
@@ -487,6 +493,7 @@ sub newCore {
 	my ($file);
 	
 	$file=resolveFontFile("$name.afm");
+	if(! -e $file) {die "file='$file' (was '$name.afm') not existant.";}
 
 	$self=newNonEmbed($class, $parent, $file, $pdfname, $encoding, @glyphs);
 
@@ -538,11 +545,11 @@ sub reencode {
 	$self->{'Type'} = PDFName("Font");
 	$self->{'Subtype'} = PDFName("Type1");
 	$self->{'BaseFont'} = PDFName($class->{' AFM'}->{'fontname'});
-	$self->{'FirstChar'} = PDFNum('0');
-	$self->{'LastChar'} = PDFNum('255');
+	$self->{'FirstChar'} = PDFNum(32);
+	$self->{'LastChar'} = PDFNum(255);
 	$self->{'Name'} = PDFName($pdfname);
 	
-	$self->encodeProper($encoding, @glyphs);
+	$self->encodeProper($encoding,32,255, @glyphs);
 		
 	$self->{'FontDescriptor'}=$class->{'FontDescriptor'};
 	$parent->new_obj($self);

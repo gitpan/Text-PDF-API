@@ -24,7 +24,7 @@ use Text::PDF::API;
 
 	$pdf->setColorFill(0,1,0);			# color green
 	
-	$pdf->textFont('Times-Roman',20,'cp850');	# set font 
+	$pdf->textFont('Times-Roman',20,'latin1');	# set font 
 
 	$pdf->textAdd('this is green ');		# text
 
@@ -34,7 +34,7 @@ use Text::PDF::API;
 
 	$pdf->calcFontMatrix;				# create final matrix
 
-	$pdf->textFont();				# set font to last useFont
+	$pdf->textFont('Times-Roman',20,'latin1');	# set font to last useFont
 
 	$pdf->textPos(200,100);				# set position (includes matrix)
 

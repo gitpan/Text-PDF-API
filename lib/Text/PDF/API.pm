@@ -13,15 +13,6 @@ use Text::PDF::TTFont0;
 use Text::PDF::API::UniMap qw( utf8_to_ucs2 utf16_to_ucs2 );
 
 
-@Text::PDF::API::parameterlist=qw(
-	pagesize
-	pagewidth
-	pageheight
-	pageorientation
-	compression
-	pdfversion
-);
-
 @Text::PDF::API::CORETYPEFONTS=qw(
 	Courier		Courier-Bold	Courier-Oblique		Courier-BoldOblique
 	Times-Roman	Times-Bold	Times-Italic		Times-BoldItalic
@@ -46,27 +37,18 @@ sub genKEY {
 
 sub getDefault {
 	my ($this,$parameter,$default)=@_;
-##	if(grep(/$parameter/i,@Text::PDF::API::parameterlist)) {
-		if(defined($this->{'DEFAULT'}{lc($parameter)})) {
-			return ($this->{'DEFAULT'}{lc($parameter)});
-		} elsif(defined($default)) {
-			return ($default);
-		} else {
-			return undef;
-		}
-##	} else {
-##		$this->_error('getDefault',"illegal parameter ($parameter)");
-##		return undef;
-##	}
+	if(defined($this->{'DEFAULT'}{lc($parameter)})) {
+		return ($this->{'DEFAULT'}{lc($parameter)});
+	} elsif(defined($default)) {
+		return ($default);
+	} else {
+		return undef;
+	}
 }
 
 sub setDefault {
 	my ($this,$parameter,$value)=@_;
-##	if(grep(/$parameter/i,@Text::PDF::API::parameterlist)) {
 		$this->{'DEFAULT'}{lc($parameter)}=$value;
-##	} else {
-##		$this->_error('setDefault',"illegal parameter ($parameter)");
-##	}
 }
 sub _getCurrent {
 	my ($this,$parameter)=@_;
@@ -97,14 +79,11 @@ sub new {
 	$this->{'STACK'}=();
 	$this->{'UNIMAPS'}={};
 	$this->setDefault('Compression',1);
+	$this->setDefault('subset',1);
 	$this->_setCurrent('PageContext',undef);
 	$this->_setCurrent('Root',0);
 	foreach $parameter (keys(%defaults)) {
-		if(grep(/$parameter/i,@Text::PDF::API::parameterlist)) {
-			$this->setDefault($parameter,$defaults{$parameter});
-		} else {
-			$this->_error('new',"illegal parameter ($parameter='".$defaults{$parameter}."')");
-		}
+		$this->setDefault($parameter,$defaults{$parameter});
 	}
 	$this->{'PDF'}->{' version'} = $this->getDefault('PdfVersion',3);
 	return $this;
@@ -469,7 +448,6 @@ sub newFontT1reencode {
 	$fontname=$fontype.'x'.$newkey;
 
 	if($encoding=~/encoding$/i) {
-	} elsif($encoding eq 'latin1') {
 	} elsif($encoding eq 'asis') {
 	} elsif($encoding eq 'custom') {
 	} elsif($encoding && Text::PDF::API::UniMap::isMap($encoding)) {
@@ -526,7 +504,6 @@ sub newFontPS {
 		$fontfile2=$this->resolveFontFile($file2) || die "can not find requested font '$file2'";
 
 		if($encoding=~/encoding$/i) {
-		} elsif($encoding eq 'latin1') {
 		} elsif($encoding eq 'asis') {
 		} elsif($encoding eq 'custom') {
 		} elsif($encoding && Text::PDF::API::UniMap::isMap($encoding)) {
@@ -1747,6 +1724,12 @@ sub placeImage {
 	$this->_addtopage("/$key Do\n");
 	$this->restoreState;
 }
+
+sub AUTOLOAD {
+	print "undefined function $AUTOLOAD() -- continuing! \n"
+	return(undef);
+}
+
 
 1;
 
