@@ -27,7 +27,7 @@
 	</UL>
 
 	<LI><A HREF="#HISTORY">HISTORY</A>
-	<LI><A HREF="#CONTRIBUTORS_BUGHUNTERS_THAN">CONTRIBUTORS / BUGHUNTERS / THANKS</A>
+	<LI><A HREF="#THANKS">THANKS</A>
 	<LI><A HREF="#PLUG_INS">PLUG-INS</A>
 	<LI><A HREF="#BUGS">BUGS</A>
 	<LI><A HREF="#TODO_in_no_particular_order_">TODO ( in no particular order )</A>
@@ -286,6 +286,10 @@ from that encoding specified at $pdf-&gt;newFont???.
 <STRONG>SPECIAL NOTE:</STRONG> As of 0.699_84 you can specify the special encoding 'ucs2' which enables
 you to use 16-bit unicode-strings (network-byte ordered) with
 truetype-fonts only !!!
+
+<P>
+<STRONG>SPECIAL NOTE:</STRONG> As of 0.699.870 you can specify the special encoding 'utf8' which enables
+you to use utf8 unicode-strings, but for experimental usage only !
 
 <DT><STRONG><A NAME="item__pdf_setFontTranslate">$pdf-&gt;setFontTranslate $tx, $ty</A></STRONG><DD>
 <P>
@@ -753,10 +757,20 @@ compensate an arkward behavior of the Text::PDF pdf-parser.
 <P>
 enabled use of ucs2 encoding with ttfs.
 
+<DT><STRONG>Version 0.699.87x</STRONG><DD>
+<P>
+changed versioning to gnu-shtool style
+
+<P>
+implementated experimental support for utf8 strings
+
+<P>
+cleaned up unicode handling (more todo)
+
 </DL>
 <P>
 <HR>
-<H1><A NAME="CONTRIBUTORS_BUGHUNTERS_THAN">CONTRIBUTORS / BUGHUNTERS / THANKS</A></H1>
+<H1><A NAME="THANKS">THANKS</A></H1>
 <P>
 Martin Hosken <A HREF="mailto:[mhosken@sil.org]">[mhosken@sil.org]</A> --
 for writing Text::PDF in the first place

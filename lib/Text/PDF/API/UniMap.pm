@@ -19,7 +19,7 @@ sub utf8_to_ucs4 {
 sub utf8c_to_ucs4c {
 	my $string=shift @_;
 	my ($c,$out,$len);
-	$c=vec($string,8,0);
+	$c=vec($string,0,8);
 	if($c & 0x80) {
 		if(($c & 0xc0)==0xc0) {
 			if(($c & 0xe0)==0xe0){
@@ -34,42 +34,42 @@ sub utf8c_to_ucs4c {
 								# 6-byte utf8
 								$len=6;
 								$c = ($c & 0x01) << 30;
-								$c|= (vec($string,8,1) & 0x3f) << 24;
-								$c|= (vec($string,8,2) & 0x3f) << 18;
-								$c|= (vec($string,8,3) & 0x3f) << 12;
-								$c|= (vec($string,8,4) & 0x3f) << 6;
-								$c|= (vec($string,8,5) & 0x3f);
+								$c|= (vec($string,1,8) & 0x3f) << 24;
+								$c|= (vec($string,2,8) & 0x3f) << 18;
+								$c|= (vec($string,3,8) & 0x3f) << 12;
+								$c|= (vec($string,4,8) & 0x3f) << 6;
+								$c|= (vec($string,5,8) & 0x3f);
 							}
 						} else {
 							# 5-byte utf8
 							$len=5;
 							$c = ($c & 0x03) << 24;
-							$c|= (vec($string,8,1) & 0x3f) << 18;
-							$c|= (vec($string,8,2) & 0x3f) << 12;
-							$c|= (vec($string,8,3) & 0x3f) << 6;
-							$c|= (vec($string,8,4) & 0x3f);
+							$c|= (vec($string,1,8) & 0x3f) << 18;
+							$c|= (vec($string,2,8) & 0x3f) << 12;
+							$c|= (vec($string,3,8) & 0x3f) << 6;
+							$c|= (vec($string,4,8) & 0x3f);
 						}
 					} else {
 						# 4-byte utf8
 						$len=4;
 						$c = ($c & 0x7) << 18;
-						$c|= (vec($string,8,1) & 0x3f) << 12;
-						$c|= (vec($string,8,2) & 0x3f) << 6;
-						$c|= (vec($string,8,3) & 0x3f);
+						$c|= (vec($string,1,8) & 0x3f) << 12;
+						$c|= (vec($string,2,8) & 0x3f) << 6;
+						$c|= (vec($string,3,8) & 0x3f);
 					}
 				} else {
 					# 3-byte utf8
 					$len=3;
 					$c=($c & 0x0f) << 12;
-					$c|=((vec($string,8,1) & 0x3f) << 6);
-					$c|=(vec($string,8,2) & 0x3f);
+					$c|=((vec($string,1,8) & 0x3f) << 6);
+					$c|=(vec($string,2,8) & 0x3f);
 				}
 			} else {
 				# 2-byte utf8
 				$len=2;
 				$c&=0x1f;
 				$c=$c<<6;
-				$c|=(vec($string,8,1) & 0x3f);
+				$c|=(vec($string,1,8) & 0x3f);
 			}		
 		} else {
 			# not valid
