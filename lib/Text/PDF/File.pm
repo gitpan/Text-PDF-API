@@ -339,7 +339,7 @@ sub close_file
     
     $tdict = PDFDict();
     $tdict->{'Info'} = $self->{'Info'} if defined $self->{'Info'};
-    $tdict->{'Root'} = $self->{' newroot'} ne "" ? $self->{' newroot'} : $self->{'Root'};
+    $tdict->{'Root'} = defined($self->{' newroot'}) ? $self->{' newroot'} : $self->{'Root'};
 
 # remove all freed objects from the outlist
     @{$self->{' outlist'}} = grep(!$_->{' isfree'}, @{$self->{' outlist'}}) unless ($self->{' update'});
@@ -543,7 +543,7 @@ sub new_obj
 {
     my ($self, $base) = @_;
     my ($res);
-    my ($tdict, $i, $ni, $ng);
+    my ($tdict, $i, $ni, $ng)=(undef,'','','');
 
     if ($#{$self->{' free'}} >= 0)
     {
@@ -565,7 +565,7 @@ sub new_obj
     $tdict = $self;
     while (defined $tdict)
     {
-        $i = $tdict->{' xref'}{$i}[0];
+        $i = $tdict->{' xref'}{$i}[0] || 0;
         while ($i != 0)
         {
             ($ni, $ng) = @{$tdict->{' xref'}{$i}};
