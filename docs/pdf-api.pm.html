@@ -504,13 +504,22 @@ quot errat demonstrandum
 <DL>
 <DT><STRONG><A NAME="item__">( $key , $width , $height ) = $pdf-&gt;newImage $file</A></STRONG><DD>
 <P>
-Current loading support includes NetPBM images of the RAW_BITS variation
-and non-interlaced/non-filtered PNG. Transperancy/Opacity information is
-currently ignored as well as Alpha-Channel information.
+Current loading support includes NetPBM images of the RAW_BITS variation,
+non-interlaced/non-filtered PNG and non-progressive rgb/cmyk-colorspace
+JPEGs.
+
+<P>
+Transperancy/Opacity information is currently ignored as well as
+Alpha-Channel information.
 
 <P>
 <STRONG>Note:</STRONG> As of version 0.604 the API supports additional image-formats via XS
-drop-in modules namely JPEG, GIF, PPM, BMP (little-endian only). 
+drop-in modules namely GIF, PPM, BMP (little-endian only). 
+
+<P>
+<STRONG>Special Note:</STRONG> Adobe <CODE>Photoshop(R)</CODE> seams to produce errorneous JPEGs with
+cmyk-colorspace. This cannot be compensated, so either use rgb-JPEGs or use
+another program to generate these.
 
 <DT><STRONG>( $key , $width , $height ) = $pdf-&gt;rawImage $name, $width $height $type @imagearray</STRONG><DD>
 <P>
@@ -702,6 +711,13 @@ conforms to the following regular expression: /^[a-z0-9\-]+\.map$/
 testing scripts remain broken and currently depend on the availibility of
 Data::DumpXML since Data::Dumper just core-dumps into my face everytime i
 run them.
+
+<DT><STRONG>Version 0.699_?</STRONG><DD>
+<P>
+Implemetation of a testing-suite, code cleanups , rewitten bitmap-image
+handling for more modular structure , JPEG is now a native image-format
+(the usage of the jpeg-plugin is strongly discouraged) with the same
+limitations as the XS version.
 
 </DL>
 <P>

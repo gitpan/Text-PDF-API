@@ -62,21 +62,22 @@ sub parsePNM {
 	my $buf=shift @_;
 	my ($t,$s,$line);
 	my ($w,$h,$bpc,$cs,$img,@img)=(0,0,'','','');
-	($t)=($buf=~/^(P\d+)\s+/);
 	open(INF,$file);
 	binmode(INF);
+	$buf=<INF>;
+	$buf.=<INF>;
+	($t)=($buf=~/^(P\d+)\s+/);
 	if($t eq 'P4') {
 		($t,$w,$h)=($buf=~/^(P\d+)\s+(\d+)\s+(\d+)\s+/);
 		$bpc=1;
 		$s=0;
-		$line=<INF>;
-		$line=<INF>;
 		for($line=($w*$h/8);$line>0;$line--) {
 			read(INF,$buf,1);
 			push(@img,$buf);
 		}
 		$cs='DeviceGray';
 	} elsif($t eq 'P5') {
+		$buf.=<INF>;
 		($t,$w,$h,$bpc)=($buf=~/^(P\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+/);
 		if($bpc==255){
 			$s=0;
@@ -84,9 +85,6 @@ sub parsePNM {
 			$s=255/$bpc;
 		}
 		$bpc=8;
-		$line=<INF>;
-		$line=<INF>;
-		$line=<INF>;
 		for($line=($w*$h);$line>0;$line--) {
 			read(INF,$buf,1);
 			if($s>0) {
@@ -96,6 +94,7 @@ sub parsePNM {
 		}
 		$cs='DeviceGray';
 	} elsif($t eq 'P6') {
+		$buf.=<INF>;
 		($t,$w,$h,$bpc)=($buf=~/^(P\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+/);
 		if($bpc==255){
 			$s=0;
@@ -103,9 +102,6 @@ sub parsePNM {
 			$s=255/$bpc;
 		}
 		$bpc=8;
-		$line=<INF>;
-		$line=<INF>;
-		$line=<INF>;
 		if($s>0) {
 			for($line=($w*$h);$line>0;$line--) {
 				read(INF,$buf,1);
@@ -172,7 +168,9 @@ sub parsePNG {
 	my $bpcm=($bpc>8) ? 8 : $bpc/8;
 	foreach my $y (1..$h) {
 		$filter=unpack('C',shift(@img));
-		if($filter>0){die "PNG FilterType=$filter unsupported";}
+		if($filter>0){
+			##die "PNG FilterType=$filter unsupported";
+		}
 		foreach my $x (1..POSIX::ceil($w*$bpcm)) {
 			if($cs==0) { # grayscale
 				if($bpc==1) {
@@ -272,6 +270,140 @@ sub parsePNG {
 	}
 	$bpc=8; # all images have been converted to 8bit values !!
 	return ($w,$h,$bpc,$cs,$img);
+}
+
+sub getImageObjectFromRawData {
+	my ($key,$w,$h,$bpc,$cs,$img)=@_;
+	my ($xo);
+	
+	$xo=PDFDict();
+        $xo->{'Type'}=PDFName('XObject');
+        $xo->{'Subtype'}=PDFName('Image');
+        $xo->{'Name'}=PDFName($key);
+        $xo->{'Width'}=PDFNum($w);
+        $xo->{'Height'}=PDFNum($h);
+        $xo->{'Filter'}=PDFArray(PDFName('FlateDecode'));
+        $xo->{'BitsPerComponent'}=PDFNum($bpc);
+        $xo->{'ColorSpace'}=PDFName($cs);
+        $xo->{' stream'}=$img;
+	return($xo,$key,$w,$h);
+}
+
+sub getImageObjectFromPPMFile {
+	my $file=shift @_;
+	my ($w,$h,$bpc,$cs,$img)=parsePNM($file);
+	my ($xo);
+	my $key=$file;
+	$key=~s/[^a-z0-9\-]+//cgi;
+	$key='IMGxPPMx'.uc($key)."-$w-$h-$cs-$bpc";
+	return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
+}
+
+sub getImageObjectFromPNGFile {
+	my $file=shift @_;
+	my ($w,$h,$bpc,$cs,$img)=parsePNG($file);
+	my ($xo);
+	my $key=$file;
+	$key=~s/[^a-z0-9\-]+//cgi;
+	$key='IMGxPNGx'.uc($key)."-$w-$h-$cs-$bpc";
+	return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
+}
+
+sub getImageObjectFromJPEGFile {
+	my $file=shift @_;
+	my ($buf, $p, $h, $w, $c,$xo);
+	use Text::PDF::Utils;
+	my $key=$file;
+	$key=~s/[^a-z0-9\-]+//cgi;
+
+	open(JF,$file);
+	binmode(JF);
+	read(JF,$buf,2);
+
+	while (1) {
+		read(JF,$buf,4);
+		my($ff, $mark, $len) = unpack("CCn", $buf);
+		last if( $ff != 0xFF);
+		last if( $mark == 0xDA || $mark == 0xD9);  # SOS/EOI
+		last if( $len < 2);
+		last if( eof(JF));
+		read(JF,$buf,$len-2);
+		next if ($mark == 0xFE);
+		next if ($mark >= 0xE0 && $mark <= 0xEF);
+		if (($mark >= 0xC0) && ($mark <= 0xCF)) {
+			($p, $h, $w, $c) = unpack("CnnC", substr($buf, 0, 6));
+			last;
+		}
+	}
+	close(JF);
+	
+	$key='IMGxJPGx'.uc($key)."-$w-$h-$c-$p";
+
+	$xo=PDFDict();
+	$xo->{'Type'}=PDFName('XObject');
+        $xo->{'Subtype'}=PDFName('Image');
+        $xo->{'Name'}=PDFName($key);
+        $xo->{'Width'}=PDFNum($w);
+        $xo->{'Height'}=PDFNum($h);
+        $xo->{'Filter'}=PDFArray(PDFName('DCTDecode'));
+        $xo->{' nofilt'}=1;
+        $xo->{'BitsPerComponent'}=PDFNum($p);
+        if($c==3) {
+                $xo->{'ColorSpace'}=PDFName('DeviceRGB');
+        } elsif($c==4) {
+                $xo->{'ColorSpace'}=PDFName('DeviceCMYK');
+        } elsif($c==1) {
+                $xo->{'ColorSpace'}=PDFName('DeviceGray');
+        }
+
+        $xo->{' streamfile'}=$file;
+	return($xo,$key,$w,$h);
+}
+	
+sub getImageObjectFromFile {
+        my $file=shift @_;
+        my $type=shift @_;
+        my ($buf);
+        if(!$type){
+                open(INF,$file);
+                read(INF,$buf,100,0);
+                close(INF);
+                if($buf=~/^GIF8[7,9]a/) {
+                        $type='GIF';
+                } elsif ($buf=~/^\xFF\xD8/) {
+                        $type='JPEG';
+                } elsif ($buf=~/^\x89PNG/) {
+                        $type='PNG';
+                } elsif ($buf=~/^P[456][\s\n]/) {
+                        $type='PPM';
+                }
+        }
+	close(INF);
+	eval(qq| use Text::PDF::API::$type; |);
+	if($@) {
+		if($type eq 'JPEG') {
+			return(getImageObjectFromJPEGFile($file));
+		} elsif($type eq 'PNG') {
+			return(getImageObjectFromPNGFile($file));
+		} elsif($type eq 'PPM') {
+			return(getImageObjectFromPPMFile($file));
+		} elsif($type eq '') {
+		} elsif($type eq '') {
+		} else {
+			print "imageformat '$type' unsupported.\n";
+			return (undef);
+		}
+	} else {
+	
+		my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
+		my ($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
+		my $bpc=8;
+		$cs=$css[$cs]; 
+		my $key=$file;
+		$key=~s/[^a-z0-9\-]+//cgi;
+		$key='IMGxPlugin-'.$type.'x'.uc($key)."-$w-$h-$cs-$bpc";
+		return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
+	}
 }
 
 1;

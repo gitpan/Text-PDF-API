@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.699_4";
+$VERSION = "0.699_5";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -1574,7 +1574,7 @@ sub rawImage {
 	return ($key,$w,$h);
 }
 
-sub newImage {
+sub newImageOld {
 	my ($this,$file,$type)=@_;
 	my $xo;
 	my $key;
@@ -1582,6 +1582,21 @@ sub newImage {
 	use Text::PDF::API::Image;
 	my ($w,$h,$bpc,$cs,$img)=Text::PDF::API::Image::parseImage($file,$type);
 	($key,$w,$h)=$this->rawImage($file,$w,$h,$cs,$img);
+	return ($key,$w,$h);
+}
+
+sub newImage {
+	my ($this,$file)=@_;
+	my $key;
+
+	use Text::PDF::API::Image;
+	my ($xo,$key,$w,$h)=Text::PDF::API::Image::getImageObjectFromFile($file);
+	$this->{'PDF'}->new_obj($xo);
+	$this->{'IMAGES'}{$key}=$xo;
+	if(!defined($this->{'ROOT'}->{'Resources'}->{'XObject'})) {
+		$this->{'ROOT'}->{'Resources'}->{'XObject'}=PDFDict();
+	}
+	$this->{'ROOT'}->{'Resources'}->{'XObject'}->{$key}=$xo;
 	return ($key,$w,$h);
 }
 
@@ -2079,13 +2094,19 @@ quot errat demonstrandum
 =item ( $key , $width , $height ) = $pdf->newImage $file
 
 Current loading support includes NetPBM images of the
-RAW_BITS variation and non-interlaced/non-filtered PNG.
+RAW_BITS variation, non-interlaced/non-filtered PNG and
+non-progressive rgb/cmyk-colorspace JPEGs.
+
 Transperancy/Opacity information is currently ignored
 as well as Alpha-Channel information.
 
 B<Note:> As of version 0.604 the API supports additional
-image-formats via XS drop-in modules namely JPEG, GIF, PPM,
+image-formats via XS drop-in modules namely GIF, PPM,
 BMP (little-endian only). 
+
+B<Special Note:> Adobe Photoshop(R) seams to produce errorneous
+JPEGs with cmyk-colorspace. This cannot be compensated, so either
+use rgb-JPEGs or use another program to generate these.
 
 =item ( $key , $width , $height ) = $pdf->rawImage $name, $width $height $type @imagearray
 
@@ -2269,6 +2290,12 @@ regular expression: /^[a-z0-9\-]+\.map$/
 
 testing scripts remain broken and currently depend on the availibility of Data::DumpXML
 since Data::Dumper just core-dumps into my face everytime i run them.
+
+=item Version 0.699_?
+
+Implemetation of a testing-suite, code cleanups , rewitten bitmap-image handling
+for more modular structure , JPEG is now a native image-format (the usage of 
+the jpeg-plugin is strongly discouraged) with the same limitations as the XS version.
 
 =back
 
