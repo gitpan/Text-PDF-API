@@ -41,6 +41,7 @@ sub xlog10 {
 	} else { return 0; }
 }
 
+
 sub genFloat {
 	use POSIX qw( ceil floor );
 	my $f=shift @_;
@@ -55,6 +56,16 @@ sub genFloat {
 }
 
 sub genFloats { return map { genFloat($_); } @_; }
+
+
+sub genInt {
+	my $f=shift @_;
+	return sprintf('%i',$f);
+}
+
+sub genInts { return map { genInt($_); } @_; }
+
+
 
 sub getDefault {
 	my ($this,$parameter,$default)=@_;
@@ -101,6 +112,7 @@ sub new {
 	$this->{'UNIMAPS'}={};
 	$this->setDefault('Compression',1);
 	$this->setDefault('subset',1);
+	$this->setDefault('UseCompactText',1);
 	$this->_setCurrent('PageContext',undef);
 	$this->_setCurrent('Root',0);
 	foreach $parameter (keys(%defaults)) {
@@ -917,41 +929,44 @@ sub beginText {
 	my ($this)=@_;
 	$this->_addtopage(" BT \n");
 }
+
+sub setTextAttr {
+	my $self=shift @_;
+	my %opts=@_;
+	foreach (keys %opts) {
+		/(\-charspacing)$/i   and { $self->_addtopage(' '.genFloat($opts{$1})." Tc\n") };
+		/(\-wordspacing)$/i   and { $self->_addtopage(' '.genFloat($opts{$1})." Tw\n") };
+		/(\-textleading)$/i   and { $self->_addtopage(' '.genFloat($opts{$1})." TL\n") };
+		/(\-textrise)$/i      and { $self->_addtopage(' '.genFloat($opts{$1})." Ts\n") };
+		/(\-textrendering)$/i and { $self->_addtopage(' '.genFloat($opts{$1})." Tr\n") };
+	}
+}
+
 sub charSpacing  {
 	my $this = shift @_;
 	my $cs=(shift @_)||$this->{'CURRENT'}{'font'}{'CharSpacing'}||0;
-	if($this->getDefault('UseCompactNumeric',0)) {
-		$cs=genFloat($cs);
-	} else {
-		$cs=sprintf('%.9f',$cs);
-	}
-	$this->_addtopage(" $cs Tc \n");
+	$this->_addtopage(' '.genFloat($cs)." Tc \n");
 }
 sub wordSpacing  {
 	my $this = shift @_;
 	my $ws=(shift @_) || $this->{'CURRENT'}{'font'}{'WordSpacing'} || 0;
-	if($this->getDefault('UseCompactNumeric',0)) {
-		$ws=genFloat($ws);
-	} else {
-		$ws=sprintf('%.9f',$ws);
-	}
-	$this->_addtopage(" $ws Tw \n");
+	$this->_addtopage(' '.genFloat($ws)." Tw \n");
 }
 sub textLeading  {
 	my $this = shift @_;
 	my $tl=(shift @_) || $this->{'CURRENT'}{'font'}{'TextLeading'} || 0;
-	$this->_addtopage(sprintf(" %.9f TL \n",$tl));
+	$this->_addtopage(' '.genFloat($tl)." TL \n");
 	return $tl;
 }
 sub textRise  {
 	my $this = shift @_;
 	my $tr=(shift @_) || $this->{'CURRENT'}{'font'}{'TextRise'} || 0;
-	$this->_addtopage(sprintf(" %.9f Ts \n",$tr));
+	$this->_addtopage(' '.genFloat($tr)." Ts \n",$tr);
 }
 sub textRendering {
 	my $this = shift @_;
 	my $tr=(shift @_) || $this->{'CURRENT'}{'font'}{'TextRendering'} || 0;
-	$this->_addtopage(sprintf(" %i Tr \n",$tr));
+	$this->_addtopage(' '.genInt($tr)." Tr \n");
 }
 sub textHScale {
 	my $this = shift @_;
@@ -1649,7 +1664,7 @@ sub arcXYabDG {
                 my ($p0_x,$p0_y) =
                         $self->arcXYabDG($x,$y,$a,$b,$alpha,($beta+$alpha)/2,$move,$test);
                 my ($p2_x,$p2_y,$p3_x,$p3_y) =
-                        $self->arcXYabDG($x,$y,$a,$b,($beta+$alpha)/2,$beta,$move,$test);
+                        $self->arcXYabDG($x,$y,$a,$b,($beta+$alpha)/2,$beta,0,$test);
                 return($p0_x,$p0_y,$p3_x,$p3_y);
         } else {
                 $alpha = ($alpha * 3.1415 / 180);
@@ -1844,18 +1859,24 @@ sub release {
 		if (($ref eq '') || ($ref eq 'SCALAR') || ($ref eq 'ARRAY')) {
 			delete $self->{$key};
 		} elsif ($ref eq 'HASH') {
-			release($self->{$key});
+			eval {
+				release($self->{$key});
+			};
 		} elsif ($ref =~ /^Text::PDF::API/o) {
 		} elsif ($ref =~ /^Text::PDF::/o) {
 			# Sub-element, explicitly destruct.
-			my $val = $self->{$key};
-			delete $self->{$key};
-			$val->release();
+			eval {
+				my $val = $self->{$key};
+				delete $self->{$key};
+				$val->release();
+			};
 		} elsif ($ref =~ /^Font::TTF::/o) {
 			# TTF font structure, explicitly destruct
-			my $val = $self->{$key};
-			delete $self->{$key};
-			$val->DESTROY();
+			eval {
+				my $val = $self->{$key};
+				delete $self->{$key};
+				$val->DESTROY();
+			};
 		} else {
 			# destruct silently.
 			delete $self->{$key};

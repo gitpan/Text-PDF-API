@@ -39,7 +39,7 @@ sub mMin {
 }
 
 sub mMax {
-	my $n=-HUGE_VAL;
+	my $n=-(HUGE_VAL);
 	map { $n=($n<$_) ? $_ : $n } @_;
 	return($n);	
 }

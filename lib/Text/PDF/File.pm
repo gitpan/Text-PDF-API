@@ -301,7 +301,9 @@ sub release
             # Sub-element, explicitly destruct.
             my $val = $self->{$key};
             delete $self->{$key};
-            $val->release();
+	    eval {
+        	$val->release();
+	    };
         }
         elsif ($ref eq 'IO::File')
         {

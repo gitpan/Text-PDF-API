@@ -4,14 +4,14 @@
 ##
 
  $version = {
-    'v_hex'   => 0x02BD201,
-    'v_short' => "0.701.1",
-    'v_long'  => "0.701.1 (07-Jul-2001)",
-    'v_tex'   => "This is Text::PDF::API, Version 0.701.1 (07-Jul-2001)",
-    'v_gnu'   => "Text::PDF::API 0.701.1 (07-Jul-2001)",
-    'v_web'   => "Text::PDF::API/0.701.1",
-    'v_sccs'  => "@(#)Text::PDF::API 0.701.1 (07-Jul-2001)",
-    'v_rcs'   => "\$Id: Text::PDF::API 0.701.1 (07-Jul-2001) $/"
+    'v_hex'   => 0x02BD204,
+    'v_short' => "0.701.4",
+    'v_long'  => "0.701.4 (17-Aug-2001)",
+    'v_tex'   => "This is Text::PDF::API, Version 0.701.4 (17-Aug-2001)",
+    'v_gnu'   => "Text::PDF::API 0.701.4 (17-Aug-2001)",
+    'v_web'   => "Text::PDF::API/0.701.4",
+    'v_sccs'  => "@(#)Text::PDF::API 0.701.4 (17-Aug-2001)",
+    'v_rcs'   => "\$Id: Text::PDF::API 0.701.4 (17-Aug-2001) $/"
 };
 
 1;
