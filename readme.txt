@@ -12,11 +12,13 @@ WARNING
 	version !!!!!
 
 
-CHANGES FROM VERSIONS 0.5 TO 0.699
+CHANGES IN VERSIONS 0.699.x (Development Branch)
 
-	.  Text::PDF::API now supports Type1 fonts
-	.  Font encoding support has been rewritten 
+	.  added experimental support of utf8-strings
+	.  adobe-like handling of glyph-encoding of type1-fonts
+	.  jpeg is now a native supported bitmap-format 
 	.  a tutorial and/or examples still have to written :(
+	.  bugfixing
 
 
 FEATURES
@@ -26,8 +28,8 @@ FEATURES
 	.  Supports the 14 base PDF Core Fonts 
 	.  Supports TrueType fonts 
 	.  Supports Adobe-Type1 Fonts (pfb/pfa/afm) 
-	.  Supports native Embedding of bitmap images (ppm,png)
-	.  Supports Embedding of bitmap images via plugins (jpg,gif,bmp,ppm)
+	.  Supports native Embedding of bitmap images (jpeg,ppm,png)
+	.  Supports Embedding of bitmap images via plugins (gif,bmp,ppm)
 
 
 UN-FEATURES (which will one day be fixed)
@@ -49,16 +51,13 @@ This module set requires you to have installed the following other perl modules:
 
 If you want to embed images via plugins you might want to look for the following modules:
 
-	Text::PDF::API::JPEG Text::PDF::API::GIF
-	Text::PDF::API::PPM Text::PDF::API::BMP
+	Text::PDF::API::GIF Text::PDF::API::PPM Text::PDF::API::BMP
 
 
 NOTES
 
 Embedding of images via plugins is new and may be buggy !
 BMP embedding currently works only on little-endian architectures :((
-
-Embedding/Usage for Adobe-Type1 and Core fonts is of beta-quality and may be buggy.
 
 For Type1 font support to work correctly you have to have a postscript font file,
 either binary (pfb) or ascii (pfa) format and an adobe font metrics file (afm).
@@ -102,12 +101,8 @@ Unsubscribe:	perl-text-pdf-modules-unsubscribe@yahoogroups.com
 List owner:	perl-text-pdf-modules-owner@yahoogroups.com
 URL to page:	http://groups.yahoo.com/group/perl-text-pdf-modules
 
-or you can contact the author: alfredreibenschuh@yahoo.com
-
 
 COPYRIGHTS & LICENSING
 
 This module is copyrighted by Alfred Reibenschuh and can be used under
 perl's "Artistic License" which has been included in this archive.
-
-

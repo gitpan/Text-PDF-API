@@ -211,19 +211,19 @@ sub parsePNG {
 					$buf=shift(@img);
 					$buf=unpack('C',$buf);
 					foreach my $bit (7,6,5,4,3,2,1,0) {
-						$img.=pack('C',$pal[(($buf >> $bit) & 1)]);
+						$img.=$pal[(($buf >> $bit) & 1)];
 					}
 				} elsif($bpc==2) {
 					$buf=shift(@img);
 					$buf=unpack('C',$buf);
 					foreach my $bit (6,4,2,0) {
-						$img.=pack('C',$pal[(($buf >> $bit) & 3)]);
+						$img.=$pal[(($buf >> $bit) & 3)];
 					}
 				} elsif($bpc==4) {
 					$buf=shift(@img);
 					$buf=unpack('C',$buf);
 					foreach my $bit (4,0) {
-						$img.=pack('C',$pal[(($buf >> $bit) & 15)]);
+						$img.=$pal[(($buf >> $bit) & 15)];
 					}
 				} elsif($bpc==8) {
 					$img.=$pal[unpack('C',shift(@img))];
@@ -377,30 +377,27 @@ sub getImageObjectFromFile {
                 }
         }
 	close(INF);
-	eval(qq| use Text::PDF::API::$type; |);
-	if($@) {
-		if($type eq 'JPEG') {
-			return(getImageObjectFromJPEGFile($file));
-		} elsif($type eq 'PNG') {
-			return(getImageObjectFromPNGFile($file));
-		} elsif($type eq 'PPM') {
-			return(getImageObjectFromPPMFile($file));
-		} elsif($type eq '') {
-		} elsif($type eq '') {
-		} else {
-			print "imageformat '$type' unsupported.\n";
-			return (undef);
-		}
+	if($type eq 'JPEG') {
+		return(getImageObjectFromJPEGFile($file));
+	} elsif($type eq 'PNG') {
+		return(getImageObjectFromPNGFile($file));
+	} elsif($type eq 'PPM') {
+		return(getImageObjectFromPPMFile($file));
 	} else {
-	
-		my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
-		my ($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
-		my $bpc=8;
-		$cs=$css[$cs]; 
-		my $key=uc($file);
-		$key=~s/[^a-z0-9]+//cgi;
-		$key='IMGxPluginx'.$type.'x'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
-		return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
+		eval(qq| use Text::PDF::API::$type; |);
+		if($@) {
+			print STDERR "imageformat '$type' unsupported.\n";
+			return (undef);
+		} else {
+			my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
+			my ($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
+			my $bpc=8;
+			$cs=$css[$cs]; 
+			my $key=uc($file);
+			$key=~s/[^a-z0-9]+//cgi;
+			$key='IMGxPluginx'.$type.'x'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
+			return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
+		}
 	}
 }
 

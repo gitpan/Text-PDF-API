@@ -816,7 +816,14 @@ sub calcTextWidthFSETX {
         	        while(defined($c=shift(@chars))) {
 				$c.=shift(@chars);
 				$c=unpack('n',$c);
-        	                $wm+=$font->{' AFM'}{'wx'}{$this->lookUPu2n($c)}*$size/1000;
+				my $gn=$this->lookUPu2n($c);
+				if(defined($font->{' AFM'}{'wx'}{$gn})) {
+					$wm+=$font->{' AFM'}{'wx'}{$gn}*$size/1000;
+				} elsif(defined($font->{' AFM'}{'wx'}{'glyph'.$c})) {
+					$wm+=$font->{' AFM'}{'wx'}{'glyph'.$c}*$size/1000;
+				} elsif (defined($font->{' AFM'}{'wx'}{'uni'.sprintf('%04X',$c)})) {
+					$wm+=$font->{' AFM'}{'wx'}{'uni'.sprintf('%04X',$c)}*$size/1000;
+				} else {}
         	        }
        		} elsif($type eq 'TT') {
         	        while(defined($c=shift(@chars))) {

@@ -153,7 +153,7 @@ sub new {
 			my ($ch,$um)=unpack('nn',$buf);
 			$this->{'u2c'}->{$um}=$ch;
 			$this->{'c2u'}->{$ch}=$um;
-			$this->{'c2n'}->{$ch}=$u2n{$um} || '.notdef';
+			$this->{'c2n'}->{$ch}=$u2n{$um} || sprintf('uni%04X',$um);
 		}
 		close(INF);
 		if(wantarray) {
