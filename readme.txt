@@ -12,35 +12,27 @@ WARNING
 	version !!!!!
 
 
-CHANGES FROM VERSIONS 0.04xxx TO 0.5xxx
+CHANGES FROM VERSIONS 0.5 TO 0.699
 
 	.  Text::PDF::API now supports Type1 fonts
-	.  Font support has been rewritten to support
-		one common method of encoding handling
-		across all font-formats
-	.  bugs and incompatiblities under various platfoms 
-		have been fixed or workarounds implemented  
+	.  Font encoding support has been rewritten 
 	.  a tutorial and/or examples still have to written :(
 
 
 FEATURES
 
 	.  Works with more than one PDF file open at once
-	.  It presents a nice API to the user
+	.  It presents a semi-object-oriented API to the user
 	.  Supports the 14 base PDF Core Fonts 
-	.  Supports TrueType fonts via Type0 glyphs (Unicode)
-	.  Supports Adobe-Type1 Fonts (eexec-ascii, -binary) 
-	.  Supports all Unicode::Map8 encodings
-		for Core, Truetype and Type1 fonts
-	.  Supports Fontcaching
-	.  Supports Embedding of bitmap images
+	.  Supports TrueType fonts 
+	.  Supports Adobe-Type1 Fonts (pfb/pfa/afm) 
+	.  Supports native Embedding of bitmap images (ppm,png)
+	.  Supports Embedding of bitmap images via plugins (jpg,gif,bmp,ppm)
 
 
 UN-FEATURES (which will one day be fixed)
 
-	.  Documentation is curretly rather sparse 
-	.  Adobe-Type1 Font Support requires AFM format files
-	.  Bitmap images limited to NetPBM/binary and certain PNG formats
+	.  Documentation is currently rather sparse
 	.  This is beta code in development which works 
 	   for my apps. but may not for yours :)
 
@@ -51,23 +43,22 @@ This module set requires you to have installed the following other perl modules:
 
 	Module		Required for
 	------------------------------------------------------
-	Text::PDF::AFont - Adobe-Postscript Font Support
-		(which is currently included in the Text::PDF::API module set)
 	Text::PDF	 - PDF object primitives
 	Font::TTF	 - Truetype Font Information
 	Compress::Zlib	 - Compression of PDF object streams
-	Unicode::Map8	 - Mapping of character code-sets
+
+If you want to embed images via plugins you might want to look for the following modules:
+
+	Text::PDF::API::JPEG Text::PDF::API::GIF
+	Text::PDF::API::PPM Text::PDF::API::BMP
 
 
 NOTES
 
-Embedding/Usage for Adobe-Type1 fonts is new and may be buggy.
- 
-PDF Core Font Support has been rewritten (API v0.5_pre2) and may also be buggy.
+Embedding of images via plugins is new and may be buggy !
+BMP embedding currently works only on little-endian architectures :((
 
-If you find bugs in the Text::PDF::AFont module please contact the 
-mailing-list or the author of the API, since it is NOT a module 
-written by 'Martin Hosken'.
+Embedding/Usage for Adobe-Type1 and Core fonts is of beta-quality and may be buggy.
 
 For Type1 font support to work correctly you have to have a postscript font file,
 either binary (pfb) or ascii (pfa) format and an adobe font metrics file (afm).

@@ -107,9 +107,9 @@ sub resolveFontFile {
 sub readAFM {
 	my ($self,$file)=@_;
 	$self->{' AFM'}={};
-	open(AFM, $file) or die "Can't find the AFM file for $file";
+	open(AFMF, $file) or die "Can't find the AFM file for $file";
 	local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
-	while (<AFM>) {
+	while (<AFMF>) {
 		next if /^StartKernData/ .. /^EndKernData/;  # kern data not parsed yet
 		next if /^StartComposites/ .. /^EndComposites/; # same for composites
 		if (/^StartCharMetrics/ .. /^EndCharMetrics/) {
@@ -121,9 +121,11 @@ sub readAFM {
 			my($bbox)    = /\bB\s+([^;]+);/;
 			$bbox =~ s/\s+$//;
 			# Should also parse lingature data (format: L successor lignature)
-			$self->{' AFM'}->{'wx'}{$name} = $wx;
-			$self->{' AFM'}->{'bbox'}{$name} = $bbox;
-			$self->{' AFM'}->{'char'}[$ch]=$name if($ch>0); 
+			$self->{' AFM'}->{'wx'}{$name} = $wx ;
+			$self->{' AFM'}->{'bbox'}{$name} = $bbox ;
+			if($ch>0) {
+				$self->{' AFM'}->{'char'}[$ch]=$name ;
+			} 
 			next;
 		}
 		last if /^EndFontMetrics/;
@@ -140,7 +142,7 @@ sub readAFM {
            		print STDERR "Can't parse: $_";
 		}
 	}
-	close(AFM);
+	close(AFMF);
 	unless (exists $self->{' AFM'}->{wx}->{'.notdef'}) {
 		$self->{' AFM'}->{wx}->{'.notdef'} = 0;
 		$self->{' AFM'}->{bbox}{'.notdef'} = "0 0 0 0";
@@ -337,7 +339,7 @@ sub parsePS {
 		@lines=<INF>;
 		close(INF);
 		$stream=join('',@lines);
-	} elsif($line EQ '%!') {
+	} elsif($line eq '%!') {
 		seek(INF,0,0);
 		while($line=<INF>) {
 			if(!$l1) {
@@ -386,21 +388,21 @@ sub encodeProper {
 	if($encoding) {
 		$self->{'Encoding'}=PDFDict();
 		$self->{'Encoding'}->{'Type'}=PDFName('Encoding');
-		if( $encoding EQ 'MacRomanEncoding' ) {
+		if( $encoding eq 'MacRomanEncoding' ) {
 			@{$self->{' AFM'}->{'char'}}=@mac_enc;
-		} elsif( $encoding EQ 'WinAnsiEncoding' ) {
+		} elsif( $encoding eq 'WinAnsiEncoding' ) {
 			@{$self->{' AFM'}->{'char'}}=@win_enc;
 		} elsif( $encoding=~/StandardEncoding$/ ) {
 			$encoding='WinAnsiEncoding';
 			@{$self->{' AFM'}->{'char'}}=@std_enc;
-		} elsif( lc($encoding) EQ 'latin1' ) {
+		} elsif( lc($encoding) eq 'latin1' ) {
 			$encoding='WinAnsiEncoding';
 			@{$self->{' AFM'}->{'char'}}=@latin1_enc;
 			@glyphs = @latin1_enc;
-		} elsif( lc($encoding) EQ 'custom' ) {
+		} elsif( lc($encoding) eq 'custom' ) {
 			$encoding='WinAnsiEncoding';
 			@{$self->{' AFM'}->{'char'}}=@glyphs;
-		} elsif( lc($encoding) EQ 'asis' ) {
+		} elsif( lc($encoding) eq 'asis' ) {
 			undef($encoding);
 		} else {
 			$encoding='WinAnsiEncoding';
@@ -411,7 +413,7 @@ sub encodeProper {
 		@w=();
 		if(@glyphs){
 			foreach my $w (0..255){
-				if($glyphs[$w] EQ '.notdef') {
+				if($glyphs[$w] eq '.notdef') {
 					$notdefbefore=1;
 					next;
 				} else {
@@ -425,7 +427,7 @@ sub encodeProper {
 			$self->{'Encoding'}->{'Differences'}=PDFArray(@w);
 		}
 	}
-	@w = map { PDFNum($self->{' AFM'}->{'wx'}{$_} || 0) } @{$self->{' AFM'}->{'char'}};
+	@w = map { PDFNum($self->{' AFM'}->{'wx'}{$_ || '.notdef'} || 0) } @{$self->{' AFM'}->{'char'}};
 	$self->{'Widths'}=PDFArray(@w);
 
 }
@@ -460,7 +462,7 @@ sub newNonEmbed {
 	$self->{'FontDescriptor'}->{'XHeight'}=PDFNum($self->{' AFM'}->{'xheight'}||$w[3]->val||0);
 	
 	my $flags=0;
-	$flags|=1 if(lc($self->{' AFM'}->{'isfixedpitch'}) NE 'false');
+	$flags|=1 if(lc($self->{' AFM'}->{'isfixedpitch'}) ne 'false');
 	if($self->{' AFM'}->{'encoding'}=~/standardencoding/cgi){
 		$flags|=1<<5 ;
 	} else {

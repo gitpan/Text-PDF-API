@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.606";
+$VERSION = "0.699";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -10,6 +10,7 @@ use Text::PDF::SFont;
 use Text::PDF::TTFont;
 use Text::PDF::TTFont0;
 use Text::PDF::TTFont0;
+use Text::PDF::API::UniMap;
 @Text::PDF::API::parameterlist=qw(
 	pagesize
 	pagewidth
@@ -92,6 +93,7 @@ sub new {
 	$this->{'CURRENT'}=();
 	$this->{'IMAGES'}=();
 	$this->{'STACK'}=();
+	$this->{'UNIMAPS'}={};
 	$this->setDefault('Compression',1);
 	$this->_setCurrent('PageContext',undef);
 	$this->_setCurrent('Root',0);
@@ -257,27 +259,27 @@ sub addFontPath {
 
 sub lookUPc2u {
 	my ($this,$enc,$char)=@_;
-	use Unicode::Map8;
-	my $m= Unicode::Map8->new($enc);
-	return($m->to_char16($char));
+	$enc=lc($enc);
+	$enc=~s/[^a-z0-9\-]+//cgi;
+	if(!$this->{'UNIMAPS'}->{$enc}){
+		$this->{'UNIMAPS'}->{$enc}=Text::PDF::API::UniMap->new($enc);
+	}
+	return($this->{'UNIMAPS'}->{$enc}->c2u($char));
 }
 
 sub lookUPu2c {
 	my ($this,$enc,$char)=@_;
-	use Unicode::Map8;
-	my $m= Unicode::Map8->new($enc);
-	return($m->to_char8($char));
+	$enc=lc($enc);
+	$enc=~s/[^a-z0-9\-]+//cgi;
+	if(!$this->{'UNIMAPS'}->{$enc}){
+		$this->{'UNIMAPS'}->{$enc}=Text::PDF::API::UniMap->new($enc);
+	}
+	return($this->{'UNIMAPS'}->{$enc}->u2c($char));
+	
 }
 
 sub lookUPu2n {
 	my ($this,$ucode)=@_;
-	## my (@r);
-	## @r=(@u2n{$ucode},'.notdef');
-	## if(wantarray) {
-	##	return @r;
-	## } else {
-	##	return $r[0] || '.notdef';
-	## }
 	if(wantarray) {
 		return ($u2n{$ucode}||'.notdef');
 	} else {
@@ -291,7 +293,12 @@ sub lookUPn2c {
 
 sub lookUPc2n {
 	my ($this,$enc,$char)=@_;
-	return(scalar $this->lookUPu2n($this->lookUPc2u($enc,$char)));
+	$enc=lc($enc);
+	$enc=~s/[^a-z0-9\-]+//cgi;
+	if(!$this->{'UNIMAPS'}->{$enc}){
+		$this->{'UNIMAPS'}->{$enc}=Text::PDF::API::UniMap->new($enc);
+	}
+	return($this->{'UNIMAPS'}->{$enc}->c2n($char));
 }
 
 sub resolveFontFile {
@@ -364,12 +371,16 @@ sub newFontCore {
 		$fontype='AC';
 		$fontname=$fontype.'x'.$fontkey;
 		if($encoding=~/encoding$/i) {
-		} elsif($encoding EQ 'latin1') {
-		} elsif($encoding EQ 'asis') {
-		} elsif($encoding EQ 'custom') {
-		} elsif($ug=Unicode::Map8->new($encoding)) {
-			undef($ug);
-			@glyphs= map {$this->lookUPc2n($encoding,$_);} (0..255);	
+		} elsif($encoding eq 'latin1') {
+		} elsif($encoding eq 'asis') {
+		} elsif($encoding eq 'custom') {
+		} elsif($encoding && Text::PDF::API::UniMap::isMap($encoding)) {
+			$encoding=lc($encoding);
+			$encoding=~s/[^a-z0-9\-]+//cgi;
+			if(!$this->{'UNIMAPS'}->{$encoding}) {
+				$this->{'UNIMAPS'}->{$encoding}=Text::PDF::API::UniMap->new($encoding);
+			}
+			@glyphs=$this->{'UNIMAPS'}->{$encoding}->glyphs();
 			$encoding='WinAnsiEncoding';
 		}
 
@@ -405,6 +416,13 @@ sub newFontTTF {
 
 	if(!$this->{'FONTS'}) {
 		$this->{'FONTS'}={};
+	}
+	if(Text::PDF::API::UniMap::isMap($encoding)) {
+		$encoding=lc($encoding);
+		$encoding=~s/[^a-z0-9\-]+//cgi;
+		if(!$this->{'UNIMAPS'}->{$encoding}) {
+			$this->{'UNIMAPS'}->{$encoding}=Text::PDF::API::UniMap->new($encoding);
+		}
 	}
 
 	if(!$this->{'FONTS'}->{$fontkey}) {
@@ -462,12 +480,16 @@ sub newFontT1reencode {
 	$fontname=$fontype.'x'.$newkey;
 
 	if($encoding=~/encoding$/i) {
-	} elsif($encoding EQ 'latin1') {
-	} elsif($encoding EQ 'asis') {
-	} elsif($encoding EQ 'custom') {
-	} elsif($ug=Unicode::Map8->new($encoding)) {
-		undef($ug);
-		@glyphs= map {$this->lookUPc2n($encoding,$_);} (0..255);	
+	} elsif($encoding eq 'latin1') {
+	} elsif($encoding eq 'asis') {
+	} elsif($encoding eq 'custom') {
+	} elsif($encoding && Text::PDF::API::UniMap::isMap($encoding)) {
+		$encoding=lc($encoding);
+		$encoding=~s/[^a-z0-9\-]+//cgi;
+		if(!$this->{'UNIMAPS'}->{$encoding}) {
+			$this->{'UNIMAPS'}->{$encoding}=Text::PDF::API::UniMap->new($encoding);
+		}
+		@glyphs=$this->{'UNIMAPS'}->{$encoding}->glyphs();
 		$encoding='WinAnsiEncoding';
 	}
 
@@ -515,12 +537,16 @@ sub newFontPS {
 		$fontfile2=$this->resolveFontFile($file2) || die "can not find requested font '$file2'";
 
 		if($encoding=~/encoding$/i) {
-		} elsif($encoding EQ 'latin1') {
-		} elsif($encoding EQ 'asis') {
-		} elsif($encoding EQ 'custom') {
-		} elsif($ug=Unicode::Map8->new($encoding)) {
-			undef($ug);
-			@glyphs= map {$this->lookUPc2n($encoding,$_);} (0..255);	
+		} elsif($encoding eq 'latin1') {
+		} elsif($encoding eq 'asis') {
+		} elsif($encoding eq 'custom') {
+		} elsif($encoding && Text::PDF::API::UniMap::isMap($encoding)) {
+			$encoding=lc($encoding);
+			$encoding=~s/[^a-z0-9\-]+//cgi;
+			if(!$this->{'UNIMAPS'}->{$encoding}) {
+				$this->{'UNIMAPS'}->{$encoding}=Text::PDF::API::UniMap->new($encoding);
+			}
+			@glyphs=$this->{'UNIMAPS'}->{$encoding}->glyphs();
 			$encoding='WinAnsiEncoding';
 		}
 
@@ -629,8 +655,8 @@ sub useFont {
 	}
 	
 	if(
-		($fontkey NE $cenc) &&
-		(($this->{'FONTS'}->{$fontkey}{'type'} EQ 'PS') || ($this->{'FONTS'}->{$fontkey}{'type'} EQ 'AC'))
+		($fontkey ne $cenc) &&
+		(($this->{'FONTS'}->{$fontkey}{'type'} eq 'PS') || ($this->{'FONTS'}->{$fontkey}{'type'} eq 'AC'))
 	) {
 		if( !$this->{'FONTS'}->{$cenc} ) {
 			$this->newFontT1reencode($fontkey,$this->{'FONTS'}->{$fontkey}{'type'},$enc);
@@ -779,8 +805,8 @@ sub calcTextWidthFSET {
         }
 
         if(
-                ($fontkey NE $cenc) &&
-                (($this->{'FONTS'}->{$fontkey}{'type'} EQ 'PS') || ($this->{'FONTS'}->{$fontkey}{'type'} EQ 'AC'))
+                ($fontkey ne $cenc) &&
+                (($this->{'FONTS'}->{$fontkey}{'type'} eq 'PS') || ($this->{'FONTS'}->{$fontkey}{'type'} eq 'AC'))
         ) {
                 if( !$this->{'FONTS'}->{$cenc} ) {
                         $this->newFontT1reencode($fontkey,$this->{'FONTS'}->{$fontkey}{'type'},$enc);
@@ -792,15 +818,15 @@ sub calcTextWidthFSET {
         my $wm=0;
 
 
-        if($type EQ 'AC') {
+        if($type eq 'AC') {
                 foreach my $c (split(//,$text)) {
                         $wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
                 }
-        } elsif($type EQ 'PS') {
+        } elsif($type eq 'PS') {
                 foreach my $c (split(//,$text)) {
                         $wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
                 }
-        } elsif($type EQ 'TT') {
+        } elsif($type eq 'TT') {
                 foreach my $c (split(//,$text)) {
                         $wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
                 }
@@ -820,16 +846,16 @@ sub calcTextWidth {
 
 	$this->calcFontMatrix;
 
-	if($type EQ 'AC') {
+	if($type eq 'AC') {
 		#$wm=$font->width($text)*$size;
 		foreach my $c (split(//,$text)) {
 			$wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
 		}
-	} elsif($type EQ 'PS') {
+	} elsif($type eq 'PS') {
 		foreach my $c (split(//,$text)) {
 			$wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
 		}
-	} elsif($type EQ 'TT') {
+	} elsif($type eq 'TT') {
 		foreach my $c (split(//,$text)) {
 			$wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
 		}
@@ -943,9 +969,9 @@ sub textAdd {
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
 	$this->_addtopage(" <");
 	foreach my $c (split(//,$text)) {
-		if($this->{'CURRENT'}{'font'}{'Type'} EQ 'AC') {
+		if($this->{'CURRENT'}{'font'}{'Type'} eq 'AC') {
 			$this->_addtopage(sprintf('%02x',unpack('C',$c)));
-		} elsif($this->{'CURRENT'}{'font'}{'Type'} EQ 'PS') {
+		} elsif($this->{'CURRENT'}{'font'}{'Type'} eq 'PS') {
 			$this->_addtopage(sprintf('%02x',unpack('C',$c)));
 		} else {
 			$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))}));
@@ -1516,7 +1542,7 @@ sub rawImage {
 	my $key='IMGxRAW'.genKEY(sprintf('%s%s-%d-%d',$name,$w,$h,$type));
 
 	if(!defined($this->{'IMAGES'}{$key})) {
-		if($type EQ '-rgb'){
+		if($type eq '-rgb'){
 			$img=join('',
 				map {
 					pack('C',$_);
@@ -1524,7 +1550,7 @@ sub rawImage {
 			);
 			$cs='DeviceRGB';
 			$bpc=8;
-		} elsif($type EQ '-RGB') {
+		} elsif($type eq '-RGB') {
 			$img=join('',
 				map {
 					pack('H*',$_);
@@ -1764,8 +1790,8 @@ B<RECOMMENDATION:> Start using the following three functions below.
 Although you can add a font thru the $pdf->newFont function, these three new 
 functions are much more stable (newFontPS is alpha-quality) and reliable.
 
-The $encoding is the name of one of the encoding schemes supported by Unicode::Map8, 
-'asis' or 'custom'. If you use 'custom' as encoding, you have to supply the @glyphs 
+The $encoding is the name of one of the encoding schemes supported , 'asis' 
+or 'custom'. If you use 'custom' as encoding, you have to supply the @glyphs 
 array which should specify 256 glyph-names as defined by the 
 "PostScript(R) Language Reference 3rd. Ed. -- Appendix E"
 
@@ -1785,8 +1811,10 @@ parameter with $pdf->newFont
 
 If you do not give $encoding, than the encoding from $pdf->newFont??? is used.
 
-B<NOTE:> As of version API 0.5 you can specify any encoding supported by Unicode::Map8,
-since the fonts are automagically reencoded to use the new encoding if it differs
+B<NOTE:> As of version API 0.699 you can specify the following encodings:
+adobe-standard adobe-symbol adobe-zapf-dingbats cp1250 cp1251 cp1252 cp1253 cp1254 cp1255 cp1256 cp1257 cp1258 cp437 cp850 ebcdic-at-de ebcdic-at-de-a ebcdic-ca-fr ebcdic-dk-no ebcdic-dk-no-a ebcdic-es ebcdic-es-a ebcdic-es-s ebcdic-fi-se ebcdic-fi-se-a ebcdic-fr ebcdic-it ebcdic-pt ebcdic-uk ebcdic-us latin1 latin13 latin15 latin2 latin3 latin4 latin5 latin6 latin7 latin8 microsoft-dingbats
+
+B<NOTE:> The fonts are automagically reencoded to use the new encoding if it differs
 from that encoding specified at $pdf->newFont???.
 
 =item $pdf->setFontTranslate $tx, $ty
@@ -2246,7 +2274,16 @@ added: new text-block functions to ease the use of text.
 
 changed: unicode<->name mapping was broken under perl-5.004xx.  
 
-=item Version 0.6.0x to
+=item Version 0.6?? to 0.699
+
+major rewrite to remove dependency on Unicode::Map8 which seams to be chronically 
+unavailable under win32 (eg. activestate perl). the internal unicode tables
+have the same file-format as the '.bin' by Unicode::Map8 so you can copy them over
+for use with the api as long as the new filename conforms to the following
+regular expression: /^[a-z0-9\-]+\.map$/
+
+testing scripts remain broken and currently depend on the availibility of Data::DumpXML
+since Data::Dumper just core-dumps into my face everytime i run them.
 
 =back
 

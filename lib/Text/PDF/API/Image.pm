@@ -65,7 +65,7 @@ sub parsePNM {
 	($t)=($buf=~/^(P\d+)\s+/);
 	open(INF,$file);
 	binmode(INF);
-	if($t EQ 'P4') {
+	if($t eq 'P4') {
 		($t,$w,$h)=($buf=~/^(P\d+)\s+(\d+)\s+(\d+)\s+/);
 		$bpc=1;
 		$s=0;
@@ -76,7 +76,7 @@ sub parsePNM {
 			push(@img,$buf);
 		}
 		$cs='DeviceGray';
-	} elsif($t EQ 'P5') {
+	} elsif($t eq 'P5') {
 		($t,$w,$h,$bpc)=($buf=~/^(P\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+/);
 		if($bpc==255){
 			$s=0;
@@ -95,7 +95,7 @@ sub parsePNM {
 			push(@img,$buf);
 		}
 		$cs='DeviceGray';
-	} elsif($t EQ 'P6') {
+	} elsif($t eq 'P6') {
 		($t,$w,$h,$bpc)=($buf=~/^(P\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+/);
 		if($bpc==255){
 			$s=0;
@@ -135,17 +135,17 @@ sub parsePNG {
 		read(INF,$buf,4);
 		$l=unpack('N',$buf);
 		read(INF,$buf,4);
-		if($buf EQ 'IHDR') {
+		if($buf eq 'IHDR') {
 			read(INF,$buf,$l);
 			($w,$h,$bpc,$cs,$cm,$fm,$im)=unpack('NNCCCCC',$buf);
 			if($im>0) {die "PNG InterlaceMethod=$im not supported";}
-		} elsif($buf EQ 'PLTE') {
+		} elsif($buf eq 'PLTE') {
 			while($l) {
 				read(INF,$buf,3);
 				push(@pal,$buf);
 				$l-=3;
 			}
-		} elsif($buf EQ 'IDAT') {
+		} elsif($buf eq 'IDAT') {
 			while($l>512) {
 				read(INF,$buf,512);
 				push(@img,$buf);
@@ -153,8 +153,8 @@ sub parsePNG {
 			}
 			read(INF,$buf,$l);
 			push(@img,$buf);
-		} elsif($buf EQ '') {
-		} elsif($buf EQ 'IEND') {
+		} elsif($buf eq '') {
+		} elsif($buf eq 'IEND') {
 			last;
 		} else {
 			# skip ahead

@@ -216,10 +216,10 @@ reliable.
 
 <P>
 The <CODE>$encoding</CODE> is the name of one of the encoding schemes
-supported by Unicode::Map8, 'asis' or 'custom'. If you use 'custom' as
-encoding, you have to supply the <CODE>@glyphs</CODE> array which should
-specify 256 glyph-names as defined by the ``PostScript(R) Language
-Reference 3rd. Ed. -- Appendix E''
+supported , 'asis' or 'custom'. If you use 'custom' as encoding, you have
+to supply the <CODE>@glyphs</CODE> array which should specify 256
+glyph-names as defined by the ``PostScript(R) Language Reference 3rd. Ed.
+-- Appendix E''
 
 <P>
 If you do not give <CODE>$encoding</CODE> or 'asis', than the afms internal
@@ -243,9 +243,17 @@ If you do not give $encoding, than the encoding from $pdf-&gt;newFont??? is
 used.
 
 <P>
-<STRONG>NOTE:</STRONG> As of version API 0.5 you can specify any encoding supported by
-Unicode::Map8, since the fonts are automagically reencoded to use the new
-encoding if it differs from that encoding specified at $pdf-&gt;newFont???.
+<STRONG>NOTE:</STRONG> As of version API 0.699 you can specify the following encodings:
+adobe-standard adobe-symbol adobe-zapf-dingbats cp1250 cp1251 cp1252 cp1253
+cp1254 cp1255 cp1256 cp1257 cp1258 cp437 cp850 ebcdic-at-de ebcdic-at-de-a
+ebcdic-ca-fr ebcdic-dk-no ebcdic-dk-no-a ebcdic-es ebcdic-es-a ebcdic-es-s
+ebcdic-fi-se ebcdic-fi-se-a ebcdic-fr ebcdic-it ebcdic-pt ebcdic-uk
+ebcdic-us latin1 latin13 latin15 latin2 latin3 latin4 latin5 latin6 latin7
+latin8 microsoft-dingbats
+
+<P>
+<STRONG>NOTE:</STRONG> The fonts are automagically reencoded to use the new encoding if it differs
+from that encoding specified at $pdf-&gt;newFont???.
 
 <DT><STRONG><A NAME="item__pdf_setFontTranslate">$pdf-&gt;setFontTranslate $tx, $ty</A></STRONG><DD>
 <P>
@@ -676,7 +684,19 @@ added: new text-block functions to ease the use of text.
 <P>
 changed: unicode&lt;-&gt;name mapping was broken under perl-5.004xx.  
 
-<DT><STRONG>Version 0.6.0x to</STRONG><DD>
+<DT><STRONG>Version 0.6?? to 0.699</STRONG><DD>
+<P>
+major rewrite to remove dependency on Unicode::Map8 which seams to be
+chronically unavailable under win32 (eg. activestate perl). the internal
+unicode tables have the same file-format as the '.bin' by Unicode::Map8 so
+you can copy them over for use with the api as long as the new filename
+conforms to the following regular expression: /^[a-z0-9\-]+\.map$/
+
+<P>
+testing scripts remain broken and currently depend on the availibility of
+Data::DumpXML since Data::Dumper just core-dumps into my face everytime i
+run them.
+
 </DL>
 <P>
 <HR>

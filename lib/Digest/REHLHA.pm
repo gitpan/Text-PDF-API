@@ -7,7 +7,8 @@ package Digest::REHLHA;
 # (H)ashing
 # (A)lgorithmus
 
-use vars qw($VERSION @EXPORT_OK);
+## use strict;
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
 
 $VERSION = '0.01';  
 
@@ -25,10 +26,15 @@ sub rehlha0 {
 	my @data=split(//,$ddata);
 	my $offset=0;
 	my $it=(length($ddata) >> 3)+1;
-	$ddata='';
+	my $d=0;
+	$ddata="0" x $b;
 	foreach (0..$it) {
 		foreach my $v (0..($b-1)) {
-			$offset=($offset+ord(shift @data)+vec($ddata,$v,8)) & 0x3f;
+			$d=shift @data ||1;
+			$offset+=defined(ord($d)) ? ord($d) : 1; 
+			$offset+=vec($ddata,$v,8);
+			$offset=$offset & 0x3f;
+			## $offset=($offset+ ord($d)+ vec($ddata,$v,8)) & 0x3f;
 			vec($ddata,$v,8)=vec($mdkey,$offset,8);
 		}
 	}
