@@ -8,16 +8,103 @@ BEGIN {
     @EXPORT      = qw ();
     @EXPORT_OK   = qw ( utf8_to_ucs2 utf16_to_ucs2 ucs2_to_utf8 );
     @EXPORT_TAGS = qw ();
-    $VERSION     = "0.2";
+    $VERSION     = "0.2.1";
+}
+
+sub utf8_to_ucs4 {
+	my $string=shift @_;
+	
+}
+
+sub utf8c_to_ucs4c {
+	my $string=shift @_;
+	my ($c,$out,$len);
+	$c=vec($string,8,0);
+	if($c & 0x80) {
+		if(($c & 0xc0)==0xc0) {
+			if(($c & 0xe0)==0xe0){
+				if(($c & 0xf0)==0xf0) {
+					if(($c & 0xf8)==0xf8) {
+						if(($c & 0xfc)==0xfc) {
+							if(($c & 0xfe)==0xfe) {
+								# not valid !
+								$len=0;
+								$c=0;
+							} else {
+								# 6-byte utf8
+								$len=6;
+								$c = ($c & 0x01) << 30;
+								$c|= (vec($string,8,1) & 0x3f) << 24;
+								$c|= (vec($string,8,2) & 0x3f) << 18;
+								$c|= (vec($string,8,3) & 0x3f) << 12;
+								$c|= (vec($string,8,4) & 0x3f) << 6;
+								$c|= (vec($string,8,5) & 0x3f);
+							}
+						} else {
+							# 5-byte utf8
+							$len=5;
+							$c = ($c & 0x03) << 24;
+							$c|= (vec($string,8,1) & 0x3f) << 18;
+							$c|= (vec($string,8,2) & 0x3f) << 12;
+							$c|= (vec($string,8,3) & 0x3f) << 6;
+							$c|= (vec($string,8,4) & 0x3f);
+						}
+					} else {
+						# 4-byte utf8
+						$len=4;
+						$c = ($c & 0x7) << 18;
+						$c|= (vec($string,8,1) & 0x3f) << 12;
+						$c|= (vec($string,8,2) & 0x3f) << 6;
+						$c|= (vec($string,8,3) & 0x3f);
+					}
+				} else {
+					# 3-byte utf8
+					$len=3;
+					$c=($c & 0x0f) << 12;
+					$c|=((vec($string,8,1) & 0x3f) << 6);
+					$c|=(vec($string,8,2) & 0x3f);
+				}
+			} else {
+				# 2-byte utf8
+				$len=2;
+				$c&=0x1f;
+				$c=$c<<6;
+				$c|=(vec($string,8,1) & 0x3f);
+			}		
+		} else {
+			# not valid
+			$c=0;
+			$len=0;
+		}
+	} else {
+		## ASCII-7bits
+		$len=1;
+	}
+	$out=pack('N',($c & 0xffffffff));
+	return($out,$len);
+}
+
+sub utf8c_to_ucs2c {
+	my ($string)=@_;
+	my ($c,$len)=utf8c_to_ucs4c($string);
+	$c=pack('n',(unpack('N',$c) & 0xffff));
+	$c='' if($len>4);
+	return($c,$len);
 }
 
 sub utf8_to_ucs2 {
-	use Unicode::String;
+	## use Unicode::String;
 	my $string=shift @_;
-        my $u = Unicode::String::utf8($string);
+	my($ucs,$len,$final);
+	do {
+		($ucs,$len)=utf8c_to_ucs2c($string);
+		$final.=$ucs;
+		$string=substr($string,$len-length($string),length($string)-$len);
+	} while( ($len>0) && (length($string)>0) );
+        ## my $u = Unicode::String::utf8($string);
         ## my $ordering = $u->ord;
         ## $u->byteswap if (defined($ordering) && ($ordering == 0xFFFE));
-        my $final = $u->ucs2;
+        ## my $final = $u->ucs2;
 	return($final);
 }
 

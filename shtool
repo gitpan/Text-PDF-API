@@ -1772,7 +1772,7 @@ guessos )
             case "$RELEASE" in
                 [1-9].*) R=`echo $RELEASE | cut -c1` ;;
             esac
-            echo "${MACHINE}-${V}-linux-gnu${R}"; exit 0
+            echo "${MACHINE}-linux-gnu${R}"; exit 0
             ;;
         LynxOS:*)
             echo "${MACHINE}-lynx-lynxos"; exit 0

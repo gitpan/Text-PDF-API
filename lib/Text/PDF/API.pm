@@ -1905,6 +1905,9 @@ from that encoding specified at $pdf->newFont???.
 B<SPECIAL NOTE:> As of 0.699_84 you can specify the special encoding 'ucs2' which enables 
 you to use 16-bit unicode-strings (network-byte ordered) with truetype-fonts only !!!
 
+B<SPECIAL NOTE:> As of 0.699.870 you can specify the special encoding 'utf8' which enables 
+you to use utf8 unicode-strings, but for experimental usage only !
+
 =item $pdf->setFontTranslate $tx, $ty
 
 Sets the translation (aka. x,y-offset) in the Font-Transformation-Matrices.
@@ -2392,9 +2395,17 @@ compensate an arkward behavior of the Text::PDF pdf-parser.
 
 enabled use of ucs2 encoding with ttfs.
 
+=item Version 0.699.87x
+
+changed versioning to gnu-shtool style
+
+implementated experimental support for utf8 strings
+
+cleaned up unicode handling (more todo)
+
 =back
 
-=head1 CONTRIBUTORS / BUGHUNTERS / THANKS
+=head1 THANKS
 
 Martin Hosken [mhosken@sil.org] 
 -- for writing Text::PDF in the first place
