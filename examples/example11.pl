@@ -1,4 +1,4 @@
-use Text::PDF::API;
+use Tet::PDF::API;
 
 	$d=-20;
         $pdf=Text::PDF::API->new(pagesize=>'a4', 'compression'=>0);

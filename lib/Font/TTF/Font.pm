@@ -21,7 +21,7 @@ the outputs of the two runs.
     # NB. no need to $g->update since $f->{'glyf'}->out will do it for us
 
     $f->out($ARGV[1]);
-    $f->DESTROY;               # forces close of $in and maybe memory reclaim!
+    $f->release;                # IMPORTANT!
 
 =head1 DESCRIPTION
 
@@ -160,6 +160,7 @@ $VERSION = 0.22;    # MJPH      09-APR-2001     Ensure all of AAT stuff included
         'prop' => 'Font::TTF::Prop',
         'vhea' => 'Font::TTF::Vhea',
         'vmtx' => 'Font::TTF::Vmtx',
+        ##'CFF ' => 'Font::TTF::CFF_',
           );
 
 
@@ -267,7 +268,7 @@ sub read
     $fh->seek($self->{' OFFSET'}, 0);
     $fh->read($dat, 12);
     ($ver, $dir_num) = unpack("Nn", $dat);
-    $ver == 1 << 16 || $ver == 0x74727565 or return undef;  # support Mac sfnts
+    $ver == 1 << 16 || $ver == 0x74727565 || $ver == 0x4f54544f or return undef;  # support Mac sfnts
     
     for ($i = 0; $i < $dir_num; $i++)
     {
@@ -465,7 +466,7 @@ sub out_xml
     } else
     { $fh = $fname; }
 
-    unless (defined @tlist)
+    unless (scalar @tlist > 0)
     {
         @tlist = sort keys %$self;
         @tlist = grep(length($_) == 4 && defined $self->{$_}, @tlist);
@@ -577,19 +578,86 @@ sub tables_do
 }
 
 
-=head2 $f->DESTROY
+=head2 $f->release
 
-Closes the file for this font, if this is not an embedded font
+Releases ALL of the memory used by the TTF font and all of its component
+objects.  After calling this method, do B<NOT> expect to have anything left in
+the C<Font::TTF::Font> object.
+
+B<NOTE>, that it is important that you call this method on any
+C<Font::TTF::Font> object when you wish to destruct it and free up its memory.
+Internally, we track things in a structure that can result in circular
+references, and without calling 'C<release()>' these will not properly get
+cleaned up by Perl.  Once you've called this method, though, don't expect to be
+able to do anything else with the C<Font::TTF::Font> object; it'll have B<no>
+internal state whatsoever.
+
+B<Developer note:> As part of the brute-force cleanup done here, this method
+will throw a warning message whenever unexpected key values are found within
+the C<Font::TTF::Font> object.  This is done to help ensure that any unexpected
+and unfreed values are brought to your attention so that you can bug us to keep
+the module updated properly; otherwise the potential for memory leaks due to
+dangling circular references will exist.
 
 =cut
 
-sub DESTROY
+sub release
 {
     my ($self) = @_;
-    return $self if defined $self->{' PARENT'};         # part of a TTC
-    close ($self->{' INFILE'});
-    $self = {};                 # this should DESTROY them, breaking the link on us
-    return undef;
+
+    ###########################################################################
+    # Go through our list of keys and clean things up as needed:
+    # - All scalar values get deleted explicitly, to free up their memory.
+    #   This is generally handled well by Perl, but our checks later on require
+    #   that we free them up explicitly.
+    # - All 'Font::TTF::*' elements get explicitly destructed, to free up all
+    #   of their memory and break potential circular references.
+    # - All 'IO::File' objects get silently destructed; we know there are a few
+    #   and rather than name them all explicitly, we'll just clean them up here
+    #   by type.
+    ###########################################################################
+    foreach my $key (keys %{$self})
+    {
+        my $ref = ref($self->{$key});
+        if ($ref eq '')
+        {
+            # Remove scalar value.
+            delete $self->{$key};
+        }
+        elsif ($ref =~ /^Font::TTF::/o)
+        {
+            # Sub-element, explicitly destruct.
+            my $val = $self->{$key};
+            delete $self->{$key};
+            $val->release();
+        }
+        elsif ($ref eq 'IO::File')
+        {
+            # IO object, destruct silently.
+            delete $self->{$key};
+        }
+    }
+
+    ###########################################################################
+    # Explicitly destruct anything that we _know_ about, and that wasn't caught
+    # above.  We do this only so that when we do our checks below that we can
+    # be sure that we've already freed up all of the memory.
+    ###########################################################################
+
+    ###########################################################################
+    # Now that we think that we've gone back and freed up all of the memory
+    # that we were using, check to make sure that we don't have any keys left
+    # in our own hash (we shouldn't).  IF we do have keys left, throw a warning
+    # message.
+    ###########################################################################
+    foreach my $key (keys %{$self})
+    {
+        warn ref($self) . " still has '$key' key left after release.\n";
+    }
+
+    ###########################################################################
+    # All done cleaning up.
+    ###########################################################################
 }
 
 1;

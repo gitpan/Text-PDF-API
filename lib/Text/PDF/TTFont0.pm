@@ -194,20 +194,20 @@ sub outobjdeep
 
     if ($self->{' subset'})
     {
-        my ($max)=length($self->{' subvec'}) * 8;
+        my ($max) = length($self->{' subvec'}) * 8;
         my ($upem) = $f->{'head'}{'unitsPerEm'};
         my ($mode, $miniArr, $i, $j, $first, @minilist);
         
         $f->{'glyf'}->read;
-        for ($i = 0; $i <= $max; $i++) { # checking for composite glyphs
-		next unless(vec($self->{' subvec'},$i,1));
-		next unless($f->{'loca'}{glyphs}[$i]);
-		$f->{'loca'}{glyphs}[$i]->read;
-		next unless($f->{'loca'}{glyphs}[$i]{numberOfContours}<0);
-		$f->{'loca'}{glyphs}[$i]->read_dat;
-		map { vec($self->{' subvec'},$_->{glyph},1)=1; } @{$f->{loca}{glyphs}[$i]{comps}};
-	}
-        $max=length($self->{' subvec'}) * 8; # and re-adjusting the subset :)
+
+        for ($i = 0; $i <= $max; $i++)
+        {
+            next unless(vec($self->{' subvec'},$i,1));
+            next unless($f->{'loca'}{glyphs}[$i]);
+            map { vec($self->{' subvec'},$_,1)=1; } $f->{loca}{glyphs}[$i]->get_refs;
+        }
+
+        $max = length($self->{' subvec'}) * 8;
 
         for ($i = 0; $i <= $max; $i++)
         {
@@ -235,8 +235,8 @@ sub outobjdeep
             else
             { $f->{'loca'}{glyphs}[$i] = undef; }
         }
-        for (; $i < $f->{'maxp'}{'numGlyphs'}; $i++) 
-	{ $f->{'loca'}{glyphs}[$i] = undef; }
+        for ( ; $i < $f->{'maxp'}{'numGlyphs'}; $i++)
+        { $f->{'loca'}{'glyphs'}[$i] = undef; }
     }
     $s->{' stream'} = "";
     $ffh = Text::PDF::TTIOString->new(\$s->{' stream'});

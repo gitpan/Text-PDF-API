@@ -29,7 +29,6 @@ WriteMakefile (
 	},
 	PREREQ_PM	=>	{
 					'Compress::Zlib'	=> 1.03,
-        				'Font::TTF::Font'	=> 0.22,
 				},
 );
 
@@ -76,6 +75,10 @@ new-release: shtool
 
 new-level: shtool
 	./shtool version -l perl -n "Text::PDF::API" -i l $versionfile
+	perl Makefile.PL
+
+custom-version: shtool
+	./shtool version -l perl -n "Text::PDF::API" -s \$(MODULEVERSION) $versionfile
 	perl Makefile.PL
 
 FAQ: docs/PDF-API-FAQ install

@@ -15,7 +15,6 @@ examples/example8.pl
 examples/example9.pl
 examples/example10.pl
 examples/example11.pl
-examples/example12.pl
 examples/example13.pl
 examples/example14.pl
 examples/example15.pl
@@ -23,6 +22,8 @@ examples/example16.pl
 examples/example18.pl
 examples/example19.pl
 examples/shading.pl
+examples/chinese.pl
+examples/compacts.pl
 lib/Text/PDF/AFont.pm
 lib/Text/PDF/API.pm
 lib/Text/PDF/API/Color.pm

@@ -34,6 +34,28 @@ sub genKEY {
         return($key);
 }
 
+sub xlog10 {
+    my $n = shift;
+	if($n) {
+    		return log($n)/log(10);
+	} else { return 0; }
+}
+
+sub genFloat {
+	use POSIX qw( ceil floor );
+	my $f=shift @_;
+	my $mxd=shift @_||10;
+	my $ad=floor(xlog10($f)-2);
+	if($ad>0){
+		return sprintf('%f',$f);
+	} else {
+		$ad=$ad > -$mxd ? abs($ad) : $mxd;
+		return sprintf('%.'.$ad.'f',$f);
+	}
+}
+
+sub genFloats { return map { genFloat($_); } @_; }
+
 sub getDefault {
 	my ($this,$parameter,$default)=@_;
 	if(defined($this->{'DEFAULT'}{lc($parameter)})) {
@@ -110,6 +132,8 @@ sub info {
 
 sub end {
 	my $this=shift(@_);
+	$this->{PDF}->release;
+	$this->release;
 	undef($this);
 }
 
@@ -896,12 +920,22 @@ sub beginText {
 sub charSpacing  {
 	my $this = shift @_;
 	my $cs=(shift @_)||$this->{'CURRENT'}{'font'}{'CharSpacing'}||0;
-	$this->_addtopage(sprintf(" %.9f Tc \n",$cs));
+	if($this->getDefault('UseCompactNumeric',0)) {
+		$cs=genFloat($cs);
+	} else {
+		$cs=sprintf('%.9f',$cs);
+	}
+	$this->_addtopage(" $cs Tc \n");
 }
 sub wordSpacing  {
 	my $this = shift @_;
 	my $ws=(shift @_) || $this->{'CURRENT'}{'font'}{'WordSpacing'} || 0;
-	$this->_addtopage(sprintf(" %.9f Tw \n",$ws));
+	if($this->getDefault('UseCompactNumeric',0)) {
+		$ws=genFloat($ws);
+	} else {
+		$ws=sprintf('%.9f',$ws);
+	}
+	$this->_addtopage(" $ws Tw \n");
 }
 sub textLeading  {
 	my $this = shift @_;
@@ -927,10 +961,16 @@ sub textHScale {
 sub textMatrix {
 	my $this = shift @_;
 	my @tm=@_;
+	my $tm;
 	if(!@tm) {
 		@tm=@{$this->{'CURRENT'}{'font'}{'Matrix'}};
 	}
-	$this->_addtopage(sprintf(" %.9f %.9f %.9f %.9f %.9f %.9f Tm \n",@tm));
+	if($this->getDefault('UseCompactNumeric',0)) {
+		$tm=join(' ',genFloats(@tm));
+	} else {
+		$tm=sprintf("%.9f %.9f %.9f %.9f %.9f %.9f",@tm);
+	}
+	$this->_addtopage(" $tm Tm \n");
 }
 sub textPos {
 	my $this = shift @_;
@@ -968,18 +1008,18 @@ sub textFont {
 	$font||=$this->{'CURRENT'}{'font'}{'PDFN'};
 	$size||=$this->{'CURRENT'}{'font'}{'Size'};
 	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc;
-	$this->_addtopage(sprintf(" /%s %.9f Tf \n",$font,$size));
+	$this->_addtopage(sprintf(" /%s %s Tf \n",$font,genFloat($size)));
 }
 sub textNewLine {
 	my $this = shift @_;
 	my $l;
 	if($l=shift @_) {
-		$this->_addtopage(sprintf(" 0 %.9f Td \n",$l));
+		$this->_addtopage(sprintf(" 0 %s Td \n",genFloat($l)));
 	} else {
 		$this->_addtopage(" T* \n");
 	}
 }
-sub textAdd {
+sub textAdd_old {
 	my ($this,$text)=@_;
 	$this->initFontCurrent;
 	my $g;
@@ -1022,6 +1062,66 @@ sub textAdd {
 	}
 	$this->_addtopage("> Tj \n");
 }
+
+sub textAdd {
+        my ($this,$text)=@_;
+        $this->initFontCurrent;
+        my ($g,$textCompact);
+        my $k=$this->{'CURRENT'}{'font'}{'Key'} || die "font not defined, use newFont() !";
+        my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
+        if( lc($enc) eq 'utf8' ) {
+                $enc='ucs2';
+                $text=utf8_to_ucs2($text);
+        } elsif ( lc($enc) eq 'utf16' ) {
+                $enc='ucs2';
+                $text=utf16_to_ucs2($text);
+        }
+	$textCompact=0;
+        if((lc($enc) eq 'ucs2') && ($this->{'FONTS'}->{$k}->{'type'} ne 'TT')) {
+                $this->_addtopage(" <feff");
+	} elsif($this->getDefault('UseCompactText',0) && ($this->{'FONTS'}->{$k}->{'type'} ne 'TT')){
+		$textCompact=1;
+        } else {
+                $this->_addtopage(" <");
+        }
+	if($textCompact) {
+		my $newtext='';
+		foreach $g (0..length($text)-1) {
+			$newtext.= 
+				(substr($text,$g,1)=~/[\x00-\x1f\\\{\}\[\]\(\)\xa0-\xff]/) 
+				? sprintf('\%03lo',vec($text,$g,8)) 
+				: substr($text,$g,1) ;
+		}
+        	$this->_addtopage("($newtext) Tj \n");
+	} else {
+        	my @chars=split(//,$text);
+        	while(defined($c=shift @chars)) {
+			if((lc($enc) eq 'ucs2') && ($this->{'FONTS'}->{$k}->{'type'} ne 'TT')) {
+        	                $this->_addtopage(unpack('H2',"$c"));
+        	        } elsif((lc($enc) eq 'ucs2') && ($this->{'FONTS'}->{$k}->{'type'} eq 'TT')) {
+        	                $c.=shift(@chars);
+        	                $g=$this->{'FONTS'}{$k}{"u2g"}{unpack('n',"$c")};
+        	                vec($this->{'FONTS'}{$k}->{'pdfobj'}->{' subvec'},$g,1)=1 if($this->getDefault('subset',0));
+        	                $this->_addtopage(sprintf('%04x',$g));
+        	        } else {
+        	                if($this->{'CURRENT'}{'font'}{'Type'} eq 'AC') {
+        	                        $this->_addtopage(unpack('H2',"$c"));
+               	         	} elsif($this->{'CURRENT'}{'font'}{'Type'} eq 'PS') {
+                        	        $this->_addtopage(unpack('H2',"$c"));
+                        	} else {
+                        	        $g=$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))}
+                        	                || $this->{'FONTS'}{$k}{"u2g"}{20}
+                        	                || 0;
+                        	        vec($this->{'FONTS'}{$k}->{'pdfobj'}->{' subvec'},$g,1)=1 if($this->getDefault('subset',0));
+                        	        $this->_addtopage(sprintf('%04x',$g));
+                        	}
+                	}
+        	}
+        	$this->_addtopage("> Tj \n");
+	}
+}
+
+
 
 sub endText {
 	my ($this)=@_;
@@ -1370,8 +1470,13 @@ sub useGfxState {
 
 	$this->initGfxCurrent;
 	my @tm=@{$this->{'CURRENT'}{'gfx'}{'Matrix'}};
-
-	$this->_addtopage(sprintf("%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f cm\n",@tm));
+	my $tm;
+	if($this->getDefault('UseCompactNumeric',0)) {
+		$tm=join(' ',genFloats(@tm));
+	} else {
+		$tm=sprintf("%0.6f %0.6f %0.6f %0.6f %0.6f %0.6f",@tm);
+	}
+	$this->_addtopage(" $tm cm\n");
 }
 
 sub savePdfState {
@@ -1732,6 +1837,37 @@ sub placeImage {
 	$this->restoreState;
 }
 
+sub release {
+	my $self=shift @_;
+	foreach my $key (keys %{$self}) {
+		my $ref=ref($self->{$key});
+		if (($ref eq '') || ($ref eq 'SCALAR') || ($ref eq 'ARRAY')) {
+			delete $self->{$key};
+		} elsif ($ref eq 'HASH') {
+			release($self->{$key});
+		} elsif ($ref =~ /^Text::PDF::API/o) {
+		} elsif ($ref =~ /^Text::PDF::/o) {
+			# Sub-element, explicitly destruct.
+			my $val = $self->{$key};
+			delete $self->{$key};
+			$val->release();
+		} elsif ($ref =~ /^Font::TTF::/o) {
+			# TTF font structure, explicitly destruct
+			my $val = $self->{$key};
+			delete $self->{$key};
+			$val->DESTROY();
+		} else {
+			# destruct silently.
+			delete $self->{$key};
+		}
+	}
+}
+
+sub DESTROY {
+	my $self=shift @_;
+	$self->release;
+}
+
 sub AUTOLOAD {
 	## print "undefined function $AUTOLOAD() -- continuing! \n";
 	return(undef);
@@ -1828,6 +1964,12 @@ Compression
 PDFVersion
 
 	0 .. 3 (corresponding to the adobe acrobat versions up to 4.0)
+
+UseCompactText
+
+	0, 1 (= off, on)
+
+B<NOTE:> 'UseCompactText' is for our english speaking, ANSI/Ascii/Postscript users only !
 
 =item $pdf->setDefault $parameter , $value
 

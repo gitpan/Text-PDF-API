@@ -11,6 +11,7 @@ Text::PDF::File - Holds the trailers and cross-reference tables for a PDF file
  $p->free_obj($obj_ref);
  $p->append_file;
  $p->close;
+ $p->release;       # IMPORTANT!
 
 =head1 DESCRIPTION
 
@@ -244,6 +245,111 @@ sub open
     return $self;
 }
 
+=head2 $p->release
+
+Releases ALL of the memory used by the PDF document and all of its component
+objects.  After calling this method, do B<NOT> expect to have anything left in
+the C<Text::PDF::File> object (so if you need to save, be sure to do it before
+calling this method).
+
+B<NOTE>, that it is important that you call this method on any
+C<Text::PDF::File> object when you wish to destruct it and free up its memory.
+Internally, PDF files have an enormous number of cross-references and this
+causes circular references within the internal data structures.  Calling
+'C<release()>' forces a brute-force cleanup of the data structures, freeing up
+all of the memory.  Once you've called this method, though, don't expect to be
+able to do anything else with the C<Text::PDF::File> object; it'll have B<no>
+internal state whatsoever.
+
+B<Developer note:> As part of the brute-force cleanup done here, this method
+will throw a warning message whenever unexpected key values are found within
+the C<Text::PDF::File> object.  This is done to help ensure that any unexpected
+and unfreed values are brought to your attention so that you can bug us to keep
+the module updated properly; otherwise the potential for memory leaks due to
+dangling circular references will exist.
+
+=cut
+
+sub release
+{
+    my ($self) = @_;
+
+    ###########################################################################
+    # Go through our list of keys and clean things up as needed:
+    # - All scalar values get deleted explicitly, to free up their memory.
+    #   This is generally handled well by Perl, but our checks later on require
+    #   that we free them up explicitly.
+    # - All 'Text::PDF::*' elements get explicitly destructed, to free up all
+    #   of their memory and break potential circular references.
+    # - All 'IO::File' objects get silently destructed; we know there are a
+    #   few, and rather than name them all explicitly, we'll just clean them up
+    #   here by type.
+    # - All 'HASH' sub-structures get marched and have all of their values
+    #   explicitly removed; some of these contain other 'Text::PDF::*'
+    #   references.
+    ###########################################################################
+    foreach my $key (keys %{$self})
+    {
+        my $ref = ref($self->{$key});
+        if ($ref eq '')
+        {
+            # Remove scalar value.
+            delete $self->{$key};
+        }
+        elsif ($ref =~ /^Text::PDF::/o)
+        {
+            # Sub-element, explicitly destruct.
+            my $val = $self->{$key};
+            delete $self->{$key};
+            $val->release();
+        }
+        elsif ($ref eq 'IO::File')
+        {
+            # IO object, destruct silently.
+            delete $self->{$key};
+        }
+        elsif ($ref eq 'HASH')
+        {
+            # Sub-hash; march the hash keys and clean up all 'Text::PDF::*'
+            # objects.
+            my $hash = $self->{$key};
+            delete $self->{$key};
+            foreach my $hashkey (keys %{$hash})
+            {
+                my $hashval = $hash->{$hashkey};
+                delete $self->{$key};
+                if (ref($hashval) =~ /^Text::PDF::/o)
+                {
+                    $hashval->release();
+                }
+            }
+        }
+    }
+
+    ###########################################################################
+    # Explicitly destruct anything that we _know_ about, and that wasn't caught
+    # above.  We do this only so that when we do our checks below that we can
+    # be sure that we've already freed up all of the memory.
+    ###########################################################################
+    delete $self->{' outlist'};
+    delete $self->{' printed'};
+    delete $self->{' free'};
+
+    ###########################################################################
+    # Now that we think that we've gone back and freed up all of the memory
+    # that we were using, check to make sure that we don't have any keys left
+    # in our own hash (we shouldn't).  IF we do have keys left, throw a warning
+    # message.
+    ###########################################################################
+    foreach my $key (keys %{$self})
+    {
+        warn ref($self) . " still has '$key' key left after release.\n";
+    }
+
+    ###########################################################################
+    # All done cleaning up.
+    ###########################################################################
+}
 
 =head2 $p->append_file()
 
