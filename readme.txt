@@ -23,6 +23,12 @@ CHANGES IN VERSIONS 0.699.x (Development Branch)
 		both for ease of installation and fixing bugs
 
 
+FIXES IN VERSIONS 0.700.x (Stable Branch)
+
+	.  fixed a subsetting 'feature' related to composite
+		truetype-fonts which are popular for cjk-fonts
+
+
 FEATURES
 
 	.  Works with more than one PDF file open at once

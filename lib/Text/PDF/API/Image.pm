@@ -379,7 +379,7 @@ sub getImageObjectFromFile {
 	} elsif($type eq 'PPM') {
 		return(getImageObjectFromPPMFile($file));
 	} elsif($type eq 'GIF') {
-		use Text::PDF::API::GIF;
+		eval q/ use Text::PDF::API::GIF; /;
 		my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
 		my ($w,$h,$cs,$img)=Text::PDF::API::GIF::readGIF($file);
 		my $bpc=8;

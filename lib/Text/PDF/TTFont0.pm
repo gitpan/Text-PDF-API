@@ -199,6 +199,16 @@ sub outobjdeep
         my ($mode, $miniArr, $i, $j, $first, @minilist);
         
         $f->{'glyf'}->read;
+        for ($i = 0; $i <= $max; $i++) { # checking for composite glyphs
+		next unless(vec($self->{' subvec'},$i,1));
+		next unless($f->{'loca'}{glyphs}[$i]);
+		$f->{'loca'}{glyphs}[$i]->read;
+		next unless($f->{'loca'}{glyphs}[$i]{numberOfContours}<0);
+		$f->{'loca'}{glyphs}[$i]->read_dat;
+		map { vec($self->{' subvec'},$_->{glyph},1)=1; } @{$f->{loca}{glyphs}[$i]{comps}};
+	}
+        $max=length($self->{' subvec'}) * 8; # and re-adjusting the subset :)
+
         for ($i = 0; $i <= $max; $i++)
         {
             if (!$mode && vec($self->{' subvec'}, $i, 1))

@@ -9,7 +9,6 @@ use Text::PDF::Page;
 use Text::PDF::Utils;
 use Text::PDF::TTFont;
 use Text::PDF::TTFont0;
-use Text::PDF::TTFont0;
 use Text::PDF::API::UniMap qw( utf8_to_ucs2 utf16_to_ucs2 );
 
 
@@ -394,8 +393,8 @@ sub newFontTTF {
 		if(!$this->{'UNIMAPS'}->{$encoding}) {
 			$this->{'UNIMAPS'}->{$encoding}=Text::PDF::API::UniMap->new($encoding);
 		}
-	} else {
-		$encoding='ucs2';
+	##} else {
+	##	$encoding='ucs2';
 	}
 
 	if(!$this->{'FONTS'}->{$fontkey}) {
@@ -403,7 +402,8 @@ sub newFontTTF {
 		$fontname=$fontype.'x'.$fontkey;
 		$fontfile=$this->resolveFontFile($file);
 		die "can not find requested font '$file'" unless($fontfile);
-		$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname, -subset => 1);
+		## $font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname, -subset => ((lc($encoding) ne 'ucs2')&&(lc($encoding) ne 'utf8')&&(lc($encoding) ne 'utf16')) );
+		$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname, -subset => 1 );
 
 		$this->{'FONTS'}->{$fontkey}={
 			'type'	=> $fontype,
@@ -635,9 +635,9 @@ sub useFont {
 		$fontkey=$cenc;
 	} elsif (
 		((lc($enc) eq 'ucs2') || (lc($enc) eq 'utf8') || (lc($enc) eq 'utf16')) 
-		&& ($this->{'FONTS'}->{"$fontkey-ucs2"}{'type'} eq 'TT')
+		&& ($this->{'FONTS'}->{$fontkey}{'type'} eq 'TT')
 	) {
-		$fontkey.='-ucs2';
+		$fontkey=$cenc;
 	}
 	$this->initFontCurrent;
 	$this->{'CURRENT'}{'font'}{'Name'}=$name;
@@ -948,13 +948,17 @@ sub textFont {
        		my $fontkey=genKEY($name);
 		my $cenc;
 		$enc||=$this->{'FONTS'}->{$fontkey}->{'Encoding'};
-		if($enc) {
-			$cenc=$enc;
-			$cenc=~s/[^a-z0-9\-]+//cgi;
-			$cenc="$fontkey-$cenc";
-		} else {
-			$cenc=$fontkey;
-		}
+		if($enc 
+			&& (lc($enc) ne 'ucs2')
+			&& (lc($enc) ne 'utf8')
+			&& (lc($enc) ne 'utf16')
+		) {
+        	        $cenc=$enc;
+        	        $cenc=~s/[^a-z0-9\-]+//cgi;
+        	        $cenc="$fontkey-$cenc";
+        	} else {
+        	        $cenc=$fontkey;
+        	}
 		if($this->{'FONTS'}->{$cenc}) {
 			$fontkey=$cenc;
 		}
@@ -963,6 +967,7 @@ sub textFont {
 	$this->initFontCurrent;
 	$font||=$this->{'CURRENT'}{'font'}{'PDFN'};
 	$size||=$this->{'CURRENT'}{'font'}{'Size'};
+	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc;
 	$this->_addtopage(sprintf(" /%s %.9f Tf \n",$font,$size));
 }
 sub textNewLine {
