@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.5";
+$VERSION = "0.5001";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -445,7 +445,7 @@ sub newFontCore {
 	#		}
 	#	}
 	#}
-	return($fontkey);
+	return($fontname);
 }
 
 sub newFontTTF {
@@ -498,7 +498,8 @@ sub newFontTTF {
 				$this->{'FONTS'}->{$fontkey}->{'u2w'}{$map[$x]}=$ttf->{'hmtx'}{'advance'}[$x]/$upem;
 			}
 		}
-	} 
+	}
+	return($fontname); 
 }
 
 sub newFontT1reencode {
@@ -538,12 +539,13 @@ sub newFontT1reencode {
 		$this->_newroot();
 	}
 	$this->{'ROOT'}->add_font($font);
+	return($fontname); 
 }
 
 sub newFontPSreencode {
 	my ($this,$fontkey,$encoding,@glyphs)=@_;
 
-	$this->newFontT1reencode($fontkey,'PS',$encoding,@glyphs);
+	return($this->newFontT1reencode($fontkey,'PS',$encoding,@glyphs));
 }
 
 sub newFontPS {
@@ -593,7 +595,7 @@ sub newFontPS {
 		}
 		$this->{'ROOT'}->add_font($font);
 	}
-	return($fontkey); 
+	return($fontname); 
 }
 
 sub newFont {
@@ -611,24 +613,19 @@ sub newFont {
 	if(!$this->{'FONTS'}->{$fontkey}) {
 		if(grep(/$name/,@Text::PDF::API::COREFONTS)) {
 			$encoding=shift @_;
-			$this->newFontCore($name,$encoding);
+			return $this->newFontCore($name,$encoding);
 		} elsif($name=~/\,/) {
 			$file=shift @_;
 			$encoding=shift @_;
-			$this->newFontTTF($name,$file,$encoding);
+			return $this->newFontTTF($name,$file,$encoding);
 		} else {
 			$file=shift @_;
 			$file2=shift @_;
 			$encoding=shift @_;
-			$this->newFontPS($name,$file,$file2,$encoding);
+			return $this->newFontPS($name,$file,$file2,$encoding);
 		}
 	} 
 
-	if(!wantarray) {
-		return $fontkey;
-	} else {
-		return ($fontkey);
-	}
 }
 
 sub getFont {
@@ -704,6 +701,7 @@ sub useFont {
 	$this->{'CURRENT'}{'font'}{'Size'}=$size;
 	$this->{'CURRENT'}{'font'}{'Type'}=$this->{'FONTS'}->{$fontkey}{'type'};
 	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc || 'latin1';
+	return($this->{'CURRENT'}{'font'}{'PDFN'});
 }
 
 sub setFontTranslate {
@@ -1291,7 +1289,7 @@ sub rawImage {
 			$img=join('',
 				map {
 					pack('C',$_);
-				} @imagearray;
+				} @imagearray
 			);
 			$cs='DeviceRGB';
 			$bpc=8;
@@ -1299,7 +1297,7 @@ sub rawImage {
 			$img=join('',
 				map {
 					pack('H*',$_);
-				} @imagearray;
+				} @imagearray
 			);
 			$cs='DeviceRGB';
 			$bpc=8;

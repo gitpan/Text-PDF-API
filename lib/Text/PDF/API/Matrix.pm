@@ -67,7 +67,7 @@ sub transpose {
             push(@{$result[$m++]}, $col);
         }
     }
-    new Math::Matrix (@result);
+    new Text::PDF::API::Matrix (@result);
 }
 
 sub vekpro {
@@ -94,7 +94,7 @@ sub multiply {
         }
         push(@result, $rescol);
     }
-    new Math::Matrix (@result);
+    new Text::PDF::API::Matrix (@result);
 }
 
 $eps = 0.000001;

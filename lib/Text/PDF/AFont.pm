@@ -6,6 +6,7 @@ $VERSION = "0.499"; # created before Text::PDF::API version 0.5 (final)
 use vars qw(@ISA);
 @ISA = qw(Text::PDF::Dict);
 
+use POSIX;
 use Text::PDF::Utils;
 use Compress::Zlib;
 
@@ -285,8 +286,7 @@ sub readPSF {
 	#xheight 
 	# get ury from x or bbx/2 and adjust per delta blue
 	($llx,$lly,$urx,$ury)=split(/\s+/,$h{'bbx'}{'x'});
-	use Posix;
-	$l=$ury||Posix::ceil($bbx[3]/2);
+	$l=$ury||POSIX::ceil($bbx[3]/2);
 	$delta=10000;
 	foreach my $b (@blue_val) {
 		if($delta>abs($b-$l)){
