@@ -32,6 +32,7 @@ you should have installed the following additional modules:
 	MIME::Base64
         XML::Parser
         Array::RefElem
+	Digest::MD5
 	
 else you can just issue
 

@@ -116,6 +116,7 @@ sub readAFM {
 		# only lines that start with "C" or "CH" are parsed
 			next unless $_=~/^CH?\s/;
 			my($ch)   = $_=~/^CH?\s+(\d+)\s*;/;
+			$ch=$ch||0;
 			my($name) = $_=~/\bN\s+(\.?\w+)\s*;/;
 			my($wx)   = $_=~/\bWX\s+(\d+)\s*;/;
 			my($bbox)    = $_=~/\bB\s+([^;]+);/;
@@ -462,6 +463,7 @@ sub newNonEmbed {
 	$self->{'FontDescriptor'}->{'XHeight'}=PDFNum($self->{' AFM'}->{'xheight'}||$w[3]->val||0);
 	
 	my $flags=0;
+	$self->{' AFM'}->{'encoding'}=$self->{' AFM'}->{'encoding'}||'';
 	$flags|=1 if(lc($self->{' AFM'}->{'isfixedpitch'}) ne 'false');
 	if($self->{' AFM'}->{'encoding'}=~/standardencoding/cgi){
 		$flags|=1<<5 ;

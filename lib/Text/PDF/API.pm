@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.699_1";
+$VERSION = "0.699_2";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -365,7 +365,7 @@ sub newFontCore {
 	if(!$this->{'FONTS'}) {
 		$this->{'FONTS'}={};
 	}
-
+	$encoding=$encoding||'';
 	if(!$this->{'FONTS'}->{$fontkey}) {
 		$this->{'FONTS'}->{$fontkey}={};
 		$fontype='AC';
@@ -460,9 +460,9 @@ sub newFontTTF {
 			$this->{'FONTS'}->{$fontkey}->{'u2g'}=();
 			$this->{'FONTS'}->{$fontkey}->{'u2w'}=();
 			@map=$ttf->{'cmap'}->reverse;
-			foreach my $x (0..$#map) {
-				$this->{'FONTS'}->{$fontkey}->{'u2g'}{$map[$x]}=$x;
-				$this->{'FONTS'}->{$fontkey}->{'u2w'}{$map[$x]}=$ttf->{'hmtx'}{'advance'}[$x]/$upem;
+			foreach my $x (0..scalar(@map)) {
+				$this->{'FONTS'}->{$fontkey}->{'u2g'}{$map[$x]||0}=$x;
+				$this->{'FONTS'}->{$fontkey}->{'u2w'}{$map[$x]||0}=$ttf->{'hmtx'}{'advance'}[$x]/$upem;
 			}
 		}
 	}
@@ -994,7 +994,8 @@ sub paragraphFit {
         my ($height)=shift @_;
         my ($text)=shift @_;
         my ($fudge)=shift @_ || 0.95;
-	my $paragraphs=scalar split(/\n/,$text);
+	my @paras=split(/\n/,$text);
+	my $paragraphs=scalar(@paras);
         my $text_width=$this->calcTextWidthFSET($font,10,$encoding,$text)/10;
         my $size=((($width*$height)-($leadingfactor*$paragraphs))/($leadingfactor*$text_width))**0.5;
         if(($width/$size)<20) {
