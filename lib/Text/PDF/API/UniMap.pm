@@ -110,20 +110,15 @@ sub new {
 	$encoding=~s/[^a-z0-9\-]+//cgi;
 	bless($this,$class);
 	my $buf;
-	my $unimap;
+	my $unimap='';
 	map {
-		if(-e "$_/$encoding.map"){
-			$unimap="$_/$encoding.map";
+		if(-e "$_/Text/PDF/API/UniMap/$encoding.map"){
+			$unimap="$_/Text/PDF/API/UniMap/$encoding.map";
 		}
-	}
-	( map {
-		if(-d "$_/Text/PDF/API/UniMap"){
-			"$_/Text/PDF/API/UniMap";
-		}
-	} @INC );
-	## if(! -e "$unimapdir/$encoding.map") {
+	} @INC;
+
 	if(! -e $unimap) {
-		die " $encoding not supported.";
+		die " encoding='$encoding' not supported.";
 	} else {
 		$this->{'enc'} = $encoding;
 		$this->{'u2c'} = {};

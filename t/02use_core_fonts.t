@@ -1,7 +1,7 @@
 use Text::PDF::API;
 use Test;
 
-BEGIN { plan tests => 14 }
+BEGIN { plan tests => 28 }
 
         $pdf=Text::PDF::API->new(pagesize=>'a4', 'compression'=>0);
 	foreach $ff (qw(
@@ -11,9 +11,14 @@ BEGIN { plan tests => 14 }
         	Symbol
         	ZapfDingbats
 	)) {
+		$pdf->newpage;
 		$pdf->newFontCore($ff);
 		$fk='ACx'.Text::PDF::API::genKEY($ff);
-		ok(defined($pdf->{'ROOT'}->{'Resources'}->{'Font'}->{$fk})); 
+		ok(defined($pdf->{'ROOT'}->{'Resources'}->{'Font'}->{$fk}));
+		$pdf->useFont($ff,20);
+		$pdf->showTextXY(50,800,qq|say hello to '$ff' !|); 
+		ok($pdf->{'PAGE'}->{' curstrm'}->{' stream'}=~/$fk/);
+		$pdf->endpage;
 	}
         $pdf->end;
 __END__

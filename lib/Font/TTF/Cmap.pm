@@ -404,7 +404,7 @@ sub reverse
     my (@res, $code, $gid);
 
     while (($code, $gid) = each(%{$table->{'val'}}))
-    { $res[$gid] = $code unless ($res[$gid] > 0 && $res[$gid] < $code); }
+    { $res[$gid] = $code unless (($res[$gid] || 0) > 0 && ($res[$gid] || 0) < $code); }
     @res;
 }
 

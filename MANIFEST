@@ -68,7 +68,7 @@ scripts/psf2afm.pl
 t/00rehlha.t
 t/01new_end.t
 t/02use_core_fonts.t
-t/03use_core_fonts_encoding.t
+t/03use_fonts_encoding.t
 t/04use_ttfonts.t
 lib/Text/PDF/API/UniMap/adobe-standard.map
 lib/Text/PDF/API/UniMap/adobe-symbol.map

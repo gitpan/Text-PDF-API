@@ -90,7 +90,7 @@ sub add_page
 {
     my ($self, $page, $index) = @_;
     my ($p, $nt, $s, @path, $c, $m);
-
+    $index=$index || 0;
     for ($p = $self; defined $p->{'Parent'}; $p = $p->{'Parent'})
     { }
 

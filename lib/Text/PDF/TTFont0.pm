@@ -194,13 +194,11 @@ sub outobjdeep
 
     if ($self->{' subset'})
     {
+        my ($max)=length($self->{' subvec'}) * 8;
         my ($upem) = $f->{'head'}{'unitsPerEm'};
         my ($mode, $miniArr, $i, $j, $first, @minilist);
         
         $f->{'glyf'}->read;
-        $f->{'maxp'}->read;
-        my $max=length($self->{' subvec'}) * 8;
-
         for ($i = 0; $i <= $max; $i++)
         {
             if (!$mode && vec($self->{' subvec'}, $i, 1))
@@ -227,9 +225,8 @@ sub outobjdeep
             else
             { $f->{'loca'}{glyphs}[$i] = undef; }
         }
-        for ($i = $max+1; $i <= $f->{'maxp'}{'numGlyphs'}; $i++) {
-		$f->{'loca'}{glyphs}[$i] = undef;
-	}
+        for (; $i < $f->{'maxp'}{'numGlyphs'}; $i++) 
+	{ $f->{'loca'}{glyphs}[$i] = undef; }
     }
     $s->{' stream'} = "";
     $ffh = Text::PDF::TTIOString->new(\$s->{' stream'});

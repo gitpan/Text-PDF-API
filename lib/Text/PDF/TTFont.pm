@@ -81,7 +81,7 @@ sub new
     $subf = $font->{'name'}->find_name(2);
     $name =~ s/\s//oig;
     $name .= $subf if ($subf =~ m/^Regular$/oi);
-    $self->{'BaseFont'} = PDFName($self->{' subname'} . $name);
+    $self->{'BaseFont'} = PDFName(($self->{' subname'}||'') . $name);
     $subcount++;
     $self->{'Name'} = PDFName($pdfname);
     $parent->new_obj($self);

@@ -425,8 +425,8 @@ Converts a binary string of hinting code into a textual representation
     ['MIRP[10]'], ['MIRP[11]'], ['MIRP[12]'], ['MIRP[13]'], ['MIRP[14]'], ['MIRP[15]'], ['MIRP[16]'], ['MIRP[17]'],
     ['MIRP[18]'], ['MIRP[19]'], ['MIRP[1A]'], ['MIRP[1B]'], ['MIRP[1C]'], ['MIRP[1D]'], ['MIRP[1E]'], ['MIRP[1F]']);
 
-    my ($i);
-    my (%hints) = map { $_->[0] => $i++ } @hints;
+    my $i=0;
+    my (%hints) = map { ($_->[0] || '') => $i++ } @hints;
 
     sub XML_binhint
     {

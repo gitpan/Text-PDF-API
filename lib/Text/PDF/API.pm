@@ -191,7 +191,7 @@ sub newpage {
 				($width,$height)=@{$Text::PDF::API::pagesizes{$width}};
 			}
 		} elsif(!defined($width) && !defined($height)) {
-			if($this->getDefault('pageorientation')=~/^L/i) {
+			if($this->getDefault('pageorientation','Portrait')=~/^L/i) {
 				($height,$width)=$this->_getDefaultpageWH();
 			} else {
 				($width,$height)=$this->_getDefaultpageWH();
@@ -330,14 +330,19 @@ sub resolveFontFile {
 		map {
 			$fontfile="$_/$file";
 			if(-e $fontfile) { return $fontfile; }
+			$fontfile="$_/Text/PDF/API/fonts/ttf/$file";
+			if(-e $fontfile) { return $fontfile; }
+			$fontfile="$_/Text/PDF/fonts/ttf/$file";
+			if(-e $fontfile) { return $fontfile; }
+			$fontfile="$_/Text/PDF/API/fonts/t1/$file";
+			if(-e $fontfile) { return $fontfile; }
+			$fontfile="$_/Text/PDF/fonts/t1/$file";
+			if(-e $fontfile) { return $fontfile; }
 		} (
-			'.',$this->{'FONTDIR'},@{$this->{'FONTPATH'}},
-			map {
-				glob("$_/Text/PDF/API/fonts/ttf"),
-				glob("$_/Text/PDF/fonts/ttf"),
-				glob("$_/Text/PDF/API/fonts/t1"),
-				glob("$_/Text/PDF/fonts/t1"),
-			} (@INC)
+			'.',
+			$this->{'FONTDIR'} || '/usr/share/fonts',
+		##	@{$this->{'FONTPATH'}} || '/usr/share/fonts',
+			@INC
 		);
 	}
 	return undef;
@@ -630,6 +635,7 @@ sub useFont {
 	my ($this,$name,$size,$enc)=@_;
 	my $fontkey=genKEY($name);
 	my $cenc;
+	$enc=$enc ||'latin1';
 	if($enc 
 		&& (lc($enc) ne 'ucs2')
 		&& (lc($enc) ne 'utf8')
@@ -662,8 +668,8 @@ sub useFont {
 	$this->{'CURRENT'}{'font'}{'PDFN'}=$this->{'FONTS'}->{$fontkey}{'PDFN'};
 	$this->{'CURRENT'}{'font'}{'Size'}=$size;
 	$this->{'CURRENT'}{'font'}{'Type'}=$this->{'FONTS'}->{$fontkey}{'type'};
-	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc || 'latin1';
-	if(!$this->{'UNIMAPS'}->{$enc}) {
+	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc;
+	if(!($this->{'UNIMAPS'}->{$enc} || 0)) {
 		$this->{'UNIMAPS'}->{$enc}=Text::PDF::API::UniMap->new($enc);
 	}
 	return($this->{'CURRENT'}{'font'}{'PDFN'});
@@ -973,7 +979,7 @@ sub textFont {
 		if($this->{'FONTS'}->{$cenc}) {
 			$fontkey=$cenc;
 		}
-                $font=$this->{'FONTS'}->{$fontkey}->{'PDFN'};
+                $font=$this->{'FONTS'}->{$fontkey}->{'PDFN'} || die "font='$name' with encoding='$enc' not defined, use newFont() !";
 	}
 	$this->initFontCurrent;
 	$font||=$this->{'CURRENT'}{'font'}{'PDFN'};
@@ -993,7 +999,7 @@ sub textAdd {
 	my ($this,$text)=@_;
 	$this->initFontCurrent;
 	my $g;
-	my $k=$this->{'CURRENT'}{'font'}{'Key'};
+	my $k=$this->{'CURRENT'}{'font'}{'Key'} || die "font not defined, use newFont() !";
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
 	if( lc($enc) eq 'utf8' ) {
 		$enc='ucs2';
@@ -1022,7 +1028,9 @@ sub textAdd {
 			} elsif($this->{'CURRENT'}{'font'}{'Type'} eq 'PS') {
 				$this->_addtopage(unpack('H2',"$c"));
 			} else {
-				$g=$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))};
+				$g=$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))} 
+					|| $this->{'FONTS'}{$k}{"u2g"}{20}
+					|| 0;
 				vec($this->{'FONTS'}{$k}->{'pdfobj'}->{' subvec'},$g,1)=1 if($this->getDefault('subset',0));
 				$this->_addtopage(sprintf('%04x',$g));
 			}
@@ -2031,9 +2039,7 @@ of Translate, Skew, Scale & Rotate.
 
 Starts a text block.
 
-=item $pdf->endText
-
-Ends a text block
+B<Note:> The following methods can only be used in between beginText/endText !!!
 
 =item $pdf->charSpacing [ $spacing ]
 
@@ -2067,6 +2073,10 @@ Adds text to the text-block.
 =item $pdf->textNewLine [ $leading ]
 
 Moves the text-pointer to a new line using TextLeading as default. 
+
+=item $pdf->endText
+
+Ends a text block
 
 =back
 
