@@ -3,7 +3,7 @@ package Text::PDF::API::Image;
 #
 # USAGE:
 #	use Text::PDF::API::Image;
-#	($w,$h,$bpc,$cs,$img)=Text::PDF::API::Image::parseImage('filename');
+#	($w,$h,$bpc,$cs,$img)=Text::PDF::API::Image::parseImage('filename',$type);
 #
 
 
@@ -19,29 +19,40 @@ use vars qw( @EXPORT @EXPORT_OK %EXPORT_TAGS );
 
 sub parseImage {
 	my $file=shift @_;
+	my $type=shift @_;
+	my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
 	my ($buf);
 	my ($w,$h,$bpc,$cs,$img)=(0,0,'','','');
-	if(ref($file) EQ '') {
+	if(!$type){
 		open(INF,$file);
 		read(INF,$buf,100,0);
 		close(INF);
 		if($buf=~/^GIF8[7,9]a/) {
-			die "Image File format 'GIF' not supported";
+			$type='GIF';
 		} elsif ($buf=~/^\xFF\xD8/) {
-			die "Image File format 'JPEG' not supported";
+			$type='JPEG';
 		} elsif ($buf=~/^\x89PNG/) {
-			($w,$h,$bpc,$cs,$img)=parsePNG($file,$buf);
+			$type='PNG';
 		} elsif ($buf=~/^P[456][\s\n]/) {
+			$type='PPM';
+		}
+	}
+
+	eval(qq| use Text::PDF::API::$type; |);
+	if($@) {
+		if($type eq 'PNG') {
+			($w,$h,$bpc,$cs,$img)=parsePNG($file,$buf);
+		} elsif($type eq 'PPM') {
 			($w,$h,$bpc,$cs,$img)=parsePNM($file,$buf);
 		} else {
-			die "Image File format not supported";
+			print "imageformat '$type' unsupported.\n";
+			return (undef);
 		}
-	} elsif(ref($file) EQ 'GD::Image') {
-		($w,$h,$bpc,$cs,$img)=parseGD($file);
-	} elsif(ref($file)=~/^Image\:\:/) {
-		($w,$h,$bpc,$cs,$img)=parseImageBase($file);
 	} else {
-		die "Image Object format: '".ref($file)."' not supported";
+	
+		($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
+		$bpc=8;
+		$cs=$css[$cs]; 
 	}
 	return ($w,$h,$bpc,$cs,$img);
 }

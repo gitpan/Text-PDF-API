@@ -28,6 +28,7 @@
 
 	<LI><A HREF="#HISTORY">HISTORY</A>
 	<LI><A HREF="#CONTRIBUTORS_BUGHUNTERS_THAN">CONTRIBUTORS / BUGHUNTERS / THANKS</A>
+	<LI><A HREF="#PLUG_INS">PLUG-INS</A>
 	<LI><A HREF="#BUGS">BUGS</A>
 	<LI><A HREF="#TODO_in_no_particular_order_">TODO ( in no particular order )</A>
 </UL>
@@ -343,6 +344,41 @@ Calculates the width of the text based on the parameters set by useFont.
 <STRONG>BEWARE:</STRONG> Does not consider parameters specified by setFont* and <CODE>*Matrix</CODE>
 functions.
 
+<DT><STRONG><A NAME="item__pdf_calcTextWidthFSET">$pdf-&gt;calcTextWidthFSET $fontname $size $encoding $text</A></STRONG><DD>
+<P>
+Calculates the width of the text without needing useFont.
+
+<P>
+<STRONG>BEWARE:</STRONG> Does not consider parameters specified by setFont* and <CODE>*Matrix</CODE>
+functions.
+
+<DT><STRONG><A NAME="item__fontsize_">($fontsize, $fudgefactor) = $pdf-&gt;paragraphFit $font, $encoding, $leadingfactor, $width, $height, $text [, $fudge]</A></STRONG><DD>
+<P>
+Calculates the the required <CODE>$fontsize</CODE> to fit
+<CODE>$text</CODE> into the paragraph <CODE>$width</CODE> x
+<CODE>$height</CODE> using $font, <CODE>$encoding</CODE> and
+$leadingfactor. <CODE>$fudge</CODE> is a factor used to correct increasing
+fontsizes in relation to the given <CODE>$width</CODE> and common
+text-patterns (wordlength, ...) found in both english and german languages
+which defaults to 0.95. The returned <CODE>$fudgefactor</CODE> is the
+actual factor used to calculate <CODE>$fontsize</CODE> since the algurithm
+can only mathematically estimate a fitting contition, but a perfect fit may
+ll somewhere between <CODE>$fudgefactor</CODE> and 1.
+
+<P>
+<STRONG>BEWARE:</STRONG> this function does !
+
+<P>
+<STRONG>BEWARE:</STRONG> same limitations as $pdf-&gt;calcTextWidthFSET !
+
+<DT><STRONG><A NAME="item__xend_">($xend, $yend, $overflowtext) = $pdf-&gt;textParagraph $x, $y, $width, $height, $text [, $block ]</A></STRONG><DD>
+<P>
+Positions <CODE>$text</CODE> into the paragraph specified by $x, $y,
+<CODE>$width</CODE> and $height. If <CODE>$block</CODE> is true the text is
+block aligned else it is left aligned. The function returns the end
+position of the text and if the text can not entirely positioned into the
+paragraph the actual overflow. 
+
 <DT><STRONG><A NAME="item__pdf_showText">$pdf-&gt;showText $text</A></STRONG><DD>
 <P>
 Displays the <CODE>$text</CODE> based on the parameters given by the *Font*
@@ -444,6 +480,10 @@ quot errat demonstrandum
 Current loading support includes NetPBM images of the RAW_BITS variation
 and non-interlaced/non-filtered PNG. Transperancy/Opacity information is
 currently ignored as well as Alpha-Channel information.
+
+<P>
+<STRONG>Note:</STRONG> As of version 0.604 the API supports additional image-formats via XS
+drop-in modules namely JPEG, GIF, PPM, BMP (little-endian only). 
 
 <DT><STRONG>( $key , $width , $height ) = $pdf-&gt;rawImage $name, $width $height $type @imagearray</STRONG><DD>
 <P>
@@ -623,10 +663,7 @@ added: new text-block functions to ease the use of text.
 <P>
 changed: unicode&lt;-&gt;name mapping was broken under perl-5.004xx.  
 
-<P>
-<STRONG>PLEASE NOTE:</STRONG> this is now the minimum required version for the upcoming APIx
-module-chain.
-
+<DT><STRONG>Version 0.6.0x to</STRONG><DD>
 </DL>
 <P>
 <HR>
@@ -639,6 +676,14 @@ for writing Text::PDF in the first place
 Lester Hightower <A
 HREF="mailto:[hightowe@TheAIMSGroup.com]">[hightowe@TheAIMSGroup.com]</A>
 -- fixes/reports: perl-5.004xx, key-generation, Makefile.PL
+
+<P>
+<HR>
+<H1><A NAME="PLUG_INS">PLUG-INS</A></H1>
+<P>
+As of Version 0.604 bitmapped image loading functions can be extended via
+XS modules. Currently available: Text-PDF-API-JPEG, Text-PDF-API-GIF,
+Text-PDF-API-PPM and Text-PDF-API-BMP (little-endian only).
 
 <P>
 <HR>

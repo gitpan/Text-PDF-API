@@ -31,5 +31,5 @@ use Text::PDF::API;
 		$la=$x;
 	}
         $pdf->endpage();
-        $pdf->saveas("example7.pdf");
+        $pdf->saveas("$0.pdf");
         $pdf->end;

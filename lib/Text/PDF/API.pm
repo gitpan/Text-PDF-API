@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.6";
+$VERSION = "0.605";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -35,18 +35,7 @@ use Text::PDF::TTFont0;
 
 
 sub genKEY {
-        my $key=join('./,',@_);
-        ## my $mdkey='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890.-';
-        ## my $i=(length($key) >> 3)+1;
-        ## my @k=split(//,$key);
-        ## my $o=0;
-        ## $key='';
-        ## foreach (0..$i) {
-        ##        foreach my $v (0..15) {
-        ##                $o=($o+ord(shift @k)+vec($key,$v,8)) & 0x3f;
-        ##                vec($key,$v,8)=vec($mdkey,$o,8);
-        ##        }
-        ## }
+        my $key=join(',',@_);
 	use Digest::REHLHA qw( rehlha0_16 );
 	$key=rehlha0_16($key);
         return($key);
@@ -777,6 +766,48 @@ sub getFontMatrix {
 	);
 }
 
+sub calcTextWidthFSET {
+        my ($this,$name,$size,$enc,$text)=@_;
+        my $fontkey=genKEY($name);
+        my $cenc;
+        if($enc) {
+                $cenc=$enc;
+                $cenc=~s/[^a-z0-9\-]+//cgi;
+                $cenc="$fontkey-$cenc";
+        } else {
+                $cenc=$fontkey;
+        }
+
+        if(
+                ($fontkey NE $cenc) &&
+                (($this->{'FONTS'}->{$fontkey}{'type'} EQ 'PS') || ($this->{'FONTS'}->{$fontkey}{'type'} EQ 'AC'))
+        ) {
+                if( !$this->{'FONTS'}->{$cenc} ) {
+                        $this->newFontT1reencode($fontkey,$this->{'FONTS'}->{$fontkey}{'type'},$enc);
+                }
+                $fontkey=$cenc;
+        }
+	my $font=$this->{'FONTS'}{$fontkey}{'pdfobj'};
+	my $type=$this->{'FONTS'}{$fontkey}{'type'};
+        my $wm=0;
+
+
+        if($type EQ 'AC') {
+                foreach my $c (split(//,$text)) {
+                        $wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
+                }
+        } elsif($type EQ 'PS') {
+                foreach my $c (split(//,$text)) {
+                        $wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
+                }
+        } elsif($type EQ 'TT') {
+                foreach my $c (split(//,$text)) {
+                        $wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
+                }
+        }
+        return $wm;
+}
+
 sub calcTextWidth {
 	my ($this,$text)=@_;
 
@@ -844,6 +875,7 @@ sub textLeading  {
 	my $this = shift @_;
 	my $tl=(shift @_) || $this->{'CURRENT'}{'font'}{'TextLeading'} || 0;
 	$this->_addtopage(sprintf(" %.9f TL \n",$tl));
+	return $tl;
 }
 sub textRise  {
 	my $this = shift @_;
@@ -924,6 +956,130 @@ sub textAdd {
 sub endText {
 	my ($this)=@_;
 	$this->_addtopage(" ET \n");
+}
+
+sub paragraphFit {
+        use POSIX qw( floor );
+        my ($this)=shift @_;
+        my ($font)=shift @_;
+        my ($encoding)=shift @_;
+        my ($leadingfactor)=shift @_;
+        my ($width)=shift @_;
+        my ($height)=shift @_;
+        my ($text)=shift @_;
+        my ($fudge)=shift @_ || 0.95;
+	my $paragraphs=scalar split(/\n/,$text);
+        my $text_width=$this->calcTextWidthFSET($font,10,$encoding,$text)/10;
+        my $size=((($width*$height)-($leadingfactor*$paragraphs))/($leadingfactor*$text_width))**0.5;
+        if(($width/$size)<20) {
+                $fudge*=$fudge;
+        }
+        if(($width/$size)<10) {
+                $fudge*=$fudge;
+        }
+        #       if(($width/$size)<5) {
+        #               $fudge*=$fudge;
+        #       }
+        $size*=$fudge;
+        $size=floor($size*$width)/$width;
+        return($size,$fudge);
+}
+
+sub paragraphFit2 {
+	my ($this)=shift @_;
+        my ($font)=shift @_;
+        my ($encoding)=shift @_;
+        my ($leadingfactor)=shift @_;
+        my ($width)=shift @_;
+        my ($height)=shift @_;
+        my ($text)=shift @_;
+	my ($mindelta)=shift @_ || 0.01 ;
+	my ($maxiterations)=shift @_ || 10;
+	my ($fontsize,$fudge)=$this->paragraphFit($font,$encoding,$leadingfactor,$width,$height,$text,1-$mindelta);
+	my $fontsizelast;
+	do {
+		$fontsizelast=$fontsize;
+		$maxiterations--;
+		my @paras=split(/\n/,$text);
+		my ($para, $line, @words, $word, $lastwidth);
+		$line=$fontsize*$leadingfactor*(scalar @paras - 1);
+		while(defined($para=shift @paras)) {
+			$lastwidth=0;
+			@words=split(/\s+/,$para);
+			my @wline;
+			while(0 < scalar @words){
+				if($this->calcTextWidthFSET($font,$fontsize,$encoding,join(' ',@wline,$words[0]) < $width)){
+					push(@wline,shift @words);
+					$lastwidth=$this->calcTextWidthFSET($font,$fontsize,$encoding,join(' ',@wline));
+				} elsif($this->calcTextWidthFSET($font,$fontsize,$encoding,$words[0]) > $width){
+					@wline=();
+					$line+=$fontsize*$leadingfactor;
+					$lastwidth=0;
+				} else {
+					@wline=();
+					$line+=$fontsize*$leadingfactor;
+					$lastwidth=0;
+				}
+			}
+		}
+		my $area=($line*$width)+($lastwidth*$fontsize*$leadingfactor);
+		$fontsize=$fontsizelast*($width*$height/($area*$leadingfactor))**0.5;
+		## $fontsize=$fontsizelast*($width*$height/($area))**0.5;
+		print STDERR "this=$fontsize, last=$fontsizelast\n";
+	} while ( (abs(1-($fontsize/$fontsizelast))>$mindelta) && ($maxiterations>0) );
+	return($fontsize,abs(1-($fontsize/$fontsizelast)),$maxiterations);
+}
+
+sub textParagraph {
+	my ($this,$x,$y,$w,$h,$text,$block)=@_;
+	if(!$text) {return($x,$y);}
+	$this->beginText;
+	my $tl=$this->textLeading;
+	$h-=($tl/2);
+	$this->textFont;
+	$this->textPos($x,$y);
+	my @paras=split(/\n/,$text);
+	my $para;
+	my $line=0;
+	my $word;
+	my $hor=0;
+	while(defined($para=shift @paras)) {
+		@words=split(/\s+/,$para);
+		$hor=0;
+		my @wline;
+		while(( 0 < scalar @words ) && ( $h > $line )){
+			if($this->calcTextWidth(join(' ',@wline,$words[0])) < $w) {
+				push(@wline,shift @words);
+			} elsif($this->calcTextWidth($words[0]) > $w) {
+				push(@wline,shift @words);
+				$this->textAdd(join(' ',@wline));
+				@wline=();
+				$this->textNewLine;	$line+=$this->{'CURRENT'}{'font'}{'TextLeading'};
+				$hor=0;
+			} else {
+				if($block) {
+					$this->wordSpacing(($w-$this->calcTextWidth(join(' ',@wline)))/((scalar @wline - 1)?(scalar @wline - 1):1));
+				}	
+				$this->textAdd(join(' ',@wline));
+				@wline=();
+				$this->textNewLine;	$line+=$this->{'CURRENT'}{'font'}{'TextLeading'};
+				$hor=0;
+			}
+			if(( 0 == scalar @words ) && ( $h > $line ) && ( scalar @wline )){
+				if($block) {
+					$this->wordSpacing(0);
+				}	
+				$this->textAdd(join(' ',@wline));
+				$hor=$this->calcTextWidth(join(' ',@wline));
+			} elsif (( $h < $line ) && ( scalar @wline )) {
+				unshift(@words,@wline);
+			}
+		}
+		if($line>$h){last;}
+		$this->textNewLine;	$line+=$this->{'CURRENT'}{'font'}{'TextLeading'};
+	}
+	$this->endText;
+	return($x+$hor,$y-$line,join("\n",join(' ',@words),@paras));
 }
 
 sub showText {
@@ -1352,15 +1508,46 @@ sub closefillstrokeNZ {
 	$this->_addtopage("b*\n");
 }
 
-sub newImage {
-	my ($this,$file)=@_;
-	my $xo;
-	my $key='IMGx'.genKEY($file);
-
-	use Text::PDF::API::Image;
-	my ($w,$h,$bpc,$cs,$img)=Text::PDF::API::Image::parseImage($file);
+sub rawImage {
+	my($this, $name, $w, $h, $type, @imagearray)=@_;
+	
+	my ($xo,$img,$bpc,$cs);
+	my $key='IMGxRAW'.genKEY(sprintf('%s%s-%d-%d',$name,$w,$h,$type));
 
 	if(!defined($this->{'IMAGES'}{$key})) {
+		if($type EQ '-rgb'){
+			$img=join('',
+				map {
+					pack('C',$_);
+				} @imagearray
+			);
+			$cs='DeviceRGB';
+			$bpc=8;
+		} elsif($type EQ '-RGB') {
+			$img=join('',
+				map {
+					pack('H*',$_);
+				} @imagearray
+			);
+			$cs='DeviceRGB';
+			$bpc=8;
+		} elsif ($type==1) {
+			($img)=@imagearray;
+			$cs='DeviceGray';
+			$bpc=8;
+		} elsif ($type==3) {
+			($img)=@imagearray;
+			$cs='DeviceRGB';
+			$bpc=8;
+		} elsif ($type==4) {
+			($img)=@imagearray;
+			$cs='DeviceCMYK';
+			$bpc=8;
+		} elsif ($type=~/device.*/i) {
+			$cs=$type; 
+			$bpc=8;
+			$img=join('',@imagearray);
+		}
 		$xo=PDFDict();
 		$this->{'PDF'}->new_obj($xo);
 		$xo->{'Type'}=PDFName('XObject');
@@ -1381,47 +1568,14 @@ sub newImage {
 	return ($key,$w,$h);
 }
 
-sub rawImage {
-	my($this, $name, $w, $h, $type, @imagearray)=@_;
-	
-	my ($xo,$img,$bpc,$cs);
-	my $key='IMGxRAW'.genKEY(sprintf('%s%s-%d-%d',$name,$type,$w,$h));
+sub newImage {
+	my ($this,$file,$type)=@_;
+	my $xo;
+	my $key;
 
-	if(!defined($this->{'IMAGES'}{$key})) {
-		if($type EQ '-rgb'){
-			$img=join('',
-				map {
-					pack('C',$_);
-				} @imagearray
-			);
-			$cs='DeviceRGB';
-			$bpc=8;
-		} elsif($type EQ '-RGB') {
-			$img=join('',
-				map {
-					pack('H*',$_);
-				} @imagearray
-			);
-			$cs='DeviceRGB';
-			$bpc=8;
-		}
-		$xo=PDFDict();
-		$this->{'PDF'}->new_obj($xo);
-		$xo->{'Type'}=PDFName('XObject');
-		$xo->{'Subtype'}=PDFName('Image');
-		$xo->{'Name'}=PDFName($key);
-		$xo->{'Width'}=PDFNum($w);
-		$xo->{'Height'}=PDFNum($h);
-		$xo->{'Filter'}=PDFArray(PDFName('FlateDecode'));
-		$xo->{'BitsPerComponent'}=PDFNum($bpc);
-		$xo->{'ColorSpace'}=PDFName($cs);
-		$xo->{' stream'}=$img;
-		$this->{'IMAGES'}{$key}=$xo;
-		if(!defined($this->{'ROOT'}->{'Resources'}->{'XObject'})) {
-			$this->{'ROOT'}->{'Resources'}->{'XObject'}=PDFDict();
-		}
-		$this->{'ROOT'}->{'Resources'}->{'XObject'}->{$key}=$xo;
-	}
+	use Text::PDF::API::Image;
+	my ($w,$h,$bpc,$cs,$img)=Text::PDF::API::Image::parseImage($file,$type);
+	($key,$w,$h)=$this->rawImage($file,$w,$h,$cs,$img);
 	return ($key,$w,$h);
 }
 
@@ -1739,6 +1893,30 @@ Calculates the width of the text based on the parameters set by useFont.
 
 B<BEWARE:> Does not consider parameters specified by setFont* and *Matrix functions.
 
+=item $pdf->calcTextWidthFSET $fontname $size $encoding $text
+
+Calculates the width of the text without needing useFont.
+
+B<BEWARE:> Does not consider parameters specified by setFont* and *Matrix functions.
+
+=item ($fontsize, $fudgefactor) = $pdf->paragraphFit $font, $encoding, $leadingfactor, $width, $height, $text [, $fudge] 
+
+Calculates the the required $fontsize to fit $text into the paragraph $width x $height using $font, $encoding and 
+$leadingfactor. $fudge is a factor used to correct increasing fontsizes in relation to the given $width and
+common text-patterns (wordlength, ...) found in both english and german languages which defaults to 0.95.
+The returned $fudgefactor is the actual factor used to calculate $fontsize since the algurithm can only
+mathematically estimate a fitting contition, but a perfect fit may ll somewhere between $fudgefactor and 1.
+
+B<BEWARE:> this function does !
+
+B<BEWARE:> same limitations as $pdf->calcTextWidthFSET !
+
+=item ($xend, $yend, $overflowtext) = $pdf->textParagraph $x, $y, $width, $height, $text [, $block ] 
+
+Positions $text into the paragraph specified by $x, $y, $width and $height. If $block is
+true the text is block aligned else it is left aligned. The function returns the end position
+of the text and if the text can not entirely positioned into the paragraph the actual overflow. 
+
 =item $pdf->showText $text
 
 Displays the $text based on the parameters given by the *Font* functions.
@@ -1882,6 +2060,10 @@ Current loading support includes NetPBM images of the
 RAW_BITS variation and non-interlaced/non-filtered PNG.
 Transperancy/Opacity information is currently ignored
 as well as Alpha-Channel information.
+
+B<Note:> As of version 0.604 the API supports additional
+image-formats via XS drop-in modules namely JPEG, GIF, PPM,
+BMP (little-endian only). 
 
 =item ( $key , $width , $height ) = $pdf->rawImage $name, $width $height $type @imagearray
 
@@ -2055,8 +2237,7 @@ added: new text-block functions to ease the use of text.
 
 changed: unicode<->name mapping was broken under perl-5.004xx.  
 
-B<PLEASE NOTE:> this is now the minimum required version for the upcoming 
-APIx module-chain.
+=item Version 0.6.0x to
 
 =back
 
@@ -2067,6 +2248,12 @@ Martin Hosken [mhosken@sil.org]
 
 Lester Hightower [hightowe@TheAIMSGroup.com] 
 -- fixes/reports: perl-5.004xx, key-generation, Makefile.PL
+
+=head1 PLUG-INS
+
+As of Version 0.604 bitmapped image loading functions can be extended
+via XS modules.  Currently available: Text-PDF-API-JPEG, Text-PDF-API-GIF, 
+Text-PDF-API-PPM and Text-PDF-API-BMP (little-endian only).
 
 =head1 BUGS
 

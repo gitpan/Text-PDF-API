@@ -11,6 +11,14 @@ examples/example5.pl
 examples/example6.pl
 examples/example7.pl
 examples/example8.pl
+examples/example9.pl
+examples/example10.pl
+examples/example11.pl
+examples/example12.pl
+examples/example13.pl
+examples/example14.pl
+examples/example15.pl
+examples/example16.pl
 scripts/font-rep-pdf.pl
 scripts/psf2afm.pl
 lib/Digest/REHLHA.pm
