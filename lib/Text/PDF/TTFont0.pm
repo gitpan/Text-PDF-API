@@ -198,8 +198,8 @@ sub outobjdeep
         my ($mode, $miniArr, $i, $j, $first, @minilist);
         
         $f->{'glyf'}->read;
-        $f->{'cmap'}->read;
-        my $max=scalar $f->{'cmap'}->reverse;
+        $f->{'maxp'}->read;
+        my $max=length($self->{' subvec'}) * 8;
 
         for ($i = 0; $i <= $max; $i++)
         {
@@ -227,6 +227,9 @@ sub outobjdeep
             else
             { $f->{'loca'}{glyphs}[$i] = undef; }
         }
+        for ($i = $max+1; $i <= $f->{'maxp'}{'numGlyphs'}; $i++) {
+		$f->{'loca'}{glyphs}[$i] = undef;
+	}
     }
     $s->{' stream'} = "";
     $ffh = Text::PDF::TTIOString->new(\$s->{' stream'});

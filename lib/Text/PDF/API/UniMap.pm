@@ -6,14 +6,9 @@ use vars qw ($VERSION @EXPORT @EXPORT_OK @EXPORT_TAGS @ISA);
 BEGIN {
     @ISA         = qw(Exporter);
     @EXPORT      = qw ();
-    @EXPORT_OK   = qw ( utf8_to_ucs2 utf16_to_ucs2 ucs2_to_utf8 );
+    @EXPORT_OK   = qw ( utf8_to_ucs2 utf16_to_ucs2 );
     @EXPORT_TAGS = qw ();
     $VERSION     = "0.2.1";
-}
-
-sub utf8_to_ucs4 {
-	my $string=shift @_;
-	
 }
 
 sub utf8c_to_ucs4c {
@@ -93,7 +88,6 @@ sub utf8c_to_ucs2c {
 }
 
 sub utf8_to_ucs2 {
-	## use Unicode::String;
 	my $string=shift @_;
 	my($ucs,$len,$final);
 	do {
@@ -101,34 +95,17 @@ sub utf8_to_ucs2 {
 		$final.=$ucs;
 		$string=substr($string,$len-length($string),length($string)-$len);
 	} while( ($len>0) && (length($string)>0) );
-        ## my $u = Unicode::String::utf8($string);
-        ## my $ordering = $u->ord;
-        ## $u->byteswap if (defined($ordering) && ($ordering == 0xFFFE));
-        ## my $final = $u->ucs2;
-	return($final);
-}
-
-sub ucs2_to_utf8 {
-	use Unicode::String;
-	my $string=shift @_;
-        my $u = Unicode::String::ucs2($string);
-        my $final = $u->utf8;
 	return($final);
 }
 
 sub utf16_to_ucs2 {
-	use Unicode::String;
-	my $string=shift @_;
-        my $u = Unicode::String::utf16($string);
-        ## my $ordering = $u->ord;
-        ## $u->byteswap if (defined($ordering) && ($ordering == 0xFFFE));
-        my $final = $u->ucs2;
+	my $final=shift @_;
 	return($final);
 }
 
 sub new {
 	my $class=shift(@_);
-	my $encoding=lc(shift @_);
+	my $encoding=lc(shift @_) || 'latin1';
 	my $this={};
 	$encoding=~s/[^a-z0-9\-]+//cgi;
 	bless($this,$class);
@@ -200,12 +177,16 @@ sub glyphs {
 }
 
 sub unimaps {
-	my $unimapdir; map {
-		if(-d "$_/Text/PDF/API/UniMap"){
-			$unimapdir="$_/Text/PDF/API/UniMap";
-		}
-	} @INC;
-	return( map { $_=~s/^$unimapdir\/(.*)\.map$/$1/cgi; lc($_); } glob("$unimapdir/*.map") );
+	return( 
+		map {	
+			$_=~s/\/([^\/]+)\.map$/$1/cgi; 
+			lc($_); 
+		} (
+			map { 
+				glob("$_/Text/PDF/API/UniMap/*.map"); 
+			} @INC
+		) 
+	);
 }
 
 sub isMap {

@@ -1,5 +1,5 @@
 use Text::PDF::API;
-use Color::Object;
+use Text::PDF::API::Color;
 
 
 
@@ -154,7 +154,7 @@ sub piechart {
 }
 
 
-	my $col=Color::Object->newRGB(1,0,0);
+	my $col=Text::PDF::API::Color->newRGB(1,0,0);
 	$data=[];
 	$data->[0]={};
 	$data->[0]->{'txt'}="#0";

@@ -7,7 +7,6 @@ use Text::PDF::File;
 use Text::PDF::AFont;
 use Text::PDF::Page;
 use Text::PDF::Utils;
-use Text::PDF::SFont;
 use Text::PDF::TTFont;
 use Text::PDF::TTFont0;
 use Text::PDF::TTFont0;
@@ -857,7 +856,7 @@ sub calcTextWidthFSETX {
         	        }
         	}
 	}
-        return $wm;
+        return $wm*(($this->{'CURRENT'}{'font'}{'TextHScale'}||100)/100);
 }
 
 sub calcTextWidthFSET {
@@ -899,6 +898,11 @@ sub setTextRendering  {
 	my $this = shift @_;
 	$this->{'CURRENT'}{'font'}{'TextRendering'} = shift @_;
 }
+sub setTextHScale  {
+	my $this = shift @_;
+	$this->{'CURRENT'}{'font'}{'TextHScale'} = shift @_;
+}
+
 
 sub beginText {
 	my ($this)=@_;
@@ -929,6 +933,11 @@ sub textRendering {
 	my $this = shift @_;
 	my $tr=(shift @_) || $this->{'CURRENT'}{'font'}{'TextRendering'} || 0;
 	$this->_addtopage(sprintf(" %i Tr \n",$tr));
+}
+sub textHScale {
+	my $this = shift @_;
+	my $tr=(shift @_) || $this->{'CURRENT'}{'font'}{'TextHScale'} || 100;
+	$this->_addtopage(sprintf(" %i Tz \n",$tr));
 }
 sub textMatrix {
 	my $this = shift @_;
@@ -1192,6 +1201,7 @@ sub showText {
 	$this->wordSpacing();
 	$this->textLeading();
 	$this->textRise;
+	$this->textHScale;
 	$this->textRendering;
 	$this->textMatrix;
 	$this->textAdd($text);
@@ -1510,7 +1520,7 @@ sub shadePath {
 
 sub shadeAdd {
 	my ($this,$obj,$name)=@_;
-	my $key='SHx'.( $name ? $name : genKEY(scalar localtime()));
+	my $key='SHx'.genKEY($name.time().rand(10000000));
 	$this->{'PDF'}->new_obj($obj);
         $this->{'ROOT'}->{'Resources'}->{'Shading'}=$this->{'ROOT'}->{'Resources'}->{'Shading'} || PDFDict();
         $this->{'ROOT'}->{'Resources'}->{'Shading'}->{$key}=$obj;

@@ -1,4 +1,4 @@
-use Color::Object;
+use Text::PDF::API::Color;
 use Text::PDF::API;
 
         $d=-20;
@@ -10,7 +10,7 @@ use Text::PDF::API;
 
 	$t=$ARGV[0];
 	$h=842/$t;
-	$c=Color::Object->newRGB(1,0,0);
+	$c=Text::PDF::API::Color->newRGB(1,0,0);
 	foreach $x (0..($t-1)) {
 		$pdf->setColorFill($c->asRGB);
 		$pdf->rect(0,$x*$h,75,$h);

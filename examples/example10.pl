@@ -1,4 +1,4 @@
-use Color::Object;
+use Text::PDF::API::Color;
 use Text::PDF::API;
 use Math::Trig;
 
@@ -9,7 +9,7 @@ use Math::Trig;
 	$x=250;
 	$y=600;
 	$r=10;
-	$c=Color::Object->new;
+	$c=Text::PDF::API::Color->new;
 	foreach $l (0,0.25,0.5,0.75,1) {
 		
 		foreach $d (0,30,60,90,120,150,180,210,240,270,300,330) {

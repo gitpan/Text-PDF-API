@@ -1,11 +1,11 @@
-use Color::Object;
+use Text::PDF::API::Color;
 use Text::PDF::API;
 
         $f=5;
         $pdf=Text::PDF::API->new(pagesize=>'a4', 'compression'=>1);
         $pdf->newFont('Helvetica-Bold');
         $pdf->useFont('Helvetica-Bold',$f);
-	$ff=Color::Object->new();
+	$ff=Text::PDF::API::Color->new();
 	@colors=sort keys %col;
 	while($color=shift @colors) {
         	$pdf->newpage();

@@ -25,6 +25,7 @@ examples/example19.pl
 examples/shading.pl
 lib/Text/PDF/AFont.pm
 lib/Text/PDF/API.pm
+lib/Text/PDF/API/Color.pm
 lib/Text/PDF/API/IOString.pm
 lib/Text/PDF/API/Image.pm
 lib/Text/PDF/API/Matrix.pm
@@ -41,6 +42,7 @@ lib/Text/PDF/Objind.pm
 lib/Text/PDF/Page.pm
 lib/Text/PDF/Pages.pm
 lib/Text/PDF/String.pm
+lib/Text/PDF/SFont.pm
 lib/Text/PDF/TTFont.pm
 lib/Text/PDF/TTFont0.pm
 lib/Text/PDF/Utils.pm
