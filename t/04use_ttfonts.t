@@ -1,7 +1,7 @@
 use Text::PDF::API;
 use Test;
 
-BEGIN { plan tests => 3  }
+BEGIN { plan tests => 4 }
 
 sub test_us {
         use Digest::REHLHA qw( rehlha0_16 );

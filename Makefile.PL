@@ -18,32 +18,6 @@ WriteMakefile (
 
 `pod2html lib/Text/PDF/API.pm >docs/pdf-api.pm.html`;
 
-print <<EOT;
-
-hi!
-
-if you want to run the testing-scripts by entering:
-
-	make test
-
-you should have installed the following additional modules:
-
-	Data::DumpXML
-	MIME::Base64
-        XML::Parser
-        Array::RefElem
-	Digest::MD5
-	
-else you can just issue
-
-	make all install
-
-for installation ...
-
-have a nice day
-
--- Alfred Reibenschuh
-EOT
 
 exit;
 

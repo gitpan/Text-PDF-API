@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.699_3";
+$VERSION = "0.699_4";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
