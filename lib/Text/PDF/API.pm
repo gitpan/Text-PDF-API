@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.04";
+$VERSION = "0.041";
 
 use Text::PDF::File;
 use Text::PDF::Page;
@@ -305,12 +305,8 @@ sub newFont {
 			$file2=shift @_;
 			$fontfile=$this->resolveFontFile($file);
 			$fontfile2=$this->resolveFontFile($file2);
-			{
-				$this->_error('newFont',"unresolved file-reference font='$name', file='$fontfile'")
-			} unless($fontfile);
-			{
-				$this->_error('newFont',"unresolved file-reference font='$name', file='$fontfile2'")
-			} unless($fontfile2);
+			$this->_error('newFont',"unresolved file-reference font='$name', file='$fontfile'") unless($fontfile);
+			$this->_error('newFont',"unresolved file-reference font='$name', file='$fontfile2'") unless($fontfile2);
 		# supposed extension to the pdf postscript font handling in Text::PDF
 		# $fontfile = pfb-file and $fontfile2 = afm-file
 		#	$font=Text::PDF::AFont->new($this->{'PDF'}, $fontfile, $fontfile2, $fontname);
