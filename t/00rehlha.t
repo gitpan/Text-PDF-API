@@ -4,9 +4,9 @@ use strict;
 BEGIN { plan tests => 4 }
 
 sub test_us {
-	use Digest::REHLHA qw( rehlha0_16 );
+	use Text::PDF::API::REHLHA qw( rehlha_16 );
 	my ($pdf,$sig)=@_;
-	my $dig=rehlha0_16($pdf); 
+	my $dig=rehlha_16($pdf); 
 	ok($dig,$sig);
 }
 

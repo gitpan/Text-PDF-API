@@ -4,10 +4,9 @@ use Test;
 BEGIN { plan tests => 1 }
 
 sub test_us {
-        use Digest::REHLHA qw( rehlha0_16 );
-        my ($dig,$sig)=@_;
-        $dig=~s/[\x00-\x20\xa0-\xff]+//cgim;
-        $dig=rehlha0_16($dig);
+        use Text::PDF::API::REHLHA qw( rehlha_16 );
+        my ($pdf,$sig)=@_;
+        my $dig=rehlha_16($pdf); 
         ok($dig,$sig);
 }
 
