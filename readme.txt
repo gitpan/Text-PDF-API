@@ -12,7 +12,7 @@ WARNING
 	version !!!!!
 
 
-CHANGES FROM VERSIONS 0.04??? TO 0.5
+CHANGES FROM VERSIONS 0.04xxx TO 0.5xxx
 
 	.  Text::PDF::API now supports Type1 fonts
 	.  Font support has been rewritten to support
@@ -103,13 +103,13 @@ Installation is as per the standard module installation approach:
 
 CONTACT
 
-There is now a mailing-list available:
+There is a mailing-list available:
 
-Post message:	perl-text-pdf-modules@egroups.com
-Subscribe:	perl-text-pdf-modules-subscribe@egroups.com 
-Unsubscribe:	perl-text-pdf-modules-unsubscribe@egroups.com 
-List owner:	perl-text-pdf-modules-owner@egroups.com 
-URL to page:	http://www.egroups.com/group/perl-text-pdf-modules
+Post message:	perl-text-pdf-modules@yahoogroups.com
+Subscribe:	perl-text-pdf-modules-subscribe@yahoogroups.com
+Unsubscribe:	perl-text-pdf-modules-unsubscribe@yahoogroups.com
+List owner:	perl-text-pdf-modules-owner@yahoogroups.com
+URL to page:	http://groups.yahoo.com/group/perl-text-pdf-modules
 
 or you can contact the author: alfredreibenschuh@yahoo.com
 

@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.5002";
+$VERSION = "0.5003";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -73,20 +73,30 @@ use Text::PDF::TTFont0;
 		q/63724/ => qw/ parenleftex /, q/63725/ => qw/ parenleftbt /, q/63726/ => qw/ bracketlefttp /, q/63727/ => qw/ bracketleftex /, q/63728/ => qw/ bracketleftbt /, q/63729/ => qw/ bracelefttp /, q/63730/ => qw/ braceleftmid /, q/63731/ => qw/ braceleftbt /, q/63732/ => qw/ braceex /, q/63733/ => qw/ integralex /, q/63734/ => qw/ parenrighttp /, q/63735/ => qw/ parenrightex /, q/63736/ => qw/ parenrightbt /, q/63737/ => qw/ bracketrighttp /, q/63738/ => qw/ bracketrightex /, q/63739/ => qw/ bracketrightbt /, q/63740/ => qw/ bracerighttp /, q/63741/ => qw/ bracerightmid /, q/63742/ => qw/ bracerightbt /, q/64256/ => qw/ ff /, q/64257/ => qw/ fi /, q/64258/ => qw/ fl /, q/64259/ => qw/ ffi /, q/64260/ => qw/ ffl /, q/64287/ => qw/ afii57705 /, q/64298/ => qw/ afii57694 /, q/64299/ => qw/ afii57695 /, q/64309/ => qw/ afii57723 /, q/64331/ => qw/ afii57700 /, q// => qw/ .notdef /,
 );
 
+$mdkey=join('',qw(
+	28ALj.Yt.oHbIxZZYb24iIFM62LWEZxHh6cP68G5xXgDSEn.pp4V6KrDNAkcjftP
+	0fLJrfoNqb0P7c2ERNQa6XUpQtHiBMdB.zVqcHCQtCp.osEEDepK9H7a9OGLluXl
+	r0ZSIlsAyg9lXO-l0n3A3AkCZ.YJt32j4b9ML0XIhg1C3.x3n-Eq9z1jyZ0qd2Xh
+	dh2ziZFNEHZHHUL2TZtcWuJTSJH4LpmzUoxAMBYaS5rkaBm1leeGXxj-F-2booZG
+	bURxfzW63MrdXbeGEHWlDEjSCm2-ZbF84h4keaqiwfJSFyjUDEDQSwtegvdEUtMY
+	R9g7oazv4aaGpbxGHZvI5fkUJYB3xXgNhLVUwSN-1yEqXA5pk-6qeqIyNU0I.ggg
+	.98vcWueT7T.IYp1XvrAk865c6Obn2GmCPgpvZRNhuNzRA-y3q6nyDtYJF84IPrV
+	oWIi4j4lcRj1bi-fX4RTII0bY9gqYWJK1c15K5rwWZx6Gvmo-BFGUGs0PXry28H4
+));
+
+
 sub genKEY {
-	## use Digest::MD5 qw( md5_hex );
-	my $key=join('',@_);
-	$key=~s/[^a-z0-9]//cgi;	
+	my $key=join('./,',@_);
+	my $i=(length($key) >> 3)+1;
 	my @k=split(//,$key);
-	$key=shift @k;
-	while(shift @k) {
-		$key.=shift(@k);
-		$key.=shift(@k);
+	my $o=0;
+	$key='';
+	foreach (0..$i) {
+		foreach my $v (0..15) {
+			$o=($o+ord(shift @k)+vec($key,$v,8)) & 0x1ff;
+			vec($key,$v,8)=vec($mdkey,$o,8);
+		}
 	}
-	## $key=md5_hex($key);
-	## $key=uc(substr($key,0,10));
-	$key=uc($key);
-	
 	return($key);
 }
 
@@ -1870,13 +1880,25 @@ as truetype with the Unicode::Map8 encodings.
 
 =item Version 0.5 (07-01-2001)
 
-documetaion update and release of the much hacked 0.5_pre??? code :)
+documemtation update and release of the much hacked 0.5_pre??? code :)
+
+=item Version 0.5001 to 0.5003 
+
+minor bugfixes:
+
+under certain conditions the 'image' functions stopped working, thanks to 
+Lester Hightower [hightowe@TheAIMSGroup.com] for reporting that bug.
+hope that my newly invented "nigma-hash" keygenerator fixes this.  
+
+the symbol and zapfdingbat corefonts did not work ... since they missed 
+attributes and had wrong font-flags set ... doesn't anybody use them ?
+
 
 =back
 
 =head1 BUGS
 
-MANY! If you find some report them to perl-text-pdf-modules@egroups.com.
+MANY! If you find some report them to perl-text-pdf-modules@yahoogroups.com.
 
 =head1 TODO ( in no particular order )
 

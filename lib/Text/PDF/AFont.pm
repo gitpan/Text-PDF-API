@@ -451,20 +451,21 @@ sub newNonEmbed {
 	$self->{'FontDescriptor'}->{'FontName'}=PDFName($self->{' AFM'}->{'fontname'});
 	$self->{'FontDescriptor'}->{'Ascent'}=PDFNum($self->{' AFM'}->{'ascender'}||0);
 	$self->{'FontDescriptor'}->{'Descent'}=PDFNum($self->{' AFM'}->{'descender'}||0);
-	$self->{'FontDescriptor'}->{'CapHeight'}=PDFNum($self->{' AFM'}->{'capheight'});
 	$self->{'FontDescriptor'}->{'ItalicAngle'}=PDFNum($self->{' AFM'}->{'italicangle'}||0);
 	@w = map { PDFNum($_ || 0) } split(/\s+/,$self->{' AFM'}->{'fontbbox'});
+	$self->{'FontDescriptor'}->{'CapHeight'}=PDFNum($self->{' AFM'}->{'capheight'}||$w[3]->val||0);
 	$self->{'FontDescriptor'}->{'FontBBox'}=PDFArray(@w);
 	$self->{'FontDescriptor'}->{'StemV'}=PDFNum(0);
 	$self->{'FontDescriptor'}->{'StemH'}=PDFNum(0);
-	$self->{'FontDescriptor'}->{'XHeight'}=PDFNum($self->{' AFM'}->{'xheight'});
+	$self->{'FontDescriptor'}->{'XHeight'}=PDFNum($self->{' AFM'}->{'xheight'}||$w[3]->val||0);
 	
 	my $flags=0;
 	$flags|=1 if(lc($self->{' AFM'}->{'isfixedpitch'}) NE 'false');
 	if($self->{' AFM'}->{'encoding'}=~/standardencoding/cgi){
-		$flags|=1<<2 ;
-	} else {
 		$flags|=1<<5 ;
+	} else {
+		$flags|=1<<2 ;
+		$flags|=1<<3 ;
 	}
 	$flags|=1<<6 if(!$self->{' AFM'}->{'italicangle'});
 	$flags|=1<<17 if($self->{' AFM'}->{'fontname'}=~/SC$/);
