@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.041";
+$VERSION = "0.042";
 
 use Text::PDF::File;
 use Text::PDF::Page;
@@ -22,7 +22,7 @@ use Text::PDF::TTFont0;
 	@Text::PDF::API::CORETYPEFONTS,
 	@Text::PDF::API::CORESYMBOLFONTS
 );
-@Text::PDF::API::CORETYPEFONTS=(
+@Text::PDF::API::CORETYPEFONTS=qw(
 	Courier		Courier-Bold	Courier-Oblique		Courier-BoldOblique
 	Times-Roman	Times-Bold	Times-Italic		Times-BoldItalic
 	Helvetica	Helvetica-Bold	Helvetica-Oblique	Helvetica-BoldOblique
