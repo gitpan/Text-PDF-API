@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <TITLE>Text::PDF::API - a wrapper api for the Text::PDF::* modules of Martin Hosken.</TITLE>
-<LINK REV="made" HREF="mailto:">
+<LINK REV="made" HREF="mailto:root@porky.devel.redhat.com">
 </HEAD>
 
 <BODY>
@@ -10,24 +10,24 @@
 
 <UL>
 
-	<LI><A HREF="#NAME">NAME</A></LI>
-	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A></LI>
-	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
+	<LI><A HREF="#NAME">NAME</A>
+	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A>
+	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A>
 	<UL>
 
-		<LI><A HREF="#Base_Methods">Base Methods</A></LI>
-		<LI><A HREF="#Generic_Methods">Generic Methods</A></LI>
-		<LI><A HREF="#Font_State_Methods">Font State Methods</A></LI>
-		<LI><A HREF="#Text_Methods">Text Methods</A></LI>
-		<LI><A HREF="#Graphic_State_Methods">Graphic State Methods</A></LI>
-		<LI><A HREF="#Color_Methods">Color Methods</A></LI>
-		<LI><A HREF="#Drawing_Methods">Drawing Methods</A></LI>
-		<LI><A HREF="#Bitmap_Methods">Bitmap Methods</A></LI>
+		<LI><A HREF="#Base_Methods">Base Methods</A>
+		<LI><A HREF="#Generic_Methods">Generic Methods</A>
+		<LI><A HREF="#Font_State_Methods">Font State Methods</A>
+		<LI><A HREF="#Text_Methods">Text Methods</A>
+		<LI><A HREF="#Graphic_State_Methods">Graphic State Methods</A>
+		<LI><A HREF="#Color_Methods">Color Methods</A>
+		<LI><A HREF="#Drawing_Methods">Drawing Methods</A>
+		<LI><A HREF="#Bitmap_Methods">Bitmap Methods</A>
 	</UL>
 
-	<LI><A HREF="#HISTORY">HISTORY</A></LI>
-	<LI><A HREF="#BUGS">BUGS</A></LI>
-	<LI><A HREF="#TODO_in_no_particular_order_">TODO ( in no particular order )</A></LI>
+	<LI><A HREF="#HISTORY">HISTORY</A>
+	<LI><A HREF="#BUGS">BUGS</A>
+	<LI><A HREF="#TODO_in_no_particular_order_">TODO ( in no particular order )</A>
 </UL>
 <!-- INDEX END -->
 
@@ -39,22 +39,18 @@
 Text::PDF::API - a wrapper api for the Text::PDF::* modules of Martin
 Hosken.
 
-</P>
 <P>
 <HR>
 <H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
 <P>
 <PRE>        use Text::PDF::API;
 </PRE>
-</P>
 <P>
 <PRE>        $pdf = Text::PDF::API-&gt;new( %defaults );
 </PRE>
-</P>
 <P>
 <PRE>        $pdf-&gt;end;
 </PRE>
-</P>
 <P>
 <HR>
 <H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
@@ -67,30 +63,24 @@ Hosken.
 This creates a new pdf-object initializes it with the given defaults and
 returns it. See the functions <STRONG>getDefault</STRONG> and <STRONG>setDefault</STRONG> for a list of supported parameters.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_saveas">$pdf-&gt;saveas $file</A></STRONG><DD>
 <P>
 This saves the pdf-object to a file indicated by <STRONG>$file</STRONG>.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_end">$pdf-&gt;end</A></STRONG><DD>
 <P>
 This destroys the pdf-object and frees its memory.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_getDefault">$pdf-&gt;getDefault $parameter</A></STRONG><DD>
 <P>
 This returns the pdf-object default indicated by <STRONG>$parameter</STRONG>.
 
-</P>
 <P>
 The current supported defaults are: 
 
-</P>
 <P>
 PageSize, valid values:
 
-</P>
 <P>
 <PRE>        'a0'            =&gt;      [ 2380  , 3368  ]
         'a1'            =&gt;      [ 1684  , 2380  ]
@@ -107,46 +97,36 @@ PageSize, valid values:
         'executive'     =&gt;      [ 522   , 756   ]
         '36x36'         =&gt;      [ 2592  , 2592  ]
 </PRE>
-</P>
 <P>
 PageWidth, valid values:
 
-</P>
 <P>
 <PRE>        0 .. 32535 points (remember default = 72dpi)
         
 PageHeight, valid values:
 </PRE>
-</P>
 <P>
 <PRE>        0 .. 32535 points (remember default = 72dpi)
 </PRE>
-</P>
 <P>
 PageOrientation, valid values: Landscape, Portrait
 
-</P>
 <P>
 Compression
 
-</P>
 <P>
 <PRE>        0, 1 (= off, on)
 </PRE>
-</P>
 <P>
 PDFVersion
 
-</P>
 <P>
 <PRE>        0 .. 3 (corresponding to the adobe acrobat versions up to 4.0)
 </PRE>
-</P>
 <DT><STRONG><A NAME="item__pdf_setDefault">$pdf-&gt;setDefault $parameter , $value</A></STRONG><DD>
 <P>
 This sets the pdf-object defaults (see $pdf-&gt;getDefault for details).
 
-</P>
 <DT><STRONG><A NAME="item__pdf_newpage">$pdf-&gt;newpage [ $width, $height ]</A></STRONG><DD>
 <DT><STRONG>$pdf-&gt;newpage [ $pagesize ]</STRONG><DD>
 <P>
@@ -156,12 +136,10 @@ the funtion falls back to any given defaults (PageSize then
 PageWidth+PageHeight) and as a last resort to 'A4'. You can use also
 specify oonly the Pagesize as given under the defaults.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_endpage">$pdf-&gt;endpage</A></STRONG><DD>
 <P>
 This closes the current page.
 
-</P>
 </DL>
 <P>
 <HR>
@@ -172,22 +150,18 @@ This closes the current page.
 <P>
 Saves and restores the state of the pdf-document BUT NOT of the pdf-object.
 
-</P>
 <P>
 <STRONG>BEWARE:</STRONG> Don't cross page boundaries with save/restore, if you really don't know the
 pdf-specification well enough.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_saveState">$pdf-&gt;saveState {currently broken}</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_restoreState">$pdf-&gt;restoreState {currently broken}</A></STRONG><DD>
 <P>
 Saves and restores the state of the pdf-object and the underlying document.
 
-</P>
 <P>
 <STRONG>NOTE:</STRONG> All states are automagically restored if you issue a $pdf-&gt;endpage.
 
-</P>
 </DL>
 <P>
 <HR>
@@ -197,87 +171,112 @@ Saves and restores the state of the pdf-object and the underlying document.
 <P>
 Sets the default font search directory.
 
-</P>
 <DT><STRONG><A NAME="item__directory">$directory = $pdf-&gt;getFontDir</A></STRONG><DD>
 <P>
 Gets the default font search directory.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_addFontPath">$pdf-&gt;addFontPath $directory</A></STRONG><DD>
 <P>
 Adds a directory to the font search path.
 
-</P>
-<DT><STRONG><A NAME="item__pdf_newFont">$pdf-&gt;newFont $name, $ttfile</A></STRONG><DD>
-<DT><STRONG>$pdf-&gt;newFont $name</STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_newFont">$pdf-&gt;newFont $fontname, $ttfile</A></STRONG><DD>
+<DT><STRONG>$pdf-&gt;newFont $fontname, $psffile, $afmfile</STRONG><DD>
+<DT><STRONG>$pdf-&gt;newFont $fontname</STRONG><DD>
 <P>
 Adds a new font to the pdf-object. Based on the fonts name either a core,
 truetype or postscript font is assumed: TrueType have a ',' between the
 family and style names whereas the postscript and core fonts use a '-'.
 
-</P>
 <P>
-<STRONG>BEWARE:</STRONG> Postscript fonts other than the core fonts are not supported AND you have
-only one encoding available for the core fonts.
+<STRONG>BEWARE:</STRONG> Postscript fonts other than the core fonts are supported, BUT the
+implementation is still somewhere in alpha/beta stage and may not result in
+valid pdf-files under certain conditions. 
 
-</P>
+<P>
+<STRONG>NOTE:</STRONG> this function is for BACKWARD COMPATIBLITY ONLY (as of version 0.5) and
+will be removed sometime before version 1.0.
+
+<P>
+<STRONG>RECOMMENDATION:</STRONG> Start using the following three functions below.
+
+<DT><STRONG><A NAME="item__pdf_newFontCore">$pdf-&gt;newFontCore $fontname [, $encoding [, @glyphs ]]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_newFontTTF">$pdf-&gt;newFontTTF $fontname, $ttffile [, $encoding ]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_newFontPS">$pdf-&gt;newFontPS $fontname, $psffile, $afmfile [, $encoding [, @glyphs ]]</A></STRONG><DD>
+<P>
+Although you can add a font thru the $pdf-&gt;newFont function, these three
+new functions are much more stable (newFontPS is alpha-quality) and
+reliable.
+
+<P>
+The <CODE>$encoding</CODE> is the name of one of the encoding schemes
+supported by Unicode::Map8, 'asis' or 'custom'. If you use 'custom' as
+encoding, you have to supply the <CODE>@glyphs</CODE> array which should
+specify 256 glyph-names as defined by the ``PostScript(R) Language
+Reference 3rd. Ed. -- Appendix E''
+
+<P>
+If you do not give <CODE>$encoding</CODE> or 'asis', than the afms internal
+encoding is used.
+
+<P>
+If you give an unknown $encoding, the encoding defaults to WinAnsiEncoding.
+
 <DT><STRONG><A NAME="item__pdf_addCoreFonts">$pdf-&gt;addCoreFonts</A></STRONG><DD>
 <P>
 This is a shortcut to add all pdf-core-fonts to the pdf-object.
 
-</P>
-<DT><STRONG><A NAME="item__pdf_useFont">$pdf-&gt;useFont $name, $size,$encoding</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_useFont">$pdf-&gt;useFont $name, $size [, $encoding ]</A></STRONG><DD>
 <P>
 This selects the font at the specified size and encoding. The font must
 have been loaded with the same <CODE>$name</CODE> parameter with
 $pdf-&gt;newFont
 
-</P>
+<P>
+If you do not give $encoding, than the encoding from $pdf-&gt;newFont??? is
+used.
+
+<P>
+<STRONG>NOTE:</STRONG> As of version API 0.5 you can specify any encoding supported by
+Unicode::Map8, since the fonts are automagically reencoded to use the new
+encoding if it differs from that encoding specified at $pdf-&gt;newFont???.
+
 <DT><STRONG><A NAME="item__pdf_setFontTranslate">$pdf-&gt;setFontTranslate $tx, $ty</A></STRONG><DD>
 <P>
 Sets the translation (aka. x,y-offset) in the Font-Transformation-Matrices.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_setFontScale">$pdf-&gt;setFontScale $scalex, $scaley</A></STRONG><DD>
 <P>
 Sets the scale in the Font-Transformation-Matrices.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_setFontSkew">$pdf-&gt;setFontSkew $alfa, $beta</A></STRONG><DD>
 <P>
 Sets the skew in the Font-Transformation-Matrices specified in degrees
 (0..360).
 
-</P>
 <DT><STRONG><A NAME="item__pdf_setFontRotation">$pdf-&gt;setFontRotation $alfa</A></STRONG><DD>
 <P>
 Sets the rotation in the Font-Transformation-Matrices specified in degrees
 (0..360) counter-clock-wise from the right horizontal.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_clearFontMatrix">$pdf-&gt;clearFontMatrix</A></STRONG><DD>
 <P>
 Resets all Font-Transformation-Matrices.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_calcFontMatrix">$pdf-&gt;calcFontMatrix</A></STRONG><DD>
 <P>
 Calculates the final Transformation-Matrix for use with the *Text*
 functions.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_setFontMatrix">$pdf-&gt;setFontMatrix $a, $b, $c, $d, $e, $f</A></STRONG><DD>
 <P>
 Sets the final Transformation-Matrix directly.
 
-</P>
 <DT><STRONG><A NAME="item__a_">($a, $b, $c, $d, $e, $f)=$pdf-&gt;getFontMatrix</A></STRONG><DD>
 <P>
 Returns the final Transformation-Matrix. Use $pdf-&gt;calcFontMatrix and
 then $pdf-&gt;getFontMatrix to retrive the combined effects of Translate,
 Skew, Scale &amp; Rotate.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_setCharSpacing">$pdf-&gt;setCharSpacing $spacing</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_setWordSpacing">$pdf-&gt;setWordSpacing $spacing</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_setTextLeading">$pdf-&gt;setTextLeading $leading</A></STRONG><DD>
@@ -293,7 +292,6 @@ Skew, Scale &amp; Rotate.
 Displays the <CODE>$text</CODE> based on the parameters given by the *Font*
 functions.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_showTextXY">$pdf-&gt;showTextXY $x, $y, $text</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_showTextXY_R">$pdf-&gt;showTextXY_R $x, $y, $text</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_showTextXY_C">$pdf-&gt;showTextXY_C $x, $y, $text</A></STRONG><DD>
@@ -302,22 +300,18 @@ Like $pdf-&gt;showText but overrides the x,y-offsets of the Matrices. The
 <CODE>*_R</CODE> and <CODE>*_C</CODE> variants perform right and center
 alignment !
 
-</P>
 <DT><STRONG><A NAME="item__pdf_printText">$pdf-&gt;printText $x, $y, $font, $size, $encoding, $text</A></STRONG><DD>
 <P>
 Like a $pdf-&gt;useFont followed by a $pdf-&gt;showTextXY.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_calcTextWidth">$pdf-&gt;calcTextWidth $text</A></STRONG><DD>
 <P>
 Calculates the width of the text based on the parameters set by useFont.
 
-</P>
 <P>
 <STRONG>BEWARE:</STRONG> Does not consider parameters specified by setFont* and <CODE>*Matrix</CODE>
 functions.
 
-</P>
 </DL>
 <P>
 <HR>
@@ -335,20 +329,17 @@ functions.
 These functions behave like the the font functions BUT affect the whole
 global graphics state.
 
-</P>
 <P>
 <STRONG>BEWARE:</STRONG> If you use both the Gfx and Font versions of these functions the final
 result for Text would be the combined effects of both the Gfx and Font
 parameters.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_useGfxState">$pdf-&gt;useGfxState</A></STRONG><DD>
 <P>
 Adds the parameters of the functions above to the current graphics state.
 To revert to the former parameters use $pdf-&gt;savePdfState and
 $pdf-&gt;restorePdfState.
 
-</P>
 <DT><STRONG><A NAME="item__pdf_useGfxFlatness">$pdf-&gt;useGfxFlatness $flatness</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_useGfxLineCap">$pdf-&gt;useGfxLineCap $linecap</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_useGfxLineDash">$pdf-&gt;useGfxLineDash @dasharray</A></STRONG><DD>
@@ -393,25 +384,32 @@ $pdf-&gt;restorePdfState.
 <P>
 quot errat demonstrandum
 
-</P>
 </DL>
 <P>
 <HR>
 <H2><A NAME="Bitmap_Methods">Bitmap Methods</A></H2>
 <DL>
 <DT><STRONG><A NAME="item__">( $key , $width , $height ) = $pdf-&gt;newImage $file</A></STRONG><DD>
-<DT><STRONG>( $key , $width , $height ) = $pdf-&gt;newImage $imgobj</STRONG><DD>
 <P>
 Current loading support includes NetPBM images of the RAW_BITS variation
 and non-interlaced/non-filtered PNG. Transperancy/Opacity information is
 currently ignored as well as Alpha-Channel information.
 
-</P>
+<DT><STRONG>( $key , $width , $height ) = $pdf-&gt;rawImage $name, $width $height $type @imagearray</STRONG><DD>
 <P>
-The usage of GD::Image (GIF or PNG/JPEG) or Image::* (XBM/XPM) objects will
-be supported in the near future.
+This function supports loading of point-arrays for embedding image
+information into the pdf. <CODE>$type</CODE> must be one of the following:
 
-</P>
+<P>
+<PRE>        '-rgb' ... each element of the array is a color component
+                        in the range of 0..255
+        '-RGB' ... each element of the array is a hex-encoded color pixel
+                        with two hex-digits per color component  
+</PRE>
+<P>
+<CODE>$name</CODE> must be a unique name for this image (at least 8
+characters long).
+
 <DT><STRONG><A NAME="item__pdf_placeImage">$pdf-&gt;placeImage $key, $x, $y, $scalex, $scaley</A></STRONG><DD>
 </DL>
 <P>
@@ -422,175 +420,153 @@ be supported in the near future.
 <P>
 GENESIS
 
-</P>
 <DT><STRONG>Version 0.01</STRONG><DD>
 <P>
 inital implementation without documentation
 
-</P>
 <DT><STRONG>Version 0.01_01</STRONG><DD>
 <P>
 you can create pages, still no docs
 
-</P>
 <DT><STRONG>Version 0.01_02 - 0.01_11</STRONG><DD>
 <P>
 various conceptual design stages
 
-</P>
 <DT><STRONG>Version 0.01_12</STRONG><DD>
 <P>
 first public snapshot with some docs and first implementation of font
 caching (released as 0.01_12_snapshot)
 
-</P>
 <DT><STRONG>Version 0.01_14</STRONG><DD>
 <P>
 reimplementaion of font-handling with unification of core and truetype
 fonts under the function ``newFont''
 
-</P>
 <DT><STRONG>Version 0.01_15</STRONG><DD>
 <P>
 implementaion of font-encoding for truetypes
 
-</P>
 <DT><STRONG>Version 0.01_16</STRONG><DD>
 <P>
 reimplementaion of font-encoding thru CID because Acrobat seems to ignore
 encoding tables for TTs when using normal embedding
 
-</P>
 <DT><STRONG>Version 0.01_17</STRONG><DD>
 <P>
 implementaion of printText, useFont, showText &amp; showTextXY
 
-</P>
 <DT><STRONG>Version 0.01_18</STRONG><DD>
 <P>
 implementaion of <CODE>*FontMatrix</CODE> functions, changes in showText
 &amp; showTextXY
 
-</P>
 <DT><STRONG>Version 0.01_19</STRONG><DD>
 <P>
 addition of setFontTranslate, Skew, Rotate &amp; Scale with cleanup in
 <CODE>*FontMatrix</CODE>
 
-</P>
 <DT><STRONG>Version 0.01_20</STRONG><DD>
 <P>
 end of text/font implementation, let it stabilize :)
 
-</P>
 <DT><STRONG>Version 0.02</STRONG><DD>
 <P>
 genesis of the graphical interface (CTM handling copied from fonts)
 
-</P>
 <DT><STRONG>Version 0.02_01</STRONG><DD>
 <P>
 added text and graphic state functions
 
-</P>
 <DT><STRONG>Version 0.02_02</STRONG><DD>
 <P>
 cleanup/extension of dokumentation, but still not finished
 
-</P>
 <DT><STRONG>Version 0.02_03</STRONG><DD>
 <P>
 proposed implementation of drawing functions (NOT FINISHED)
 
-</P>
 <DT><STRONG>Version 0.02_04</STRONG><DD>
 <P>
 finished implemetation of needed drawing functions
 
-</P>
 <DT><STRONG>Version 0.03</STRONG><DD>
 <P>
 bugfixes in drawing and font functions first implementation of state
 functions
 
-</P>
 <DT><STRONG>Version 0.03_01</STRONG><DD>
 <P>
 first implementation of bitmap functions
 
-</P>
 <DT><STRONG>Version 0.03_02</STRONG><DD>
 <P>
 bugfixes in text/font functions
 
-</P>
 <DT><STRONG>Version 0.03_03</STRONG><DD>
 <P>
 added support for loading of <CODE>PNM(netpbm)</CODE> and PNG bitmaps
 
-</P>
 <DT><STRONG>Version 0.03_04</STRONG><DD>
 <P>
 added circle and ellipsis drawing functions
 
-</P>
 <DT><STRONG>Version 0.03_05</STRONG><DD>
 <P>
 fixed calcTextWidth to allow the type1 core fonts to be measured too. added
 showTextXY_R and _C functions for alignment procedures :)
 
-</P>
 <DT><STRONG>Version 0.04-0.43</STRONG><DD>
 <P>
 rewrite of type1 core-font handling to ease development support for other
 type1 fonts in future releases of Text::PDF and Text::PDF::API.
 
-</P>
 <P>
 small bugfixes in calcTextWidth and showTextXY_[RC].
 
-</P>
 <P>
 small documentation update
 
-</P>
 <DT><STRONG>Version 0.05 (Oct. 2000)</STRONG><DD>
 <P>
 major rewrite to use Unicode::Map8 instead of the homegrown functions :) ,
 add another dependency but at least a fast one
 
-</P>
+<DT><STRONG><A NAME="item_Versions">Versions 0.5_pre??? (Dec. 2000)</A></STRONG><DD>
+<P>
+major rewrite of font-handling routines stalls the tutorial/exaples
+collection. now adobe-type1 fonts (pfb/pfa + afm) and the core-fonts can be
+used the same way as truetype with the Unicode::Map8 encodings.
+
+<DT><STRONG>Version 0.5 (07-01-2001)</STRONG><DD>
+<P>
+documetaion update and release of the much hacked 0.5_pre??? code :)
+
 </DL>
 <P>
 <HR>
 <H1><A NAME="BUGS">BUGS</A></H1>
 <P>
-MANY! If you find some report them to <EM>perl-text-pdf-modules@egroups.com</EM>.
+MANY! If you find some report them to <A
+HREF="mailto:perl-text-pdf-modules@egroups.com.">perl-text-pdf-modules@egroups.com.</A>
 
-</P>
+
 <P>
 <HR>
 <H1><A NAME="TODO_in_no_particular_order_">TODO ( in no particular order )</A></H1>
 <P>
 documentation ?
 
-</P>
 <P>
 drawing functions ?
 
-</P>
 <P>
 more encodings ?
 
-</P>
 <P>
 fix encoding for core fonts ?
 
-</P>
 <P>
 bitmap import functions (jpeg,xbm,xpm, ...?)
-
-</P>
 
 </BODY>
 
