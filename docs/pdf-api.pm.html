@@ -282,6 +282,11 @@ t-61-8bit us-dk videotex-suppl
 <STRONG>NOTE:</STRONG> The fonts are automagically reencoded to use the new encoding if it differs
 from that encoding specified at $pdf-&gt;newFont???.
 
+<P>
+<STRONG>SPECIAL NOTE:</STRONG> As of 0.699_84 you can specify the special encoding 'uc16' which enables
+you to use 16-bit unicode-strings (network-byte ordered) with
+truetype-fonts only !!!
+
 <DT><STRONG><A NAME="item__pdf_setFontTranslate">$pdf-&gt;setFontTranslate $tx, $ty</A></STRONG><DD>
 <P>
 Sets the translation (aka. x,y-offset) in the Font-Transformation-Matrices.
@@ -744,6 +749,9 @@ limitations as the XS version.
 <P>
 cleaned up image functions to use x-o's and streamlined key-generation to
 compensate an arkward behavior of the Text::PDF pdf-parser.
+
+<P>
+enabled use of uc16 encoding with ttfs.
 
 </DL>
 <P>
