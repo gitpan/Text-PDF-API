@@ -1,6 +1,7 @@
 package Text::PDF::API;
 
-$VERSION = "0.699_86";
+
+##$VERSION = "0.699_862";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -412,7 +413,7 @@ sub newFontTTF {
 		$fontname=$fontype.'x'.$fontkey;
 		$fontfile=$this->resolveFontFile($file);
 		die "can not find requested font '$file'" unless($fontfile);
-		$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname, 'ToUnicode' => 1);
+		$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname);
 
 		$this->{'FONTS'}->{$fontkey}={
 			'type'	=> $fontype,
@@ -812,16 +813,16 @@ sub calcTextWidthFSETX {
 	my @chars=split(//,$text);
 	if(lc($enc) eq 'ucs2') {
         	if(($type eq 'AC') || ($type eq 'PS')) {
-        	        while( $c=shift(@chars) ) {
+        	        while(defined($c=shift(@chars))) {
 				$c.=shift(@chars);
 				$c=unpack('n',$c);
         	                $wm+=$font->{' AFM'}{'wx'}{$this->lookUPu2n($c)}*$size/1000;
         	        }
        		} elsif($type eq 'TT') {
-        	        while( $c=shift(@chars) ) {
+        	        while(defined($c=shift(@chars))) {
 				$c.=shift(@chars);
 				$c=unpack('n',$c);
-        	                $wm+=$this->{'FONTS'}{$k}{"u2w"}{$c}*$size;
+        	                $wm+=$this->{'FONTS'}{$fontkey}{"u2w"}{$c}*$size;
         	        }
         	}
 	} else {
@@ -831,7 +832,7 @@ sub calcTextWidthFSETX {
         	        }
        		} elsif($type eq 'TT') {
         	        foreach $c (@chars) {
-        	                $wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
+        	                $wm+=$this->{'FONTS'}{$fontkey}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
         	        }
         	}
 	}

@@ -1,4 +1,6 @@
 MANIFEST
+shtool
+version.perl
 Makefile.PL
 docs/pdf-api.pm.html
 examples/example1.pl
