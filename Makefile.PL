@@ -14,7 +14,8 @@ WriteMakefile (
 					'Compress::Zlib'	=> 1.03,
         				'Font::TTF::Font'	=> 0.16,
         				'Text::PDF::File'	=> 0.12,
-        				'Digest::MD5'		=> 2.09,
+					'Unicode::String'	=>	0,
+					'Unicode::Map8'		=>	0,
 				},
 	dist		=>	{
 				#	COMPRESS	=>	'bzip2 -9',
