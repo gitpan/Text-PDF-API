@@ -1,0 +1,7 @@
+MANIFEST
+readme.txt
+license.txt
+Makefile.PL
+examples/pdf-api-test.pl
+examples/pfbtest.pl
+lib/Text/PDF/API.pm
