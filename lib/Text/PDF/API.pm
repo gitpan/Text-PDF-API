@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.5003";
+$VERSION = "0.6";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -10,7 +10,6 @@ use Text::PDF::SFont;
 use Text::PDF::TTFont;
 use Text::PDF::TTFont0;
 use Text::PDF::TTFont0;
-
 @Text::PDF::API::parameterlist=qw(
 	pagesize
 	pagewidth
@@ -34,70 +33,23 @@ use Text::PDF::TTFont0;
 	@Text::PDF::API::CORESYMBOLFONTS
 );
 
-%u2n=(
-		q/32/ => qw/ space /, q/33/ => qw/ exclam /, q/34/ => qw/ quotedbl /, q/35/ => qw/ numbersign /, q/36/ => qw/ dollar /, q/37/ => qw/ percent /, q/38/ => qw/ ampersand /, q/39/ => qw/ quotesingle /, q/40/ => qw/ parenleft /, q/41/ => qw/ parenright /, q/42/ => qw/ asterisk /, q/43/ => qw/ plus /, q/44/ => qw/ comma /, q/45/ => qw/ hyphen /, q/46/ => qw/ period /, q/47/ => qw/ slash /, q/48/ => qw/ zero /, q/49/ => qw/ one /, q/50/ => qw/ two /, q/51/ => qw/ three /, q/52/ => qw/ four /, q/53/ => qw/ five /, q/54/ => qw/ six /, q/55/ => qw/ seven /, q/56/ => qw/ eight /, q/57/ => qw/ nine /, q/58/ => qw/ colon /, q/59/ => qw/ semicolon /, q/60/ => qw/ less /, q/61/ => qw/ equal /, q/62/ => qw/ greater /, q/63/ => qw/ question /,
-		q/64/ => qw/ at /, q/65/ => qw/ A /, q/66/ => qw/ B /, q/67/ => qw/ C /, q/68/ => qw/ D /, q/69/ => qw/ E /, q/70/ => qw/ F /, q/71/ => qw/ G /, q/72/ => qw/ H /, q/73/ => qw/ I /, q/74/ => qw/ J /, q/75/ => qw/ K /, q/76/ => qw/ L /, q/77/ => qw/ M /, q/78/ => qw/ N /, q/79/ => qw/ O /, q/80/ => qw/ P /, q/81/ => qw/ Q /, q/82/ => qw/ R /, q/83/ => qw/ S /, q/84/ => qw/ T /, q/85/ => qw/ U /, q/86/ => qw/ V /, q/87/ => qw/ W /, q/88/ => qw/ X /, q/89/ => qw/ Y /, q/90/ => qw/ Z /, q/91/ => qw/ bracketleft /, q/92/ => qw/ backslash /, q/93/ => qw/ bracketright /, q/94/ => qw/ asciicircum /, q/95/ => qw/ underscore /, q/96/ => qw/ grave /, q/97/ => qw/ a /, q/98/ => qw/ b /, q/99/ => qw/ c /, q/100/ => qw/ d /, q/101/ => qw/ e /, q/102/ => qw/ f /,
-		q/103/ => qw/ g /, q/104/ => qw/ h /, q/105/ => qw/ i /, q/106/ => qw/ j /, q/107/ => qw/ k /, q/108/ => qw/ l /, q/109/ => qw/ m /, q/110/ => qw/ n /, q/111/ => qw/ o /, q/112/ => qw/ p /, q/113/ => qw/ q /, q/114/ => qw/ r /, q/115/ => qw/ s /, q/116/ => qw/ t /, q/117/ => qw/ u /, q/118/ => qw/ v /, q/119/ => qw/ w /, q/120/ => qw/ x /, q/121/ => qw/ y /, q/122/ => qw/ z /, q/123/ => qw/ braceleft /, q/124/ => qw/ bar /, q/125/ => qw/ braceright /, q/126/ => qw/ asciitilde /, q/160/ => qw/ space /, q/161/ => qw/ exclamdown /, q/162/ => qw/ cent /, q/163/ => qw/ sterling /, q/164/ => qw/ currency /, q/165/ => qw/ yen /, q/166/ => qw/ brokenbar /, q/167/ => qw/ section /, q/168/ => qw/ dieresis /, q/169/ => qw/ copyright /, q/170/ => qw/ ordfeminine /,
-		q/171/ => qw/ guillemotleft /, q/172/ => qw/ logicalnot /, q/173/ => qw/ hyphen /, q/174/ => qw/ registered /, q/175/ => qw/ macron /, q/176/ => qw/ degree /, q/177/ => qw/ plusminus /, q/178/ => qw/ twosuperior /, q/179/ => qw/ threesuperior /, q/180/ => qw/ acute /, q/181/ => qw/ mu /, q/182/ => qw/ paragraph /, q/183/ => qw/ periodcentered /, q/184/ => qw/ cedilla /, q/185/ => qw/ onesuperior /, q/186/ => qw/ ordmasculine /, q/187/ => qw/ guillemotright /, q/188/ => qw/ onequarter /, q/189/ => qw/ onehalf /, q/190/ => qw/ threequarters /, q/191/ => qw/ questiondown /, q/192/ => qw/ Agrave /, q/193/ => qw/ Aacute /, q/194/ => qw/ Acircumflex /, q/195/ => qw/ Atilde /, q/196/ => qw/ Adieresis /, q/197/ => qw/ Aring /, q/198/ => qw/ AE /, q/199/ => qw/ Ccedilla /,
-		q/200/ => qw/ Egrave /, q/201/ => qw/ Eacute /, q/202/ => qw/ Ecircumflex /, q/203/ => qw/ Edieresis /, q/204/ => qw/ Igrave /, q/205/ => qw/ Iacute /, q/206/ => qw/ Icircumflex /, q/207/ => qw/ Idieresis /, q/208/ => qw/ Eth /, q/209/ => qw/ Ntilde /, q/210/ => qw/ Ograve /, q/211/ => qw/ Oacute /, q/212/ => qw/ Ocircumflex /, q/213/ => qw/ Otilde /, q/214/ => qw/ Odieresis /, q/215/ => qw/ multiply /, q/216/ => qw/ Oslash /, q/217/ => qw/ Ugrave /, q/218/ => qw/ Uacute /, q/219/ => qw/ Ucircumflex /, q/220/ => qw/ Udieresis /, q/221/ => qw/ Yacute /, q/222/ => qw/ Thorn /, q/223/ => qw/ germandbls /, q/224/ => qw/ agrave /, q/225/ => qw/ aacute /, q/226/ => qw/ acircumflex /, q/227/ => qw/ atilde /, q/228/ => qw/ adieresis /,
-		q/229/ => qw/ aring /, q/230/ => qw/ ae /, q/231/ => qw/ ccedilla /, q/232/ => qw/ egrave /, q/233/ => qw/ eacute /, q/234/ => qw/ ecircumflex /, q/235/ => qw/ edieresis /, q/236/ => qw/ igrave /, q/237/ => qw/ iacute /, q/238/ => qw/ icircumflex /, q/239/ => qw/ idieresis /, q/240/ => qw/ eth /, q/241/ => qw/ ntilde /, q/242/ => qw/ ograve /, q/243/ => qw/ oacute /, q/244/ => qw/ ocircumflex /, q/245/ => qw/ otilde /, q/246/ => qw/ odieresis /, q/247/ => qw/ divide /, q/248/ => qw/ oslash /, q/249/ => qw/ ugrave /, q/250/ => qw/ uacute /, q/251/ => qw/ ucircumflex /, q/252/ => qw/ udieresis /, q/253/ => qw/ yacute /, q/254/ => qw/ thorn /, q/255/ => qw/ ydieresis /, q/256/ => qw/ Amacron /, q/257/ => qw/ amacron /, q/258/ => qw/ Abreve /, q/259/ => qw/ abreve /, q/260/ => qw/ Aogonek /,
-		q/261/ => qw/ aogonek /, q/262/ => qw/ Cacute /, q/263/ => qw/ cacute /, q/264/ => qw/ Ccircumflex /, q/265/ => qw/ ccircumflex /, q/266/ => qw/ Cdotaccent /, q/267/ => qw/ cdotaccent /, q/268/ => qw/ Ccaron /, q/269/ => qw/ ccaron /, q/270/ => qw/ Dcaron /, q/271/ => qw/ dcaron /, q/272/ => qw/ Dcroat /, q/273/ => qw/ dcroat /, q/274/ => qw/ Emacron /, q/275/ => qw/ emacron /, q/276/ => qw/ Ebreve /, q/277/ => qw/ ebreve /, q/278/ => qw/ Edotaccent /, q/279/ => qw/ edotaccent /, q/280/ => qw/ Eogonek /, q/281/ => qw/ eogonek /, q/282/ => qw/ Ecaron /, q/283/ => qw/ ecaron /, q/284/ => qw/ Gcircumflex /, q/285/ => qw/ gcircumflex /, q/286/ => qw/ Gbreve /, q/287/ => qw/ gbreve /, q/288/ => qw/ Gdotaccent /, q/289/ => qw/ gdotaccent /, q/290/ => qw/ Gcommaaccent /, q/291/ => qw/ gcommaaccent /, q/292/ => qw/ Hcircumflex /, q/293/ => qw/ hcircumflex /, q/294/ => qw/ Hbar /, q/295/ => qw/ hbar /,
-		q/296/ => qw/ Itilde /, q/297/ => qw/ itilde /, q/298/ => qw/ Imacron /, q/299/ => qw/ imacron /, q/300/ => qw/ Ibreve /, q/301/ => qw/ ibreve /, q/302/ => qw/ Iogonek /, q/303/ => qw/ iogonek /, q/304/ => qw/ Idotaccent /, q/305/ => qw/ dotlessi /, q/306/ => qw/ IJ /, q/307/ => qw/ ij /, q/308/ => qw/ Jcircumflex /, q/309/ => qw/ jcircumflex /, q/310/ => qw/ Kcommaaccent /, q/311/ => qw/ kcommaaccent /, q/312/ => qw/ kgreenlandic /, q/313/ => qw/ Lacute /, q/314/ => qw/ lacute /, q/315/ => qw/ Lcommaaccent /, q/316/ => qw/ lcommaaccent /, q/317/ => qw/ Lcaron /, q/318/ => qw/ lcaron /, q/319/ => qw/ Ldot /, q/320/ => qw/ ldot /,
-		q/321/ => qw/ Lslash /, q/322/ => qw/ lslash /, q/323/ => qw/ Nacute /, q/324/ => qw/ nacute /, q/325/ => qw/ Ncommaaccent /, q/326/ => qw/ ncommaaccent /, q/327/ => qw/ Ncaron /, q/328/ => qw/ ncaron /, q/329/ => qw/ napostrophe /, q/330/ => qw/ Eng /, q/331/ => qw/ eng /, q/332/ => qw/ Omacron /, q/333/ => qw/ omacron /, q/334/ => qw/ Obreve /, q/335/ => qw/ obreve /, q/336/ => qw/ Ohungarumlaut /, q/337/ => qw/ ohungarumlaut /, q/338/ => qw/ OE /, q/339/ => qw/ oe /, q/340/ => qw/ Racute /, q/341/ => qw/ racute /, q/342/ => qw/ Rcommaaccent /, q/343/ => qw/ rcommaaccent /, q/344/ => qw/ Rcaron /, q/345/ => qw/ rcaron /, q/346/ => qw/ Sacute /, q/347/ => qw/ sacute /, q/348/ => qw/ Scircumflex /, q/349/ => qw/ scircumflex /, q/350/ => qw/ Scedilla /,
-		q/351/ => qw/ scedilla /, q/352/ => qw/ Scaron /, q/353/ => qw/ scaron /, q/354/ => qw/ Tcommaaccent /, q/355/ => qw/ tcommaaccent /, q/356/ => qw/ Tcaron /, q/357/ => qw/ tcaron /, q/358/ => qw/ Tbar /, q/359/ => qw/ tbar /, q/360/ => qw/ Utilde /, q/361/ => qw/ utilde /, q/362/ => qw/ Umacron /, q/363/ => qw/ umacron /, q/364/ => qw/ Ubreve /, q/365/ => qw/ ubreve /, q/366/ => qw/ Uring /, q/367/ => qw/ uring /, q/368/ => qw/ Uhungarumlaut /, q/369/ => qw/ uhungarumlaut /, q/370/ => qw/ Uogonek /, q/371/ => qw/ uogonek /, q/372/ => qw/ Wcircumflex /, q/373/ => qw/ wcircumflex /, q/374/ => qw/ Ycircumflex /, q/375/ => qw/ ycircumflex /, q/376/ => qw/ Ydieresis /, q/377/ => qw/ Zacute /, q/378/ => qw/ zacute /, q/379/ => qw/ Zdotaccent /, q/380/ => qw/ zdotaccent /, q/381/ => qw/ Zcaron /, q/382/ => qw/ zcaron /, q/383/ => qw/ longs /, q/402/ => qw/ florin /, q/416/ => qw/ Ohorn /, q/417/ => qw/ ohorn /, q/431/ => qw/ Uhorn /, q/432/ => qw/ uhorn /, q/486/ => qw/ Gcaron /, q/487/ => qw/ gcaron /, q/506/ => qw/ Aringacute /,
-		q/507/ => qw/ aringacute /, q/508/ => qw/ AEacute /, q/509/ => qw/ aeacute /, q/510/ => qw/ Oslashacute /, q/511/ => qw/ oslashacute /, q/536/ => qw/ Scommaaccent /, q/537/ => qw/ scommaaccent /, q/538/ => qw/ Tcommaaccent /, q/539/ => qw/ tcommaaccent /, q/700/ => qw/ afii57929 /, q/701/ => qw/ afii64937 /, q/710/ => qw/ circumflex /, q/711/ => qw/ caron /, q/713/ => qw/ macron /, q/728/ => qw/ breve /, q/729/ => qw/ dotaccent /, q/730/ => qw/ ring /, q/731/ => qw/ ogonek /, q/732/ => qw/ tilde /, q/733/ => qw/ hungarumlaut /, q/768/ => qw/ gravecomb /, q/769/ => qw/ acutecomb /, q/771/ => qw/ tildecomb /, q/777/ => qw/ hookabovecomb /, q/803/ => qw/ dotbelowcomb /, q/900/ => qw/ tonos /, q/901/ => qw/ dieresistonos /, q/902/ => qw/ Alphatonos /, q/903/ => qw/ anoteleia /, q/904/ => qw/ Epsilontonos /, q/905/ => qw/ Etatonos /, q/906/ => qw/ Iotatonos /, q/908/ => qw/ Omicrontonos /,
-		q/910/ => qw/ Upsilontonos /, q/911/ => qw/ Omegatonos /, q/912/ => qw/ iotadieresistonos /, q/913/ => qw/ Alpha /, q/914/ => qw/ Beta /, q/915/ => qw/ Gamma /, q/916/ => qw/ Delta /, q/917/ => qw/ Epsilon /, q/918/ => qw/ Zeta /, q/919/ => qw/ Eta /, q/920/ => qw/ Theta /, q/921/ => qw/ Iota /, q/922/ => qw/ Kappa /, q/923/ => qw/ Lambda /, q/924/ => qw/ Mu /, q/925/ => qw/ Nu /, q/926/ => qw/ Xi /, q/927/ => qw/ Omicron /, q/928/ => qw/ Pi /, q/929/ => qw/ Rho /, q/931/ => qw/ Sigma /, q/932/ => qw/ Tau /, q/933/ => qw/ Upsilon /, q/934/ => qw/ Phi /, q/935/ => qw/ Chi /, q/936/ => qw/ Psi /, q/937/ => qw/ Omega /, q/938/ => qw/ Iotadieresis /, q/939/ => qw/ Upsilondieresis /, q/940/ => qw/ alphatonos /, q/941/ => qw/ epsilontonos /, q/942/ => qw/ etatonos /,
-		q/943/ => qw/ iotatonos /, q/944/ => qw/ upsilondieresistonos /, q/945/ => qw/ alpha /, q/946/ => qw/ beta /, q/947/ => qw/ gamma /, q/948/ => qw/ delta /, q/949/ => qw/ epsilon /, q/950/ => qw/ zeta /, q/951/ => qw/ eta /, q/952/ => qw/ theta /, q/953/ => qw/ iota /, q/954/ => qw/ kappa /, q/955/ => qw/ lambda /, q/956/ => qw/ mu /, q/957/ => qw/ nu /, q/958/ => qw/ xi /, q/959/ => qw/ omicron /, q/960/ => qw/ pi /, q/961/ => qw/ rho /, q/962/ => qw/ sigma1 /, q/963/ => qw/ sigma /, q/964/ => qw/ tau /, q/965/ => qw/ upsilon /, q/966/ => qw/ phi /, q/967/ => qw/ chi /, q/968/ => qw/ psi /, q/969/ => qw/ omega /, q/970/ => qw/ iotadieresis /, q/971/ => qw/ upsilondieresis /, q/972/ => qw/ omicrontonos /, q/973/ => qw/ upsilontonos /, q/974/ => qw/ omegatonos /,
-		q/977/ => qw/ theta1 /, q/978/ => qw/ Upsilon1 /, q/981/ => qw/ phi1 /, q/982/ => qw/ omega1 /, q/1025/ => qw/ afii10023 /, q/1026/ => qw/ afii10051 /, q/1027/ => qw/ afii10052 /, q/1028/ => qw/ afii10053 /, q/1029/ => qw/ afii10054 /, q/1030/ => qw/ afii10055 /, q/1031/ => qw/ afii10056 /, q/1032/ => qw/ afii10057 /, q/1033/ => qw/ afii10058 /, q/1034/ => qw/ afii10059 /, q/1035/ => qw/ afii10060 /, q/1036/ => qw/ afii10061 /, q/1038/ => qw/ afii10062 /, q/1039/ => qw/ afii10145 /, q/1040/ => qw/ afii10017 /, q/1041/ => qw/ afii10018 /, q/1042/ => qw/ afii10019 /, q/1043/ => qw/ afii10020 /, q/1044/ => qw/ afii10021 /, q/1045/ => qw/ afii10022 /, q/1046/ => qw/ afii10024 /, q/1047/ => qw/ afii10025 /, q/1048/ => qw/ afii10026 /, q/1049/ => qw/ afii10027 /,
-		q/1050/ => qw/ afii10028 /, q/1051/ => qw/ afii10029 /, q/1052/ => qw/ afii10030 /, q/1053/ => qw/ afii10031 /, q/1054/ => qw/ afii10032 /, q/1055/ => qw/ afii10033 /, q/1056/ => qw/ afii10034 /, q/1057/ => qw/ afii10035 /, q/1058/ => qw/ afii10036 /, q/1059/ => qw/ afii10037 /, q/1060/ => qw/ afii10038 /, q/1061/ => qw/ afii10039 /, q/1062/ => qw/ afii10040 /, q/1063/ => qw/ afii10041 /, q/1064/ => qw/ afii10042 /, q/1065/ => qw/ afii10043 /, q/1066/ => qw/ afii10044 /, q/1067/ => qw/ afii10045 /, q/1068/ => qw/ afii10046 /, q/1069/ => qw/ afii10047 /, q/1070/ => qw/ afii10048 /, q/1071/ => qw/ afii10049 /, q/1072/ => qw/ afii10065 /, q/1073/ => qw/ afii10066 /, q/1074/ => qw/ afii10067 /, q/1075/ => qw/ afii10068 /, q/1076/ => qw/ afii10069 /, q/1077/ => qw/ afii10070 /, q/1078/ => qw/ afii10072 /, q/1079/ => qw/ afii10073 /, q/1080/ => qw/ afii10074 /, q/1081/ => qw/ afii10075 /,
-		q/1082/ => qw/ afii10076 /, q/1083/ => qw/ afii10077 /, q/1084/ => qw/ afii10078 /, q/1085/ => qw/ afii10079 /, q/1086/ => qw/ afii10080 /, q/1087/ => qw/ afii10081 /, q/1088/ => qw/ afii10082 /, q/1089/ => qw/ afii10083 /, q/1090/ => qw/ afii10084 /, q/1091/ => qw/ afii10085 /, q/1092/ => qw/ afii10086 /, q/1093/ => qw/ afii10087 /, q/1094/ => qw/ afii10088 /, q/1095/ => qw/ afii10089 /, q/1096/ => qw/ afii10090 /, q/1097/ => qw/ afii10091 /, q/1098/ => qw/ afii10092 /, q/1099/ => qw/ afii10093 /, q/1100/ => qw/ afii10094 /, q/1101/ => qw/ afii10095 /, q/1102/ => qw/ afii10096 /, q/1103/ => qw/ afii10097 /, q/1105/ => qw/ afii10071 /, q/1106/ => qw/ afii10099 /, q/1107/ => qw/ afii10100 /, q/1108/ => qw/ afii10101 /, q/1109/ => qw/ afii10102 /, q/1110/ => qw/ afii10103 /, q/1111/ => qw/ afii10104 /, q/1112/ => qw/ afii10105 /, q/1113/ => qw/ afii10106 /, q/1114/ => qw/ afii10107 /,
-		q/1115/ => qw/ afii10108 /, q/1116/ => qw/ afii10109 /, q/1118/ => qw/ afii10110 /, q/1119/ => qw/ afii10193 /, q/1122/ => qw/ afii10146 /, q/1123/ => qw/ afii10194 /, q/1138/ => qw/ afii10147 /, q/1139/ => qw/ afii10195 /, q/1140/ => qw/ afii10148 /, q/1141/ => qw/ afii10196 /, q/1168/ => qw/ afii10050 /, q/1169/ => qw/ afii10098 /, q/1241/ => qw/ afii10846 /, q/1456/ => qw/ afii57799 /, q/1457/ => qw/ afii57801 /, q/1458/ => qw/ afii57800 /, q/1459/ => qw/ afii57802 /, q/1460/ => qw/ afii57793 /, q/1461/ => qw/ afii57794 /, q/1462/ => qw/ afii57795 /, q/1463/ => qw/ afii57798 /, q/1464/ => qw/ afii57797 /, q/1465/ => qw/ afii57806 /, q/1467/ => qw/ afii57796 /, q/1468/ => qw/ afii57807 /, q/1469/ => qw/ afii57839 /, q/1470/ => qw/ afii57645 /, q/1471/ => qw/ afii57841 /, q/1472/ => qw/ afii57842 /, q/1473/ => qw/ afii57804 /, q/1474/ => qw/ afii57803 /, q/1475/ => qw/ afii57658 /,
-		q/1488/ => qw/ afii57664 /, q/1489/ => qw/ afii57665 /, q/1490/ => qw/ afii57666 /, q/1491/ => qw/ afii57667 /, q/1492/ => qw/ afii57668 /, q/1493/ => qw/ afii57669 /, q/1494/ => qw/ afii57670 /, q/1495/ => qw/ afii57671 /, q/1496/ => qw/ afii57672 /, q/1497/ => qw/ afii57673 /, q/1498/ => qw/ afii57674 /, q/1499/ => qw/ afii57675 /, q/1500/ => qw/ afii57676 /, q/1501/ => qw/ afii57677 /, q/1502/ => qw/ afii57678 /, q/1503/ => qw/ afii57679 /, q/1504/ => qw/ afii57680 /, q/1505/ => qw/ afii57681 /, q/1506/ => qw/ afii57682 /, q/1507/ => qw/ afii57683 /, q/1508/ => qw/ afii57684 /, q/1509/ => qw/ afii57685 /, q/1510/ => qw/ afii57686 /, q/1511/ => qw/ afii57687 /, q/1512/ => qw/ afii57688 /, q/1513/ => qw/ afii57689 /, q/1514/ => qw/ afii57690 /, q/1520/ => qw/ afii57716 /, q/1521/ => qw/ afii57717 /, q/1522/ => qw/ afii57718 /, q/1548/ => qw/ afii57388 /, q/1563/ => qw/ afii57403 /, q/1567/ => qw/ afii57407 /, q/1569/ => qw/ afii57409 /, q/1570/ => qw/ afii57410 /, q/1571/ => qw/ afii57411 /, q/1572/ => qw/ afii57412 /,
-		q/1573/ => qw/ afii57413 /, q/1574/ => qw/ afii57414 /, q/1575/ => qw/ afii57415 /, q/1576/ => qw/ afii57416 /, q/1577/ => qw/ afii57417 /, q/1578/ => qw/ afii57418 /, q/1579/ => qw/ afii57419 /, q/1580/ => qw/ afii57420 /, q/1581/ => qw/ afii57421 /, q/1582/ => qw/ afii57422 /, q/1583/ => qw/ afii57423 /, q/1584/ => qw/ afii57424 /, q/1585/ => qw/ afii57425 /, q/1586/ => qw/ afii57426 /, q/1587/ => qw/ afii57427 /, q/1588/ => qw/ afii57428 /, q/1589/ => qw/ afii57429 /, q/1590/ => qw/ afii57430 /, q/1591/ => qw/ afii57431 /, q/1592/ => qw/ afii57432 /, q/1593/ => qw/ afii57433 /, q/1594/ => qw/ afii57434 /, q/1600/ => qw/ afii57440 /, q/1601/ => qw/ afii57441 /, q/1602/ => qw/ afii57442 /, q/1603/ => qw/ afii57443 /, q/1604/ => qw/ afii57444 /, q/1605/ => qw/ afii57445 /, q/1606/ => qw/ afii57446 /, q/1607/ => qw/ afii57470 /, q/1608/ => qw/ afii57448 /, q/1609/ => qw/ afii57449 /,
-		q/1610/ => qw/ afii57450 /, q/1611/ => qw/ afii57451 /, q/1612/ => qw/ afii57452 /, q/1613/ => qw/ afii57453 /, q/1614/ => qw/ afii57454 /, q/1615/ => qw/ afii57455 /, q/1616/ => qw/ afii57456 /, q/1617/ => qw/ afii57457 /, q/1618/ => qw/ afii57458 /, q/1632/ => qw/ afii57392 /, q/1633/ => qw/ afii57393 /, q/1634/ => qw/ afii57394 /, q/1635/ => qw/ afii57395 /, q/1636/ => qw/ afii57396 /, q/1637/ => qw/ afii57397 /, q/1638/ => qw/ afii57398 /, q/1639/ => qw/ afii57399 /, q/1640/ => qw/ afii57400 /, q/1641/ => qw/ afii57401 /, q/1642/ => qw/ afii57381 /, q/1645/ => qw/ afii63167 /, q/1657/ => qw/ afii57511 /, q/1662/ => qw/ afii57506 /,
-		q/1670/ => qw/ afii57507 /, q/1672/ => qw/ afii57512 /, q/1681/ => qw/ afii57513 /, q/1688/ => qw/ afii57508 /, q/1700/ => qw/ afii57505 /, q/1711/ => qw/ afii57509 /, q/1722/ => qw/ afii57514 /, q/1746/ => qw/ afii57519 /, q/1749/ => qw/ afii57534 /, q/7808/ => qw/ Wgrave /, q/7809/ => qw/ wgrave /, q/7810/ => qw/ Wacute /, q/7811/ => qw/ wacute /, q/7812/ => qw/ Wdieresis /, q/7813/ => qw/ wdieresis /, q/7922/ => qw/ Ygrave /, q/7923/ => qw/ ygrave /, q/8204/ => qw/ afii61664 /, q/8205/ => qw/ afii301 /, q/8206/ => qw/ afii299 /, q/8207/ => qw/ afii300 /, q/8210/ => qw/ figuredash /, q/8211/ => qw/ endash /, q/8212/ => qw/ emdash /, q/8213/ => qw/ afii00208 /, q/8215/ => qw/ underscoredbl /, q/8216/ => qw/ quoteleft /, q/8217/ => qw/ quoteright /, q/8218/ => qw/ quotesinglbase /, q/8219/ => qw/ quotereversed /, q/8220/ => qw/ quotedblleft /, q/8221/ => qw/ quotedblright /,
-		q/8222/ => qw/ quotedblbase /, q/8224/ => qw/ dagger /, q/8225/ => qw/ daggerdbl /, q/8226/ => qw/ bullet /, q/8228/ => qw/ onedotenleader /, q/8229/ => qw/ twodotenleader /, q/8230/ => qw/ ellipsis /, q/8236/ => qw/ afii61573 /, q/8237/ => qw/ afii61574 /, q/8238/ => qw/ afii61575 /, q/8240/ => qw/ perthousand /, q/8242/ => qw/ minute /, q/8243/ => qw/ second /, q/8249/ => qw/ guilsinglleft /, q/8250/ => qw/ guilsinglright /, q/8252/ => qw/ exclamdbl /, q/8260/ => qw/ fraction /, q/8304/ => qw/ zerosuperior /, q/8308/ => qw/ foursuperior /, q/8309/ => qw/ fivesuperior /, q/8310/ => qw/ sixsuperior /, q/8311/ => qw/ sevensuperior /, q/8312/ => qw/ eightsuperior /, q/8313/ => qw/ ninesuperior /, q/8317/ => qw/ parenleftsuperior /, q/8318/ => qw/ parenrightsuperior /, q/8319/ => qw/ nsuperior /, q/8320/ => qw/ zeroinferior /, q/8321/ => qw/ oneinferior /, q/8322/ => qw/ twoinferior /,
-		q/8323/ => qw/ threeinferior /, q/8324/ => qw/ fourinferior /, q/8325/ => qw/ fiveinferior /, q/8326/ => qw/ sixinferior /, q/8327/ => qw/ seveninferior /, q/8328/ => qw/ eightinferior /, q/8329/ => qw/ nineinferior /, q/8333/ => qw/ parenleftinferior /, q/8334/ => qw/ parenrightinferior /, q/8353/ => qw/ colonmonetary /, q/8355/ => qw/ franc /, q/8356/ => qw/ lira /, q/8359/ => qw/ peseta /, q/8362/ => qw/ afii57636 /, q/8363/ => qw/ dong /, q/8364/ => qw/ Euro /, q/8453/ => qw/ afii61248 /, q/8465/ => qw/ Ifraktur /, q/8467/ => qw/ afii61289 /, q/8470/ => qw/ afii61352 /, q/8472/ => qw/ weierstrass /, q/8476/ => qw/ Rfraktur /, q/8478/ => qw/ prescription /, q/8482/ => qw/ trademark /, q/8486/ => qw/ Omega /, q/8494/ => qw/ estimated /, q/8501/ => qw/ aleph /, q/8531/ => qw/ onethird /, q/8532/ => qw/ twothirds /, q/8539/ => qw/ oneeighth /, q/8540/ => qw/ threeeighths /, q/8541/ => qw/ fiveeighths /, q/8542/ => qw/ seveneighths /, q/8592/ => qw/ arrowleft /, q/8593/ => qw/ arrowup /, q/8594/ => qw/ a161 arrowright /,
-		q/8595/ => qw/ arrowdown /, q/8596/ => qw/ a163 arrowboth /, q/8597/ => qw/ a164 arrowupdn /, q/8616/ => qw/ arrowupdnbse /, q/8629/ => qw/ carriagereturn /, q/8656/ => qw/ arrowdblleft /, q/8657/ => qw/ arrowdblup /, q/8658/ => qw/ arrowdblright /, q/8659/ => qw/ arrowdbldown /, q/8660/ => qw/ arrowdblboth /, q/8704/ => qw/ universal /, q/8706/ => qw/ partialdiff /, q/8707/ => qw/ existential /, q/8709/ => qw/ emptyset /, q/8710/ => qw/ Delta /, q/8711/ => qw/ gradient /, q/8712/ => qw/ element /, q/8713/ => qw/ notelement /, q/8715/ => qw/ suchthat /, q/8719/ => qw/ product /, q/8721/ => qw/ summation /, q/8722/ => qw/ minus /, q/8725/ => qw/ fraction /, q/8727/ => qw/ asteriskmath /, q/8729/ => qw/ periodcentered /, q/8730/ => qw/ radical /, q/8733/ => qw/ proportional /, q/8734/ => qw/ infinity /, q/8735/ => qw/ orthogonal /, q/8736/ => qw/ angle /, q/8743/ => qw/ logicaland /,
-		q/8744/ => qw/ logicalor /, q/8745/ => qw/ intersection /, q/8746/ => qw/ union /, q/8747/ => qw/ integral /, q/8756/ => qw/ therefore /, q/8764/ => qw/ similar /, q/8773/ => qw/ congruent /, q/8776/ => qw/ approxequal /, q/8800/ => qw/ notequal /, q/8801/ => qw/ equivalence /, q/8804/ => qw/ lessequal /, q/8805/ => qw/ greaterequal /, q/8834/ => qw/ propersubset /, q/8835/ => qw/ propersuperset /, q/8836/ => qw/ notsubset /, q/8838/ => qw/ reflexsubset /, q/8839/ => qw/ reflexsuperset /, q/8853/ => qw/ circleplus /, q/8855/ => qw/ circlemultiply /, q/8869/ => qw/ perpendicular /, q/8901/ => qw/ dotmath /, q/8962/ => qw/ house /, q/8976/ => qw/ revlogicalnot /, q/8992/ => qw/ integraltp /, q/8993/ => qw/ integralbt /, q/9001/ => qw/ angleleft /, q/9002/ => qw/ angleright /, q/9312/ => qw/ a120 /, q/9313/ => qw/ a121 /, q/9314/ => qw/ a122 /, q/9315/ => qw/ a123 /, q/9316/ => qw/ a124 /, q/9317/ => qw/ a125 /, q/9318/ => qw/ a126 /, q/9319/ => qw/ a127 /, q/9320/ => qw/ a128 /, q/9321/ => qw/ a129 /, q/9472/ => qw/ SF100000 /,
-		q/9474/ => qw/ SF110000 /, q/9484/ => qw/ SF010000 /, q/9488/ => qw/ SF030000 /, q/9492/ => qw/ SF020000 /, q/9496/ => qw/ SF040000 /, q/9500/ => qw/ SF080000 /, q/9508/ => qw/ SF090000 /, q/9516/ => qw/ SF060000 /, q/9524/ => qw/ SF070000 /, q/9532/ => qw/ SF050000 /, q/9552/ => qw/ SF430000 /, q/9553/ => qw/ SF240000 /, q/9554/ => qw/ SF510000 /, q/9555/ => qw/ SF520000 /, q/9556/ => qw/ SF390000 /, q/9557/ => qw/ SF220000 /, q/9558/ => qw/ SF210000 /, q/9559/ => qw/ SF250000 /, q/9560/ => qw/ SF500000 /, q/9561/ => qw/ SF490000 /, q/9562/ => qw/ SF380000 /, q/9563/ => qw/ SF280000 /, q/9564/ => qw/ SF270000 /, q/9565/ => qw/ SF260000 /, q/9566/ => qw/ SF360000 /, q/9567/ => qw/ SF370000 /, q/9568/ => qw/ SF420000 /, q/9569/ => qw/ SF190000 /, q/9570/ => qw/ SF200000 /, q/9571/ => qw/ SF230000 /, q/9572/ => qw/ SF470000 /, q/9573/ => qw/ SF480000 /, q/9574/ => qw/ SF410000 /, q/9575/ => qw/ SF450000 /, q/9576/ => qw/ SF460000 /, q/9577/ => qw/ SF400000 /, q/9578/ => qw/ SF540000 /, q/9579/ => qw/ SF530000 /, q/9580/ => qw/ SF440000 /, q/9600/ => qw/ upblock /, q/9604/ => qw/ dnblock /, q/9608/ => qw/ block /, q/9612/ => qw/ lfblock /, q/9616/ => qw/ rtblock /, q/9617/ => qw/ ltshade /, q/9618/ => qw/ shade /,
-		q/9619/ => qw/ dkshade /, q/9632/ => qw/ a73 filledbox /, q/9633/ => qw/ H22073 /, q/9642/ => qw/ H18543 /, q/9643/ => qw/ H18551 /, q/9644/ => qw/ filledrect /, q/9650/ => qw/ a76 triagup /, q/9658/ => qw/ triagrt /, q/9660/ => qw/ a77 triagdn /, q/9668/ => qw/ triaglf /, q/9670/ => qw/ a78 /, q/9674/ => qw/ lozenge /, q/9675/ => qw/ circle /, q/9679/ => qw/ H18533 a71 /, q/9687/ => qw/ a81 /, q/9688/ => qw/ invbullet /, q/9689/ => qw/ invcircle /, q/9702/ => qw/ openbullet /, q/9733/ => qw/ a35 /, q/9742/ => qw/ a4 /, q/9755/ => qw/ a11 /, q/9758/ => qw/ a12 /, q/9786/ => qw/ smileface /, q/9787/ => qw/ invsmileface /, q/9788/ => qw/ sun /, q/9792/ => qw/ female /, q/9794/ => qw/ male /, q/9824/ => qw/ a109 spade /, q/9827/ => qw/ a112 club /, q/9829/ => qw/ a110 heart /, q/9830/ => qw/ a111 diamond /, q/9834/ => qw/ musicalnote /, q/9835/ => qw/ musicalnotedbl /, q/9985/ => qw/ a1 /, q/9986/ => qw/ a2 /, q/9987/ => qw/ a202 /, q/9988/ => qw/ a3 /, q/9990/ => qw/ a5 /, q/9991/ => qw/ a119 /, q/9992/ => qw/ a118 /,
-		q/9993/ => qw/ a117 /, q/9996/ => qw/ a13 /, q/9997/ => qw/ a14 /, q/9998/ => qw/ a15 /, q/9999/ => qw/ a16 /, q/10000/ => qw/ a105 /, q/10001/ => qw/ a17 /, q/10002/ => qw/ a18 /, q/10003/ => qw/ a19 /, q/10004/ => qw/ a20 /, q/10005/ => qw/ a21 /, q/10006/ => qw/ a22 /, q/10007/ => qw/ a23 /, q/10008/ => qw/ a24 /, q/10009/ => qw/ a25 /, q/10010/ => qw/ a26 /, q/10011/ => qw/ a27 /, q/10012/ => qw/ a28 /, q/10013/ => qw/ a6 /, q/10014/ => qw/ a7 /, q/10015/ => qw/ a8 /, q/10016/ => qw/ a9 /, q/10017/ => qw/ a10 /, q/10018/ => qw/ a29 /, q/10019/ => qw/ a30 /, q/10020/ => qw/ a31 /, q/10021/ => qw/ a32 /, q/10022/ => qw/ a33 /, q/10023/ => qw/ a34 /, q/10025/ => qw/ a36 /, q/10026/ => qw/ a37 /, q/10027/ => qw/ a38 /, q/10028/ => qw/ a39 /, q/10029/ => qw/ a40 /, q/10030/ => qw/ a41 /, q/10031/ => qw/ a42 /, q/10032/ => qw/ a43 /, q/10033/ => qw/ a44 /, q/10034/ => qw/ a45 /, q/10035/ => qw/ a46 /, q/10036/ => qw/ a47 /, q/10037/ => qw/ a48 /, q/10038/ => qw/ a49 /, q/10039/ => qw/ a50 /, q/10040/ => qw/ a51 /,
-		q/10041/ => qw/ a52 /, q/10042/ => qw/ a53 /, q/10043/ => qw/ a54 /, q/10044/ => qw/ a55 /, q/10045/ => qw/ a56 /, q/10046/ => qw/ a57 /, q/10047/ => qw/ a58 /, q/10048/ => qw/ a59 /, q/10049/ => qw/ a60 /, q/10050/ => qw/ a61 /, q/10051/ => qw/ a62 /, q/10052/ => qw/ a63 /, q/10053/ => qw/ a64 /, q/10054/ => qw/ a65 /, q/10055/ => qw/ a66 /, q/10056/ => qw/ a67 /, q/10057/ => qw/ a68 /, q/10058/ => qw/ a69 /, q/10059/ => qw/ a70 /, q/10061/ => qw/ a72 /, q/10063/ => qw/ a74 /, q/10064/ => qw/ a203 /, q/10065/ => qw/ a75 /, q/10066/ => qw/ a204 /, q/10070/ => qw/ a79 /, q/10072/ => qw/ a82 /, q/10073/ => qw/ a83 /, q/10074/ => qw/ a84 /, q/10075/ => qw/ a97 /, q/10076/ => qw/ a98 /, q/10077/ => qw/ a99 /, q/10078/ => qw/ a100 /, q/10081/ => qw/ a101 /, q/10082/ => qw/ a102 /, q/10083/ => qw/ a103 /, q/10084/ => qw/ a104 /, q/10085/ => qw/ a106 /, q/10086/ => qw/ a107 /, q/10087/ => qw/ a108 /,
-		q/10102/ => qw/ a130 /, q/10103/ => qw/ a131 /, q/10104/ => qw/ a132 /, q/10105/ => qw/ a133 /, q/10106/ => qw/ a134 /, q/10107/ => qw/ a135 /, q/10108/ => qw/ a136 /, q/10109/ => qw/ a137 /, q/10110/ => qw/ a138 /, q/10111/ => qw/ a139 /, q/10112/ => qw/ a140 /, q/10113/ => qw/ a141 /, q/10114/ => qw/ a142 /, q/10115/ => qw/ a143 /, q/10116/ => qw/ a144 /, q/10117/ => qw/ a145 /, q/10118/ => qw/ a146 /, q/10119/ => qw/ a147 /, q/10120/ => qw/ a148 /, q/10121/ => qw/ a149 /, q/10122/ => qw/ a150 /, q/10123/ => qw/ a151 /, q/10124/ => qw/ a152 /, q/10125/ => qw/ a153 /, q/10126/ => qw/ a154 /, q/10127/ => qw/ a155 /, q/10128/ => qw/ a156 /, q/10129/ => qw/ a157 /, q/10130/ => qw/ a158 /, q/10131/ => qw/ a159 /, q/10132/ => qw/ a160 /, q/10136/ => qw/ a196 /, q/10137/ => qw/ a165 /, q/10138/ => qw/ a192 /, q/10139/ => qw/ a166 /, q/10140/ => qw/ a167 /, q/10141/ => qw/ a168 /, q/10142/ => qw/ a169 /, q/10143/ => qw/ a170 /, q/10144/ => qw/ a171 /, q/10145/ => qw/ a172 /, q/10146/ => qw/ a173 /, q/10147/ => qw/ a162 /,
-		q/10148/ => qw/ a174 /, q/10149/ => qw/ a175 /, q/10150/ => qw/ a176 /, q/10151/ => qw/ a177 /, q/10152/ => qw/ a178 /, q/10153/ => qw/ a179 /, q/10154/ => qw/ a193 /, q/10155/ => qw/ a180 /, q/10156/ => qw/ a199 /, q/10157/ => qw/ a181 /, q/10158/ => qw/ a200 /, q/10159/ => qw/ a182 /, q/10161/ => qw/ a201 /, q/10162/ => qw/ a183 /, q/10163/ => qw/ a184 /, q/10164/ => qw/ a197 /, q/10165/ => qw/ a185 /, q/10166/ => qw/ a194 /, q/10167/ => qw/ a198 /, q/10168/ => qw/ a186 /, q/10169/ => qw/ a195 /, q/10170/ => qw/ a187 /, q/10171/ => qw/ a188 /, q/10172/ => qw/ a189 /, q/10173/ => qw/ a190 /, q/10174/ => qw/ a191 /, q/63166/ => qw/ dotlessj /, q/63167/ => qw/ LL /, q/63168/ => qw/ ll /, q/63169/ => qw/ Scedilla /, q/63170/ => qw/ scedilla /, q/63171/ => qw/ commaaccent /, q/63172/ => qw/ afii10063 /, q/63173/ => qw/ afii10064 /, q/63174/ => qw/ afii10192 /, q/63175/ => qw/ afii10831 /, q/63176/ => qw/ afii10832 /, q/63177/ => qw/ Acute /, q/63178/ => qw/ Caron /, q/63179/ => qw/ Dieresis /, q/63180/ => qw/ DieresisAcute /,
-		q/63181/ => qw/ DieresisGrave /, q/63182/ => qw/ Grave /, q/63183/ => qw/ Hungarumlaut /, q/63184/ => qw/ Macron /, q/63185/ => qw/ cyrBreve /, q/63186/ => qw/ cyrFlex /, q/63187/ => qw/ dblGrave /, q/63188/ => qw/ cyrbreve /, q/63189/ => qw/ cyrflex /, q/63190/ => qw/ dblgrave /, q/63191/ => qw/ dieresisacute /, q/63192/ => qw/ dieresisgrave /, q/63193/ => qw/ copyrightserif /, q/63194/ => qw/ registerserif /, q/63195/ => qw/ trademarkserif /, q/63196/ => qw/ onefitted /, q/63197/ => qw/ rupiah /, q/63198/ => qw/ threequartersemdash /, q/63199/ => qw/ centinferior /, q/63200/ => qw/ centsuperior /, q/63201/ => qw/ commainferior /, q/63202/ => qw/ commasuperior /, q/63203/ => qw/ dollarinferior /, q/63204/ => qw/ dollarsuperior /, q/63205/ => qw/ hypheninferior /, q/63206/ => qw/ hyphensuperior /, q/63207/ => qw/ periodinferior /, q/63208/ => qw/ periodsuperior /, q/63209/ => qw/ asuperior /,
-		q/63210/ => qw/ bsuperior /, q/63211/ => qw/ dsuperior /, q/63212/ => qw/ esuperior /, q/63213/ => qw/ isuperior /, q/63214/ => qw/ lsuperior /, q/63215/ => qw/ msuperior /, q/63216/ => qw/ osuperior /, q/63217/ => qw/ rsuperior /, q/63218/ => qw/ ssuperior /, q/63219/ => qw/ tsuperior /, q/63220/ => qw/ Brevesmall /, q/63221/ => qw/ Caronsmall /, q/63222/ => qw/ Circumflexsmall /, q/63223/ => qw/ Dotaccentsmall /, q/63224/ => qw/ Hungarumlautsmall /, q/63225/ => qw/ Lslashsmall /, q/63226/ => qw/ OEsmall /, q/63227/ => qw/ Ogoneksmall /, q/63228/ => qw/ Ringsmall /, q/63229/ => qw/ Scaronsmall /, q/63230/ => qw/ Tildesmall /, q/63231/ => qw/ Zcaronsmall /, q/63265/ => qw/ exclamsmall /, q/63268/ => qw/ dollaroldstyle /, q/63270/ => qw/ ampersandsmall /, q/63280/ => qw/ zerooldstyle /, q/63281/ => qw/ oneoldstyle /, q/63282/ => qw/ twooldstyle /, q/63283/ => qw/ threeoldstyle /,
-		q/63284/ => qw/ fouroldstyle /, q/63285/ => qw/ fiveoldstyle /, q/63286/ => qw/ sixoldstyle /, q/63287/ => qw/ sevenoldstyle /, q/63288/ => qw/ eightoldstyle /, q/63289/ => qw/ nineoldstyle /, q/63295/ => qw/ questionsmall /, q/63328/ => qw/ Gravesmall /, q/63329/ => qw/ Asmall /, q/63330/ => qw/ Bsmall /, q/63331/ => qw/ Csmall /, q/63332/ => qw/ Dsmall /, q/63333/ => qw/ Esmall /, q/63334/ => qw/ Fsmall /, q/63335/ => qw/ Gsmall /, q/63336/ => qw/ Hsmall /, q/63337/ => qw/ Ismall /, q/63338/ => qw/ Jsmall /, q/63339/ => qw/ Ksmall /, q/63340/ => qw/ Lsmall /, q/63341/ => qw/ Msmall /, q/63342/ => qw/ Nsmall /, q/63343/ => qw/ Osmall /, q/63344/ => qw/ Psmall /, q/63345/ => qw/ Qsmall /, q/63346/ => qw/ Rsmall /, q/63347/ => qw/ Ssmall /, q/63348/ => qw/ Tsmall /, q/63349/ => qw/ Usmall /, q/63350/ => qw/ Vsmall /, q/63351/ => qw/ Wsmall /, q/63352/ => qw/ Xsmall /, q/63353/ => qw/ Ysmall /, q/63354/ => qw/ Zsmall /, q/63393/ => qw/ exclamdownsmall /, q/63394/ => qw/ centoldstyle /, q/63400/ => qw/ Dieresissmall /, q/63407/ => qw/ Macronsmall /, q/63412/ => qw/ Acutesmall /, q/63416/ => qw/ Cedillasmall /, q/63423/ => qw/ questiondownsmall /, q/63456/ => qw/ Agravesmall /, q/63457/ => qw/ Aacutesmall /, q/63458/ => qw/ Acircumflexsmall /, q/63459/ => qw/ Atildesmall /, q/63460/ => qw/ Adieresissmall /, q/63461/ => qw/ Aringsmall /, q/63462/ => qw/ AEsmall /, q/63463/ => qw/ Ccedillasmall /, q/63464/ => qw/ Egravesmall /, q/63465/ => qw/ Eacutesmall /, q/63466/ => qw/ Ecircumflexsmall /, q/63467/ => qw/ Edieresissmall /,
-		q/63468/ => qw/ Igravesmall /, q/63469/ => qw/ Iacutesmall /, q/63470/ => qw/ Icircumflexsmall /, q/63471/ => qw/ Idieresissmall /, q/63472/ => qw/ Ethsmall /, q/63473/ => qw/ Ntildesmall /, q/63474/ => qw/ Ogravesmall /, q/63475/ => qw/ Oacutesmall /, q/63476/ => qw/ Ocircumflexsmall /, q/63477/ => qw/ Otildesmall /, q/63478/ => qw/ Odieresissmall /, q/63480/ => qw/ Oslashsmall /, q/63481/ => qw/ Ugravesmall /, q/63482/ => qw/ Uacutesmall /, q/63483/ => qw/ Ucircumflexsmall /, q/63484/ => qw/ Udieresissmall /, q/63485/ => qw/ Yacutesmall /, q/63486/ => qw/ Thornsmall /, q/63487/ => qw/ Ydieresissmall /, q/63703/ => qw/ a89 /, q/63704/ => qw/ a90 /, q/63705/ => qw/ a93 /, q/63706/ => qw/ a94 /, q/63707/ => qw/ a91 /, q/63708/ => qw/ a92 /, q/63709/ => qw/ a205 /, q/63710/ => qw/ a85 /, q/63711/ => qw/ a206 /, q/63712/ => qw/ a86 /, q/63713/ => qw/ a87 /, q/63714/ => qw/ a88 /, q/63715/ => qw/ a95 /, q/63716/ => qw/ a96 /, q/63717/ => qw/ radicalex /, q/63718/ => qw/ arrowvertex /, q/63719/ => qw/ arrowhorizex /, q/63720/ => qw/ registersans /, q/63721/ => qw/ copyrightsans /, q/63722/ => qw/ trademarksans /, q/63723/ => qw/ parenlefttp /,
-		q/63724/ => qw/ parenleftex /, q/63725/ => qw/ parenleftbt /, q/63726/ => qw/ bracketlefttp /, q/63727/ => qw/ bracketleftex /, q/63728/ => qw/ bracketleftbt /, q/63729/ => qw/ bracelefttp /, q/63730/ => qw/ braceleftmid /, q/63731/ => qw/ braceleftbt /, q/63732/ => qw/ braceex /, q/63733/ => qw/ integralex /, q/63734/ => qw/ parenrighttp /, q/63735/ => qw/ parenrightex /, q/63736/ => qw/ parenrightbt /, q/63737/ => qw/ bracketrighttp /, q/63738/ => qw/ bracketrightex /, q/63739/ => qw/ bracketrightbt /, q/63740/ => qw/ bracerighttp /, q/63741/ => qw/ bracerightmid /, q/63742/ => qw/ bracerightbt /, q/64256/ => qw/ ff /, q/64257/ => qw/ fi /, q/64258/ => qw/ fl /, q/64259/ => qw/ ffi /, q/64260/ => qw/ ffl /, q/64287/ => qw/ afii57705 /, q/64298/ => qw/ afii57694 /, q/64299/ => qw/ afii57695 /, q/64309/ => qw/ afii57723 /, q/64331/ => qw/ afii57700 /, q// => qw/ .notdef /,
-);
-
-$mdkey=join('',qw(
-	28ALj.Yt.oHbIxZZYb24iIFM62LWEZxHh6cP68G5xXgDSEn.pp4V6KrDNAkcjftP
-	0fLJrfoNqb0P7c2ERNQa6XUpQtHiBMdB.zVqcHCQtCp.osEEDepK9H7a9OGLluXl
-	r0ZSIlsAyg9lXO-l0n3A3AkCZ.YJt32j4b9ML0XIhg1C3.x3n-Eq9z1jyZ0qd2Xh
-	dh2ziZFNEHZHHUL2TZtcWuJTSJH4LpmzUoxAMBYaS5rkaBm1leeGXxj-F-2booZG
-	bURxfzW63MrdXbeGEHWlDEjSCm2-ZbF84h4keaqiwfJSFyjUDEDQSwtegvdEUtMY
-	R9g7oazv4aaGpbxGHZvI5fkUJYB3xXgNhLVUwSN-1yEqXA5pk-6qeqIyNU0I.ggg
-	.98vcWueT7T.IYp1XvrAk865c6Obn2GmCPgpvZRNhuNzRA-y3q6nyDtYJF84IPrV
-	oWIi4j4lcRj1bi-fX4RTII0bY9gqYWJK1c15K5rwWZx6Gvmo-BFGUGs0PXry28H4
-));
-
 
 sub genKEY {
-	my $key=join('./,',@_);
-	my $i=(length($key) >> 3)+1;
-	my @k=split(//,$key);
-	my $o=0;
-	$key='';
-	foreach (0..$i) {
-		foreach my $v (0..15) {
-			$o=($o+ord(shift @k)+vec($key,$v,8)) & 0x1ff;
-			vec($key,$v,8)=vec($mdkey,$o,8);
-		}
-	}
-	return($key);
+        my $key=join('./,',@_);
+        ## my $mdkey='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890.-';
+        ## my $i=(length($key) >> 3)+1;
+        ## my @k=split(//,$key);
+        ## my $o=0;
+        ## $key='';
+        ## foreach (0..$i) {
+        ##        foreach my $v (0..15) {
+        ##                $o=($o+ord(shift @k)+vec($key,$v,8)) & 0x3f;
+        ##                vec($key,$v,8)=vec($mdkey,$o,8);
+        ##        }
+        ## }
+	use Digest::REHLHA qw( rehlha0_16 );
+	$key=rehlha0_16($key);
+        return($key);
 }
 
 sub getDefault {
@@ -163,6 +115,26 @@ sub new {
 	}
 	$this->{'PDF'}->{' version'} = $this->getDefault('PdfVersion',3);
 	return $this;
+}
+
+sub info {
+	my $this=shift(@_);
+	my $t=shift(@_);
+	my $s=shift(@_);
+	my $c=shift(@_);
+	my $a=shift(@_);
+	my $k=shift(@_);
+
+	if(!defined($this->{'PDF'}->{'Info'})) {
+        	$this->{'PDF'}->{'Info'}=PDFDict();
+        	$this->{'PDF'}->new_obj($pdf->{'PDF'}->{'Info'});
+	}
+        $this->{'PDF'}->{'Info'}->{'Producer'}=PDFStr('perl with Text::PDF::API on '.localtime());
+        $this->{'PDF'}->{'Info'}->{'Author'}  =PDFStr($a);
+        $this->{'PDF'}->{'Info'}->{'Creator'} =PDFStr($c);
+        $this->{'PDF'}->{'Info'}->{'Title'}   =PDFStr($t);
+        $this->{'PDF'}->{'Info'}->{'Subject'} =PDFStr($s);
+        $this->{'PDF'}->{'Info'}->{'Keywords'}=PDFStr($k);
 }
 
 sub end {
@@ -310,12 +282,17 @@ sub lookUPu2c {
 
 sub lookUPu2n {
 	my ($this,$ucode)=@_;
-	my (@r);
-	@r=(@u2n{$ucode},'.notdef');
+	## my (@r);
+	## @r=(@u2n{$ucode},'.notdef');
+	## if(wantarray) {
+	##	return @r;
+	## } else {
+	##	return $r[0] || '.notdef';
+	## }
 	if(wantarray) {
-		return @r;
+		return ($u2n{$ucode}||'.notdef');
 	} else {
-		return $r[0] || '.notdef';
+		return $u2n{$ucode}||'.notdef';
 	}
 }
 
@@ -397,22 +374,6 @@ sub newFontCore {
 		$this->{'FONTS'}->{$fontkey}={};
 		$fontype='AC';
 		$fontname=$fontype.'x'.$fontkey;
-	#	if(grep(/$name/,@Text::PDF::API::CORETYPEFONTS)) {
-	#		if($^O eq "MacOS") {
-	#			$font=Text::PDF::SFont->new($this->{'PDF'}, $name, $fontname, 2);
-	#			$this->{'FONTS'}->{$fontkey}->{'defaultencoding'}=$encoding||'MacRoman';
-	#		} elsif($^O eq "MSWin32") {
-	#			$font=Text::PDF::SFont->new($this->{'PDF'}, $name, $fontname, 1);
-	#			$this->{'FONTS'}->{$fontkey}->{'defaultencoding'}=$encoding||'WinLatin1';
-	#		} else {
-	#			$font=Text::PDF::SFont->new($this->{'PDF'}, $name, $fontname, 1);
-	#			$this->{'FONTS'}->{$fontkey}->{'defaultencoding'}=$encoding||'latin1';
-	#		}
-	#	} else {
-	#		$font=Text::PDF::SFont->new($this->{'PDF'}, $name, $fontname);
-	#		$this->{'FONTS'}->{$fontkey}->{'defaultencoding'}=$encoding;
-	#	}
-	### NEW Text::PDF::AFont code :)
 		if($encoding=~/encoding$/i) {
 		} elsif($encoding EQ 'latin1') {
 		} elsif($encoding EQ 'asis') {
@@ -444,17 +405,6 @@ sub newFontCore {
 		$font=$this->{'FONTS'}->{$fontkey}->{'pdfobj'};
 	} 
 
-	#if(grep(/$name/,@Text::PDF::API::CORETYPEFONTS)) {
-	#	if(!$font->{'Encoding'}){
-	#		$font->{'Encoding'}=PDFDict();
-	#		$font->{'Encoding'}->{'Type'}=PDFName('Encoding');
-	#		if($^O eq "MacOS") {
-	#			$font->{'Encoding'}->{'BaseEncoding'}=PDFName('MacRomanEncoding');
-	#		} else {
-	#			$font->{'Encoding'}->{'BaseEncoding'}=PDFName('WinAnsiEncoding');
-	#		}
-	#	}
-	#}
 	return($fontname);
 }
 
@@ -681,15 +631,13 @@ sub useFont {
 	my ($this,$name,$size,$enc)=@_;
 	my $fontkey=genKEY($name);
 	my $cenc;
-	#if() {
-		if($enc) {
-			$cenc=$enc;
-			$cenc=~s/[^a-z0-9\-]+//cgi;
-			$cenc="$fontkey-$cenc";
-		} else {
-			$cenc=$fontkey;
-		}
-	#}
+	if($enc) {
+		$cenc=$enc;
+		$cenc=~s/[^a-z0-9\-]+//cgi;
+		$cenc="$fontkey-$cenc";
+	} else {
+		$cenc=$fontkey;
+	}
 	
 	if(
 		($fontkey NE $cenc) &&
@@ -697,10 +645,6 @@ sub useFont {
 	) {
 		if( !$this->{'FONTS'}->{$cenc} ) {
 			$this->newFontT1reencode($fontkey,$this->{'FONTS'}->{$fontkey}{'type'},$enc);
-		#	$this->newFontPSreencode(
-		#		$fontkey,
-		#		$enc
-		#	);
 		}
 		$fontkey=$cenc;
 	}
@@ -882,22 +826,90 @@ sub setTextRendering  {
 	$this->{'CURRENT'}{'font'}{'TextRendering'} = shift @_;
 }
 
-sub showText {
+sub beginText {
+	my ($this)=@_;
+	$this->_addtopage(" BT \n");
+}
+sub charSpacing  {
+	my $this = shift @_;
+	my $cs=(shift @_)||$this->{'CURRENT'}{'font'}{'CharSpacing'}||0;
+	$this->_addtopage(sprintf(" %.9f Tc \n",$cs));
+}
+sub wordSpacing  {
+	my $this = shift @_;
+	my $ws=(shift @_) || $this->{'CURRENT'}{'font'}{'WordSpacing'} || 0;
+	$this->_addtopage(sprintf(" %.9f Tw \n",$ws));
+}
+sub textLeading  {
+	my $this = shift @_;
+	my $tl=(shift @_) || $this->{'CURRENT'}{'font'}{'TextLeading'} || 0;
+	$this->_addtopage(sprintf(" %.9f TL \n",$tl));
+}
+sub textRise  {
+	my $this = shift @_;
+	my $tr=(shift @_) || $this->{'CURRENT'}{'font'}{'TextRise'} || 0;
+	$this->_addtopage(sprintf(" %.9f Ts \n",$tr));
+}
+sub textRendering {
+	my $this = shift @_;
+	my $tr=(shift @_) || $this->{'CURRENT'}{'font'}{'TextRendering'} || 0;
+	$this->_addtopage(sprintf(" %i Tr \n",$tr));
+}
+sub textMatrix {
+	my $this = shift @_;
+	my @tm=@_;
+	if(!@tm) {
+		@tm=@{$this->{'CURRENT'}{'font'}{'Matrix'}};
+	}
+	$this->_addtopage(sprintf(" %.9f %.9f %.9f %.9f %.9f %.9f Tm \n",@tm));
+}
+sub textPos {
+	my $this = shift @_;
+	my ($x,$y)=@_;
+	my @tm=@{$this->{'CURRENT'}{'font'}{'Matrix'}};
+	$tm[4]=$x;
+	$tm[5]=$y;
+	$this->textMatrix(@tm);
+}
+sub textFont {
+	my $this = shift @_;
+	my $font;
+	my($name,$size,$enc)=@_;
+	if(scalar @_ != 0) {
+       		my $fontkey=genKEY($name);
+		my $cenc;
+		if($enc) {
+			$cenc=$enc;
+			$cenc=~s/[^a-z0-9\-]+//cgi;
+			$cenc="$fontkey-$cenc";
+		} else {
+			$cenc=$fontkey;
+		}
+		if($this->{'FONTS'}->{$cenc}) {
+			$fontkey=$cenc;
+		}
+                $font=$this->{'FONTS'}->{$fontkey}->{'PDFN'};
+	}
+	$this->initFontCurrent;
+	$font||=$this->{'CURRENT'}{'font'}{'PDFN'};
+	$size||=$this->{'CURRENT'}{'font'}{'Size'};
+	$this->_addtopage(sprintf(" /%s %.9f Tf \n",$font,$size));
+}
+sub textNewLine {
+	my $this = shift @_;
+	my $l;
+	if($l=shift @_) {
+		$this->_addtopage(sprintf(" 0 %.9f Td \n",$l));
+	} else {
+		$this->_addtopage(" T* \n");
+	}
+}
+sub textAdd {
 	my ($this,$text)=@_;
 	$this->initFontCurrent;
 	my $k=$this->{'CURRENT'}{'font'}{'Key'};
-	my $font=$this->{'CURRENT'}{'font'}{'PDFN'};
-	my $size=$this->{'CURRENT'}{'font'}{'Size'};
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
-	my @tm=@{$this->{'CURRENT'}{'font'}{'Matrix'}};
-	
-	my $cs=$this->{'CURRENT'}{'font'}{'CharSpacing'} || 0;
-	my $ws=$this->{'CURRENT'}{'font'}{'WordSpacing'} || 0;
-	my $tl=$this->{'CURRENT'}{'font'}{'TextLeading'} || 0;
-	my $ts=$this->{'CURRENT'}{'font'}{'TextRise'} || 0;
-	my $tr=$this->{'CURRENT'}{'font'}{'TextRendering'} || 0;
-
-	$this->_addtopage(sprintf("BT %.9f Tc %.9f Tw %.9f TL %.9f Ts %i Tr /$font %.9f Tf %.9f %.9f %.9f %.9f %.9f %.9f Tm <",$cs,$ws,$tl,$ts,$tr,$size,@tm));
+	$this->_addtopage(" <");
 	foreach my $c (split(//,$text)) {
 		if($this->{'CURRENT'}{'font'}{'Type'} EQ 'AC') {
 			$this->_addtopage(sprintf('%02x',unpack('C',$c)));
@@ -907,7 +919,29 @@ sub showText {
 			$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))}));
 		}
 	}
-	$this->_addtopage("> Tj ET\n");
+	$this->_addtopage("> Tj \n");
+}
+sub endText {
+	my ($this)=@_;
+	$this->_addtopage(" ET \n");
+}
+
+sub showText {
+	my ($this,$text)=@_;
+	$this->initFontCurrent;
+	my $k=$this->{'CURRENT'}{'font'}{'Key'};
+	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
+	
+	$this->beginText();
+	$this->textFont();
+	$this->charSpacing();
+	$this->wordSpacing();
+	$this->textLeading();
+	$this->textRise;
+	$this->textRendering;
+	$this->textMatrix;
+	$this->textAdd($text);
+	$this->endText();
 }
 
 sub showTextXY {
@@ -1209,6 +1243,64 @@ sub lineXY {
 	$this->lineTo($x2,$y2);
 }
 
+sub arcXYabDG {
+        my $self = shift @_;
+        my $x = shift @_;
+        my $y = shift @_;
+        my $a = shift @_;
+        my $b = shift @_;
+        my $alpha = shift @_;
+        my $beta = shift @_;
+        my $move = shift @_;
+        my $test = shift @_;
+        if(abs($beta-$alpha) > 180) {
+                my ($p0_x,$p0_y) =
+                        $self->arcXYabDG($x,$y,$a,$b,$alpha,($beta+$alpha)/2,$move,$test);
+                my ($p2_x,$p2_y,$p3_x,$p3_y) =
+                        $self->arcXYabDG($x,$y,$a,$b,($beta+$alpha)/2,$beta,$move,$test);
+                return($p0_x,$p0_y,$p3_x,$p3_y);
+        } else {
+                $alpha = ($alpha * 3.1415 / 180);
+                $beta  = ($beta * 3.1415 / 180);
+
+                my $bcp = (4.0/3 * (1 - cos(($beta - $alpha)/2)) / sin(($beta - $alpha)/2));
+
+                my $sin_alpha = sin($alpha);
+                my $sin_beta =  sin($beta);
+                my $cos_alpha = cos($alpha);
+                my $cos_beta =  cos($beta);
+
+                my $p0_x = $x + $a * $cos_alpha;
+                my $p0_y = $y + $b * $sin_alpha;
+                my $p1_x = $x + $a * ($cos_alpha - $bcp * $sin_alpha);
+                my $p1_y = $y + $b * ($sin_alpha + $bcp * $cos_alpha);
+                my $p2_x = $x + $a * ($cos_beta + $bcp * $sin_beta);
+                my $p2_y = $y + $b * ($sin_beta - $bcp * $cos_beta);
+                my $p3_x = $x + $a * $cos_beta;
+                my $p3_y = $y + $b * $sin_beta;
+
+                if(!$test) {
+                        $self->moveTo($p0_x,$p0_y) if($move);
+                        $self->curveTo($p1_x,$p1_y,$p2_x,$p2_y,$p3_x,$p3_y);
+                }
+                return($p0_x,$p0_y,$p3_x,$p3_y);
+        }
+
+}
+
+sub arcXYrDG {
+        my $self = shift @_;
+        my $x = shift @_;
+        my $y = shift @_;
+        my $r = shift @_;
+        my $alpha = shift @_;
+        my $beta = shift @_;
+        my $move = shift @_;
+        my $test = shift @_;
+
+        return($self->arcXYabDG($x,$y,$r,$r,$alpha,$beta,$move,$test));
+}
+
 sub ellipsisXYAB {
 	my ($this,$x,$y,$a,$b)=@_;
 	$this->moveTo($x-$a,$y);
@@ -1219,7 +1311,8 @@ sub ellipsisXYAB {
 
 sub circleXYR {
 	my ($this,$x,$y,$r)=@_;
-	$this->ellipsisXYAB($x,$y,$r,$r);
+	$this->arcXYrDG($x,$y,$r,0,360,1);
+	$this->closePath;
 }
 
 sub stroke {
@@ -1370,6 +1463,10 @@ Text::PDF::API - a wrapper api for the Text::PDF::* modules of Martin Hosken.
 
 This creates a new pdf-object initializes it with the given defaults and returns it.
 See the functions B<getDefault> and B<setDefault> for a list of supported parameters.
+
+=item $pdf->info $title, $subject, $creator, $author, $keywords
+
+This creates the pdf-info-object and initializes it with the given values.
 
 =item $pdf->saveas $file 
 
@@ -1585,9 +1682,62 @@ of Translate, Skew, Scale & Rotate.
 
 =back
 
-=head2 Text Methods
+=head2 Text Block Methods
 
 =over 4
+
+=item $pdf->beginText
+
+Starts a text block.
+
+=item $pdf->endText
+
+Ends a text block
+
+=item $pdf->charSpacing [ $spacing ]
+
+=item $pdf->wordSpacing [ $spacing ]
+
+=item $pdf->textLeading [ $leading ]
+
+=item $pdf->textRise [ $rise ]
+
+=item $pdf->textRendering [ $rendering ]
+
+=item $pdf->textMatrix [ @matrix ]
+
+Sets the parameter for the text-block only. If parameter is not given the default
+as defined by $pdf->set* is used.
+
+=item $pdf->textPos $mx, $my 
+
+Sets a new text position, but honoring the current FontMatrix.
+
+=item $pdf->textFont [ $font, $size [, $encoding ] ] 
+
+Switches the font within the text-block or resets to the last $pdf->useFont.
+B<BEWARE:> you can only change to a new font before a matrix or pos command since
+changing it after such command gives pdf-errors !!!
+
+=item $pdf->textAdd $text
+
+Adds text to the text-block.
+
+=item $pdf->textNewLine [ $leading ]
+
+Moves the text-pointer to a new line using TextLeading as default. 
+
+=back
+
+=head2 Text Utility Methods
+
+=over 4
+
+=item $pdf->calcTextWidth $text
+
+Calculates the width of the text based on the parameters set by useFont.
+
+B<BEWARE:> Does not consider parameters specified by setFont* and *Matrix functions.
 
 =item $pdf->showText $text
 
@@ -1605,12 +1755,6 @@ The *_R and *_C variants perform right and center alignment !
 =item $pdf->printText $x, $y, $font, $size, $encoding, $text
 
 Like a $pdf->useFont followed by a $pdf->showTextXY.
-
-=item $pdf->calcTextWidth $text
-
-Calculates the width of the text based on the parameters set by useFont.
-
-B<BEWARE:> Does not consider parameters specified by setFont* and *Matrix functions.
 
 =back
 
@@ -1697,6 +1841,10 @@ To revert to the former parameters use $pdf->savePdfState and $pdf->restorePdfSt
 =item $pdf->rectXY $x1, $y1, $x2, $y2
 
 =item $pdf->lineXY $x1, $y1, $x2, $y2
+
+=item ($xs,$ys,$xe,$ye)=$pdf->arcXYabDG $x, $y, $a, $b, $delta, $gamma, $move
+
+=item ($xs,$ys,$xe,$ye)=$pdf->arcXYrDG $x, $y, $r, $delta, $gamma, $move
 
 =item $pdf->ellipsisXYAB $x, $y, $a, $b
 
@@ -1886,15 +2034,39 @@ documemtation update and release of the much hacked 0.5_pre??? code :)
 
 minor bugfixes:
 
-under certain conditions the 'image' functions stopped working, thanks to 
-Lester Hightower [hightowe@TheAIMSGroup.com] for reporting that bug.
+under certain conditions the 'image' functions stopped working,
 hope that my newly invented "nigma-hash" keygenerator fixes this.  
 
 the symbol and zapfdingbat corefonts did not work ... since they missed 
 attributes and had wrong font-flags set ... doesn't anybody use them ?
 
+=item Version 0.6
+
+removed: "nigma-hash" keygenerator had some disadvantages.
+
+added: Digest::REHLHA module for key-generation (this comes with the API).
+
+added: $p->arcXYrDG() and $p->arcXYabDG() to relief users of the (in my opinion)
+'mind boggling' bezier-curve function for arcs.  
+
+added: $p->info() to include copyright/generator information in the pdf.
+
+added: new text-block functions to ease the use of text.
+
+changed: unicode<->name mapping was broken under perl-5.004xx.  
+
+B<PLEASE NOTE:> this is now the minimum required version for the upcoming 
+APIx module-chain.
 
 =back
+
+=head1 CONTRIBUTORS / BUGHUNTERS / THANKS
+
+Martin Hosken [mhosken@sil.org] 
+-- for writing Text::PDF in the first place
+
+Lester Hightower [hightowe@TheAIMSGroup.com] 
+-- fixes/reports: perl-5.004xx, key-generation, Makefile.PL
 
 =head1 BUGS
 
@@ -1906,10 +2078,1257 @@ documentation ?
 
 drawing functions ?
 
-more encodings ?
+more bitmap import functions (jpeg,tiff,xbm,xpm,...?)
 
-fix encoding for core fonts ?
-
-bitmap import functions (jpeg,xbm,xpm, ...?)
+function to populate a Text::PDF::API object from an existing pdf-file ?
 
 =cut
+
+BEGIN {
+
+%u2n=(
+  '32'=>'space',
+  '33'=>'exclam',
+  '34'=>'quotedbl',
+  '35'=>'numbersign',
+  '36'=>'dollar',
+  '37'=>'percent',
+  '38'=>'ampersand',
+  '39'=>'quotesingle',
+  '40'=>'parenleft',
+  '41'=>'parenright',
+  '42'=>'asterisk',
+  '43'=>'plus',
+  '44'=>'comma',
+  '45'=>'hyphen',
+  '46'=>'period',
+  '47'=>'slash',
+  '48'=>'zero',
+  '49'=>'one',
+  '50'=>'two',
+  '51'=>'three',
+  '52'=>'four',
+  '53'=>'five',
+  '54'=>'six',
+  '55'=>'seven',
+  '56'=>'eight',
+  '57'=>'nine',
+  '58'=>'colon',
+  '59'=>'semicolon',
+  '60'=>'less',
+  '61'=>'equal',
+  '62'=>'greater',
+  '63'=>'question',
+  '64'=>'at',
+  '65'=>'A',
+  '66'=>'B',
+  '67'=>'C',
+  '68'=>'D',
+  '69'=>'E',
+  '70'=>'F',
+  '71'=>'G',
+  '72'=>'H',
+  '73'=>'I',
+  '74'=>'J',
+  '75'=>'K',
+  '76'=>'L',
+  '77'=>'M',
+  '78'=>'N',
+  '79'=>'O',
+  '80'=>'P',
+  '81'=>'Q',
+  '82'=>'R',
+  '83'=>'S',
+  '84'=>'T',
+  '85'=>'U',
+  '86'=>'V',
+  '87'=>'W',
+  '88'=>'X',
+  '89'=>'Y',
+  '90'=>'Z',
+  '91'=>'bracketleft',
+  '92'=>'backslash',
+  '93'=>'bracketright',
+  '94'=>'asciicircum',
+  '95'=>'underscore',
+  '96'=>'grave',
+  '97'=>'a',
+  '98'=>'b',
+  '99'=>'c',
+  '100'=>'d',
+  '101'=>'e',
+  '102'=>'f',
+  '103'=>'g',
+  '104'=>'h',
+  '105'=>'i',
+  '106'=>'j',
+  '107'=>'k',
+  '108'=>'l',
+  '109'=>'m',
+  '110'=>'n',
+  '111'=>'o',
+  '112'=>'p',
+  '113'=>'q',
+  '114'=>'r',
+  '115'=>'s',
+  '116'=>'t',
+  '117'=>'u',
+  '118'=>'v',
+  '119'=>'w',
+  '120'=>'x',
+  '121'=>'y',
+  '122'=>'z',
+  '123'=>'braceleft',
+  '124'=>'bar',
+  '125'=>'braceright',
+  '126'=>'asciitilde',
+  '160'=>'space',
+  '161'=>'exclamdown',
+  '162'=>'cent',
+  '163'=>'sterling',
+  '164'=>'currency',
+  '165'=>'yen',
+  '166'=>'brokenbar',
+  '167'=>'section',
+  '168'=>'dieresis',
+  '169'=>'copyright',
+  '170'=>'ordfeminine',
+  '171'=>'guillemotleft',
+  '172'=>'logicalnot',
+  '173'=>'hyphen',
+  '174'=>'registered',
+  '175'=>'macron',
+  '176'=>'degree',
+  '177'=>'plusminus',
+  '178'=>'twosuperior',
+  '179'=>'threesuperior',
+  '180'=>'acute',
+  '181'=>'mu',
+  '182'=>'paragraph',
+  '183'=>'periodcentered',
+  '184'=>'cedilla',
+  '185'=>'onesuperior',
+  '186'=>'ordmasculine',
+  '187'=>'guillemotright',
+  '188'=>'onequarter',
+  '189'=>'onehalf',
+  '190'=>'threequarters',
+  '191'=>'questiondown',
+  '192'=>'Agrave',
+  '193'=>'Aacute',
+  '194'=>'Acircumflex',
+  '195'=>'Atilde',
+  '196'=>'Adieresis',
+  '197'=>'Aring',
+  '198'=>'AE',
+  '199'=>'Ccedilla',
+  '200'=>'Egrave',
+  '201'=>'Eacute',
+  '202'=>'Ecircumflex',
+  '203'=>'Edieresis',
+  '204'=>'Igrave',
+  '205'=>'Iacute',
+  '206'=>'Icircumflex',
+  '207'=>'Idieresis',
+  '208'=>'Eth',
+  '209'=>'Ntilde',
+  '210'=>'Ograve',
+  '211'=>'Oacute',
+  '212'=>'Ocircumflex',
+  '213'=>'Otilde',
+  '214'=>'Odieresis',
+  '215'=>'multiply',
+  '216'=>'Oslash',
+  '217'=>'Ugrave',
+  '218'=>'Uacute',
+  '219'=>'Ucircumflex',
+  '220'=>'Udieresis',
+  '221'=>'Yacute',
+  '222'=>'Thorn',
+  '223'=>'germandbls',
+  '224'=>'agrave',
+  '225'=>'aacute',
+  '226'=>'acircumflex',
+  '227'=>'atilde',
+  '228'=>'adieresis',
+  '229'=>'aring',
+  '230'=>'ae',
+  '231'=>'ccedilla',
+  '232'=>'egrave',
+  '233'=>'eacute',
+  '234'=>'ecircumflex',
+  '235'=>'edieresis',
+  '236'=>'igrave',
+  '237'=>'iacute',
+  '238'=>'icircumflex',
+  '239'=>'idieresis',
+  '240'=>'eth',
+  '241'=>'ntilde',
+  '242'=>'ograve',
+  '243'=>'oacute',
+  '244'=>'ocircumflex',
+  '245'=>'otilde',
+  '246'=>'odieresis',
+  '247'=>'divide',
+  '248'=>'oslash',
+  '249'=>'ugrave',
+  '250'=>'uacute',
+  '251'=>'ucircumflex',
+  '252'=>'udieresis',
+  '253'=>'yacute',
+  '254'=>'thorn',
+  '255'=>'ydieresis',
+  '256'=>'Amacron',
+  '257'=>'amacron',
+  '258'=>'Abreve',
+  '259'=>'abreve',
+  '260'=>'Aogonek',
+  '261'=>'aogonek',
+  '262'=>'Cacute',
+  '263'=>'cacute',
+  '264'=>'Ccircumflex',
+  '265'=>'ccircumflex',
+  '266'=>'Cdotaccent',
+  '267'=>'cdotaccent',
+  '268'=>'Ccaron',
+  '269'=>'ccaron',
+  '270'=>'Dcaron',
+  '271'=>'dcaron',
+  '272'=>'Dcroat',
+  '273'=>'dcroat',
+  '274'=>'Emacron',
+  '275'=>'emacron',
+  '276'=>'Ebreve',
+  '277'=>'ebreve',
+  '278'=>'Edotaccent',
+  '279'=>'edotaccent',
+  '280'=>'Eogonek',
+  '281'=>'eogonek',
+  '282'=>'Ecaron',
+  '283'=>'ecaron',
+  '284'=>'Gcircumflex',
+  '285'=>'gcircumflex',
+  '286'=>'Gbreve',
+  '287'=>'gbreve',
+  '288'=>'Gdotaccent',
+  '289'=>'gdotaccent',
+  '290'=>'Gcommaaccent',
+  '291'=>'gcommaaccent',
+  '292'=>'Hcircumflex',
+  '293'=>'hcircumflex',
+  '294'=>'Hbar',
+  '295'=>'hbar',
+  '296'=>'Itilde',
+  '297'=>'itilde',
+  '298'=>'Imacron',
+  '299'=>'imacron',
+  '300'=>'Ibreve',
+  '301'=>'ibreve',
+  '302'=>'Iogonek',
+  '303'=>'iogonek',
+  '304'=>'Idotaccent',
+  '305'=>'dotlessi',
+  '306'=>'IJ',
+  '307'=>'ij',
+  '308'=>'Jcircumflex',
+  '309'=>'jcircumflex',
+  '310'=>'Kcommaaccent',
+  '311'=>'kcommaaccent',
+  '312'=>'kgreenlandic',
+  '313'=>'Lacute',
+  '314'=>'lacute',
+  '315'=>'Lcommaaccent',
+  '316'=>'lcommaaccent',
+  '317'=>'Lcaron',
+  '318'=>'lcaron',
+  '319'=>'Ldot',
+  '320'=>'ldot',
+  '321'=>'Lslash',
+  '322'=>'lslash',
+  '323'=>'Nacute',
+  '324'=>'nacute',
+  '325'=>'Ncommaaccent',
+  '326'=>'ncommaaccent',
+  '327'=>'Ncaron',
+  '328'=>'ncaron',
+  '329'=>'napostrophe',
+  '330'=>'Eng',
+  '331'=>'eng',
+  '332'=>'Omacron',
+  '333'=>'omacron',
+  '334'=>'Obreve',
+  '335'=>'obreve',
+  '336'=>'Ohungarumlaut',
+  '337'=>'ohungarumlaut',
+  '338'=>'OE',
+  '339'=>'oe',
+  '340'=>'Racute',
+  '341'=>'racute',
+  '342'=>'Rcommaaccent',
+  '343'=>'rcommaaccent',
+  '344'=>'Rcaron',
+  '345'=>'rcaron',
+  '346'=>'Sacute',
+  '347'=>'sacute',
+  '348'=>'Scircumflex',
+  '349'=>'scircumflex',
+  '350'=>'Scedilla',
+  '351'=>'scedilla',
+  '352'=>'Scaron',
+  '353'=>'scaron',
+  '354'=>'Tcommaaccent',
+  '355'=>'tcommaaccent',
+  '356'=>'Tcaron',
+  '357'=>'tcaron',
+  '358'=>'Tbar',
+  '359'=>'tbar',
+  '360'=>'Utilde',
+  '361'=>'utilde',
+  '362'=>'Umacron',
+  '363'=>'umacron',
+  '364'=>'Ubreve',
+  '365'=>'ubreve',
+  '366'=>'Uring',
+  '367'=>'uring',
+  '368'=>'Uhungarumlaut',
+  '369'=>'uhungarumlaut',
+  '370'=>'Uogonek',
+  '371'=>'uogonek',
+  '372'=>'Wcircumflex',
+  '373'=>'wcircumflex',
+  '374'=>'Ycircumflex',
+  '375'=>'ycircumflex',
+  '376'=>'Ydieresis',
+  '377'=>'Zacute',
+  '378'=>'zacute',
+  '379'=>'Zdotaccent',
+  '380'=>'zdotaccent',
+  '381'=>'Zcaron',
+  '382'=>'zcaron',
+  '383'=>'longs',
+  '402'=>'florin',
+  '416'=>'Ohorn',
+  '417'=>'ohorn',
+  '431'=>'Uhorn',
+  '432'=>'uhorn',
+  '486'=>'Gcaron',
+  '487'=>'gcaron',
+  '506'=>'Aringacute',
+  '507'=>'aringacute',
+  '508'=>'AEacute',
+  '509'=>'aeacute',
+  '510'=>'Oslashacute',
+  '511'=>'oslashacute',
+  '536'=>'Scommaaccent',
+  '537'=>'scommaaccent',
+  '538'=>'Tcommaaccent',
+  '539'=>'tcommaaccent',
+  '700'=>'afii57929',
+  '701'=>'afii64937',
+  '710'=>'circumflex',
+  '711'=>'caron',
+  '713'=>'macron',
+  '728'=>'breve',
+  '729'=>'dotaccent',
+  '730'=>'ring',
+  '731'=>'ogonek',
+  '732'=>'tilde',
+  '733'=>'hungarumlaut',
+  '768'=>'gravecomb',
+  '769'=>'acutecomb',
+  '771'=>'tildecomb',
+  '777'=>'hookabovecomb',
+  '803'=>'dotbelowcomb',
+  '900'=>'tonos',
+  '901'=>'dieresistonos',
+  '902'=>'Alphatonos',
+  '903'=>'anoteleia',
+  '904'=>'Epsilontonos',
+  '905'=>'Etatonos',
+  '906'=>'Iotatonos',
+  '908'=>'Omicrontonos',
+  '910'=>'Upsilontonos',
+  '911'=>'Omegatonos',
+  '912'=>'iotadieresistonos',
+  '913'=>'Alpha',
+  '914'=>'Beta',
+  '915'=>'Gamma',
+  '916'=>'Delta',
+  '917'=>'Epsilon',
+  '918'=>'Zeta',
+  '919'=>'Eta',
+  '920'=>'Theta',
+  '921'=>'Iota',
+  '922'=>'Kappa',
+  '923'=>'Lambda',
+  '924'=>'Mu',
+  '925'=>'Nu',
+  '926'=>'Xi',
+  '927'=>'Omicron',
+  '928'=>'Pi',
+  '929'=>'Rho',
+  '931'=>'Sigma',
+  '932'=>'Tau',
+  '933'=>'Upsilon',
+  '934'=>'Phi',
+  '935'=>'Chi',
+  '936'=>'Psi',
+  '937'=>'Omega',
+  '938'=>'Iotadieresis',
+  '939'=>'Upsilondieresis',
+  '940'=>'alphatonos',
+  '941'=>'epsilontonos',
+  '942'=>'etatonos',
+  '943'=>'iotatonos',
+  '944'=>'upsilondieresistonos',
+  '945'=>'alpha',
+  '946'=>'beta',
+  '947'=>'gamma',
+  '948'=>'delta',
+  '949'=>'epsilon',
+  '950'=>'zeta',
+  '951'=>'eta',
+  '952'=>'theta',
+  '953'=>'iota',
+  '954'=>'kappa',
+  '955'=>'lambda',
+  '956'=>'mu',
+  '957'=>'nu',
+  '958'=>'xi',
+  '959'=>'omicron',
+  '960'=>'pi',
+  '961'=>'rho',
+  '962'=>'sigma1',
+  '963'=>'sigma',
+  '964'=>'tau',
+  '965'=>'upsilon',
+  '966'=>'phi',
+  '967'=>'chi',
+  '968'=>'psi',
+  '969'=>'omega',
+  '970'=>'iotadieresis',
+  '971'=>'upsilondieresis',
+  '972'=>'omicrontonos',
+  '973'=>'upsilontonos',
+  '974'=>'omegatonos',
+  '977'=>'theta1',
+  '978'=>'Upsilon1',
+  '981'=>'phi1',
+  '982'=>'omega1',
+  '1025'=>'afii10023',
+  '1026'=>'afii10051',
+  '1027'=>'afii10052',
+  '1028'=>'afii10053',
+  '1029'=>'afii10054',
+  '1030'=>'afii10055',
+  '1031'=>'afii10056',
+  '1032'=>'afii10057',
+  '1033'=>'afii10058',
+  '1034'=>'afii10059',
+  '1035'=>'afii10060',
+  '1036'=>'afii10061',
+  '1038'=>'afii10062',
+  '1039'=>'afii10145',
+  '1040'=>'afii10017',
+  '1041'=>'afii10018',
+  '1042'=>'afii10019',
+  '1043'=>'afii10020',
+  '1044'=>'afii10021',
+  '1045'=>'afii10022',
+  '1046'=>'afii10024',
+  '1047'=>'afii10025',
+  '1048'=>'afii10026',
+  '1049'=>'afii10027',
+  '1050'=>'afii10028',
+  '1051'=>'afii10029',
+  '1052'=>'afii10030',
+  '1053'=>'afii10031',
+  '1054'=>'afii10032',
+  '1055'=>'afii10033',
+  '1056'=>'afii10034',
+  '1057'=>'afii10035',
+  '1058'=>'afii10036',
+  '1059'=>'afii10037',
+  '1060'=>'afii10038',
+  '1061'=>'afii10039',
+  '1062'=>'afii10040',
+  '1063'=>'afii10041',
+  '1064'=>'afii10042',
+  '1065'=>'afii10043',
+  '1066'=>'afii10044',
+  '1067'=>'afii10045',
+  '1068'=>'afii10046',
+  '1069'=>'afii10047',
+  '1070'=>'afii10048',
+  '1071'=>'afii10049',
+  '1072'=>'afii10065',
+  '1073'=>'afii10066',
+  '1074'=>'afii10067',
+  '1075'=>'afii10068',
+  '1076'=>'afii10069',
+  '1077'=>'afii10070',
+  '1078'=>'afii10072',
+  '1079'=>'afii10073',
+  '1080'=>'afii10074',
+  '1081'=>'afii10075',
+  '1082'=>'afii10076',
+  '1083'=>'afii10077',
+  '1084'=>'afii10078',
+  '1085'=>'afii10079',
+  '1086'=>'afii10080',
+  '1087'=>'afii10081',
+  '1088'=>'afii10082',
+  '1089'=>'afii10083',
+  '1090'=>'afii10084',
+  '1091'=>'afii10085',
+  '1092'=>'afii10086',
+  '1093'=>'afii10087',
+  '1094'=>'afii10088',
+  '1095'=>'afii10089',
+  '1096'=>'afii10090',
+  '1097'=>'afii10091',
+  '1098'=>'afii10092',
+  '1099'=>'afii10093',
+  '1100'=>'afii10094',
+  '1101'=>'afii10095',
+  '1102'=>'afii10096',
+  '1103'=>'afii10097',
+  '1105'=>'afii10071',
+  '1106'=>'afii10099',
+  '1107'=>'afii10100',
+  '1108'=>'afii10101',
+  '1109'=>'afii10102',
+  '1110'=>'afii10103',
+  '1111'=>'afii10104',
+  '1112'=>'afii10105',
+  '1113'=>'afii10106',
+  '1114'=>'afii10107',
+  '1115'=>'afii10108',
+  '1116'=>'afii10109',
+  '1118'=>'afii10110',
+  '1119'=>'afii10193',
+  '1122'=>'afii10146',
+  '1123'=>'afii10194',
+  '1138'=>'afii10147',
+  '1139'=>'afii10195',
+  '1140'=>'afii10148',
+  '1141'=>'afii10196',
+  '1168'=>'afii10050',
+  '1169'=>'afii10098',
+  '1241'=>'afii10846',
+  '1456'=>'afii57799',
+  '1457'=>'afii57801',
+  '1458'=>'afii57800',
+  '1459'=>'afii57802',
+  '1460'=>'afii57793',
+  '1461'=>'afii57794',
+  '1462'=>'afii57795',
+  '1463'=>'afii57798',
+  '1464'=>'afii57797',
+  '1465'=>'afii57806',
+  '1467'=>'afii57796',
+  '1468'=>'afii57807',
+  '1469'=>'afii57839',
+  '1470'=>'afii57645',
+  '1471'=>'afii57841',
+  '1472'=>'afii57842',
+  '1473'=>'afii57804',
+  '1474'=>'afii57803',
+  '1475'=>'afii57658',
+  '1488'=>'afii57664',
+  '1489'=>'afii57665',
+  '1490'=>'afii57666',
+  '1491'=>'afii57667',
+  '1492'=>'afii57668',
+  '1493'=>'afii57669',
+  '1494'=>'afii57670',
+  '1495'=>'afii57671',
+  '1496'=>'afii57672',
+  '1497'=>'afii57673',
+  '1498'=>'afii57674',
+  '1499'=>'afii57675',
+  '1500'=>'afii57676',
+  '1501'=>'afii57677',
+  '1502'=>'afii57678',
+  '1503'=>'afii57679',
+  '1504'=>'afii57680',
+  '1505'=>'afii57681',
+  '1506'=>'afii57682',
+  '1507'=>'afii57683',
+  '1508'=>'afii57684',
+  '1509'=>'afii57685',
+  '1510'=>'afii57686',
+  '1511'=>'afii57687',
+  '1512'=>'afii57688',
+  '1513'=>'afii57689',
+  '1514'=>'afii57690',
+  '1520'=>'afii57716',
+  '1521'=>'afii57717',
+  '1522'=>'afii57718',
+  '1548'=>'afii57388',
+  '1563'=>'afii57403',
+  '1567'=>'afii57407',
+  '1569'=>'afii57409',
+  '1570'=>'afii57410',
+  '1571'=>'afii57411',
+  '1572'=>'afii57412',
+  '1573'=>'afii57413',
+  '1574'=>'afii57414',
+  '1575'=>'afii57415',
+  '1576'=>'afii57416',
+  '1577'=>'afii57417',
+  '1578'=>'afii57418',
+  '1579'=>'afii57419',
+  '1580'=>'afii57420',
+  '1581'=>'afii57421',
+  '1582'=>'afii57422',
+  '1583'=>'afii57423',
+  '1584'=>'afii57424',
+  '1585'=>'afii57425',
+  '1586'=>'afii57426',
+  '1587'=>'afii57427',
+  '1588'=>'afii57428',
+  '1589'=>'afii57429',
+  '1590'=>'afii57430',
+  '1591'=>'afii57431',
+  '1592'=>'afii57432',
+  '1593'=>'afii57433',
+  '1594'=>'afii57434',
+  '1600'=>'afii57440',
+  '1601'=>'afii57441',
+  '1602'=>'afii57442',
+  '1603'=>'afii57443',
+  '1604'=>'afii57444',
+  '1605'=>'afii57445',
+  '1606'=>'afii57446',
+  '1607'=>'afii57470',
+  '1608'=>'afii57448',
+  '1609'=>'afii57449',
+  '1610'=>'afii57450',
+  '1611'=>'afii57451',
+  '1612'=>'afii57452',
+  '1613'=>'afii57453',
+  '1614'=>'afii57454',
+  '1615'=>'afii57455',
+  '1616'=>'afii57456',
+  '1617'=>'afii57457',
+  '1618'=>'afii57458',
+  '1632'=>'afii57392',
+  '1633'=>'afii57393',
+  '1634'=>'afii57394',
+  '1635'=>'afii57395',
+  '1636'=>'afii57396',
+  '1637'=>'afii57397',
+  '1638'=>'afii57398',
+  '1639'=>'afii57399',
+  '1640'=>'afii57400',
+  '1641'=>'afii57401',
+  '1642'=>'afii57381',
+  '1645'=>'afii63167',
+  '1657'=>'afii57511',
+  '1662'=>'afii57506',
+  '1670'=>'afii57507',
+  '1672'=>'afii57512',
+  '1681'=>'afii57513',
+  '1688'=>'afii57508',
+  '1700'=>'afii57505',
+  '1711'=>'afii57509',
+  '1722'=>'afii57514',
+  '1746'=>'afii57519',
+  '1749'=>'afii57534',
+  '7808'=>'Wgrave',
+  '7809'=>'wgrave',
+  '7810'=>'Wacute',
+  '7811'=>'wacute',
+  '7812'=>'Wdieresis',
+  '7813'=>'wdieresis',
+  '7922'=>'Ygrave',
+  '7923'=>'ygrave',
+  '8204'=>'afii61664',
+  '8205'=>'afii301',
+  '8206'=>'afii299',
+  '8207'=>'afii300',
+  '8210'=>'figuredash',
+  '8211'=>'endash',
+  '8212'=>'emdash',
+  '8213'=>'afii00208',
+  '8215'=>'underscoredbl',
+  '8216'=>'quoteleft',
+  '8217'=>'quoteright',
+  '8218'=>'quotesinglbase',
+  '8219'=>'quotereversed',
+  '8220'=>'quotedblleft',
+  '8221'=>'quotedblright',
+  '8222'=>'quotedblbase',
+  '8224'=>'dagger',
+  '8225'=>'daggerdbl',
+  '8226'=>'bullet',
+  '8228'=>'onedotenleader',
+  '8229'=>'twodotenleader',
+  '8230'=>'ellipsis',
+  '8236'=>'afii61573',
+  '8237'=>'afii61574',
+  '8238'=>'afii61575',
+  '8240'=>'perthousand',
+  '8242'=>'minute',
+  '8243'=>'second',
+  '8249'=>'guilsinglleft',
+  '8250'=>'guilsinglright',
+  '8252'=>'exclamdbl',
+  '8260'=>'fraction',
+  '8304'=>'zerosuperior',
+  '8308'=>'foursuperior',
+  '8309'=>'fivesuperior',
+  '8310'=>'sixsuperior',
+  '8311'=>'sevensuperior',
+  '8312'=>'eightsuperior',
+  '8313'=>'ninesuperior',
+  '8317'=>'parenleftsuperior',
+  '8318'=>'parenrightsuperior',
+  '8319'=>'nsuperior',
+  '8320'=>'zeroinferior',
+  '8321'=>'oneinferior',
+  '8322'=>'twoinferior',
+  '8323'=>'threeinferior',
+  '8324'=>'fourinferior',
+  '8325'=>'fiveinferior',
+  '8326'=>'sixinferior',
+  '8327'=>'seveninferior',
+  '8328'=>'eightinferior',
+  '8329'=>'nineinferior',
+  '8333'=>'parenleftinferior',
+  '8334'=>'parenrightinferior',
+  '8353'=>'colonmonetary',
+  '8355'=>'franc',
+  '8356'=>'lira',
+  '8359'=>'peseta',
+  '8362'=>'afii57636',
+  '8363'=>'dong',
+  '8364'=>'Euro',
+  '8453'=>'afii61248',
+  '8465'=>'Ifraktur',
+  '8467'=>'afii61289',
+  '8470'=>'afii61352',
+  '8472'=>'weierstrass',
+  '8476'=>'Rfraktur',
+  '8478'=>'prescription',
+  '8482'=>'trademark',
+  '8486'=>'Omega',
+  '8494'=>'estimated',
+  '8501'=>'aleph',
+  '8531'=>'onethird',
+  '8532'=>'twothirds',
+  '8539'=>'oneeighth',
+  '8540'=>'threeeighths',
+  '8541'=>'fiveeighths',
+  '8542'=>'seveneighths',
+  '8592'=>'arrowleft',
+  '8593'=>'arrowup',
+  '8594'=>'arrowright',
+  '8595'=>'arrowdown',
+  '8596'=>'arrowboth',
+  '8597'=>'arrowupdn',
+  '8616'=>'arrowupdnbse',
+  '8629'=>'carriagereturn',
+  '8656'=>'arrowdblleft',
+  '8657'=>'arrowdblup',
+  '8658'=>'arrowdblright',
+  '8659'=>'arrowdbldown',
+  '8660'=>'arrowdblboth',
+  '8704'=>'universal',
+  '8706'=>'partialdiff',
+  '8707'=>'existential',
+  '8709'=>'emptyset',
+  '8710'=>'Delta',
+  '8711'=>'gradient',
+  '8712'=>'element',
+  '8713'=>'notelement',
+  '8715'=>'suchthat',
+  '8719'=>'product',
+  '8721'=>'summation',
+  '8722'=>'minus',
+  '8725'=>'fraction',
+  '8727'=>'asteriskmath',
+  '8729'=>'periodcentered',
+  '8730'=>'radical',
+  '8733'=>'proportional',
+  '8734'=>'infinity',
+  '8735'=>'orthogonal',
+  '8736'=>'angle',
+  '8743'=>'logicaland',
+  '8744'=>'logicalor',
+  '8745'=>'intersection',
+  '8746'=>'union',
+  '8747'=>'integral',
+  '8756'=>'therefore',
+  '8764'=>'similar',
+  '8773'=>'congruent',
+  '8776'=>'approxequal',
+  '8800'=>'notequal',
+  '8801'=>'equivalence',
+  '8804'=>'lessequal',
+  '8805'=>'greaterequal',
+  '8834'=>'propersubset',
+  '8835'=>'propersuperset',
+  '8836'=>'notsubset',
+  '8838'=>'reflexsubset',
+  '8839'=>'reflexsuperset',
+  '8853'=>'circleplus',
+  '8855'=>'circlemultiply',
+  '8869'=>'perpendicular',
+  '8901'=>'dotmath',
+  '8962'=>'house',
+  '8976'=>'revlogicalnot',
+  '8992'=>'integraltp',
+  '8993'=>'integralbt',
+  '9001'=>'angleleft',
+  '9002'=>'angleright',
+  '9312'=>'a120',
+  '9313'=>'a121',
+  '9314'=>'a122',
+  '9315'=>'a123',
+  '9316'=>'a124',
+  '9317'=>'a125',
+  '9318'=>'a126',
+  '9319'=>'a127',
+  '9320'=>'a128',
+  '9321'=>'a129',
+  '9472'=>'SF100000',
+  '9474'=>'SF110000',
+  '9484'=>'SF010000',
+  '9488'=>'SF030000',
+  '9492'=>'SF020000',
+  '9496'=>'SF040000',
+  '9500'=>'SF080000',
+  '9508'=>'SF090000',
+  '9516'=>'SF060000',
+  '9524'=>'SF070000',
+  '9532'=>'SF050000',
+  '9552'=>'SF430000',
+  '9553'=>'SF240000',
+  '9554'=>'SF510000',
+  '9555'=>'SF520000',
+  '9556'=>'SF390000',
+  '9557'=>'SF220000',
+  '9558'=>'SF210000',
+  '9559'=>'SF250000',
+  '9560'=>'SF500000',
+  '9561'=>'SF490000',
+  '9562'=>'SF380000',
+  '9563'=>'SF280000',
+  '9564'=>'SF270000',
+  '9565'=>'SF260000',
+  '9566'=>'SF360000',
+  '9567'=>'SF370000',
+  '9568'=>'SF420000',
+  '9569'=>'SF190000',
+  '9570'=>'SF200000',
+  '9571'=>'SF230000',
+  '9572'=>'SF470000',
+  '9573'=>'SF480000',
+  '9574'=>'SF410000',
+  '9575'=>'SF450000',
+  '9576'=>'SF460000',
+  '9577'=>'SF400000',
+  '9578'=>'SF540000',
+  '9579'=>'SF530000',
+  '9580'=>'SF440000',
+  '9600'=>'upblock',
+  '9604'=>'dnblock',
+  '9608'=>'block',
+  '9612'=>'lfblock',
+  '9616'=>'rtblock',
+  '9617'=>'ltshade',
+  '9618'=>'shade',
+  '9619'=>'dkshade',
+  '9632'=>'filledbox',
+  '9633'=>'H22073',
+  '9642'=>'H18543',
+  '9643'=>'H18551',
+  '9644'=>'filledrect',
+  '9650'=>'triagup',
+  '9658'=>'triagrt',
+  '9660'=>'triagdn',
+  '9668'=>'triaglf',
+  '9670'=>'a78',
+  '9674'=>'lozenge',
+  '9675'=>'circle',
+  '9679'=>'a71',
+  '9687'=>'a81',
+  '9688'=>'invbullet',
+  '9689'=>'invcircle',
+  '9702'=>'openbullet',
+  '9733'=>'a35',
+  '9742'=>'a4',
+  '9755'=>'a11',
+  '9758'=>'a12',
+  '9786'=>'smileface',
+  '9787'=>'invsmileface',
+  '9788'=>'sun',
+  '9792'=>'female',
+  '9794'=>'male',
+  '9824'=>'spade',
+  '9827'=>'club',
+  '9829'=>'heart',
+  '9830'=>'diamond',
+  '9834'=>'musicalnote',
+  '9835'=>'musicalnotedbl',
+  '9985'=>'a1',
+  '9986'=>'a2',
+  '9987'=>'a202',
+  '9988'=>'a3',
+  '9990'=>'a5',
+  '9991'=>'a119',
+  '9992'=>'a118',
+  '9993'=>'a117',
+  '9996'=>'a13',
+  '9997'=>'a14',
+  '9998'=>'a15',
+  '9999'=>'a16',
+  '10000'=>'a105',
+  '10001'=>'a17',
+  '10002'=>'a18',
+  '10003'=>'a19',
+  '10004'=>'a20',
+  '10005'=>'a21',
+  '10006'=>'a22',
+  '10007'=>'a23',
+  '10008'=>'a24',
+  '10009'=>'a25',
+  '10010'=>'a26',
+  '10011'=>'a27',
+  '10012'=>'a28',
+  '10013'=>'a6',
+  '10014'=>'a7',
+  '10015'=>'a8',
+  '10016'=>'a9',
+  '10017'=>'a10',
+  '10018'=>'a29',
+  '10019'=>'a30',
+  '10020'=>'a31',
+  '10021'=>'a32',
+  '10022'=>'a33',
+  '10023'=>'a34',
+  '10025'=>'a36',
+  '10026'=>'a37',
+  '10027'=>'a38',
+  '10028'=>'a39',
+  '10029'=>'a40',
+  '10030'=>'a41',
+  '10031'=>'a42',
+  '10032'=>'a43',
+  '10033'=>'a44',
+  '10034'=>'a45',
+  '10035'=>'a46',
+  '10036'=>'a47',
+  '10037'=>'a48',
+  '10038'=>'a49',
+  '10039'=>'a50',
+  '10040'=>'a51',
+  '10041'=>'a52',
+  '10042'=>'a53',
+  '10043'=>'a54',
+  '10044'=>'a55',
+  '10045'=>'a56',
+  '10046'=>'a57',
+  '10047'=>'a58',
+  '10048'=>'a59',
+  '10049'=>'a60',
+  '10050'=>'a61',
+  '10051'=>'a62',
+  '10052'=>'a63',
+  '10053'=>'a64',
+  '10054'=>'a65',
+  '10055'=>'a66',
+  '10056'=>'a67',
+  '10057'=>'a68',
+  '10058'=>'a69',
+  '10059'=>'a70',
+  '10061'=>'a72',
+  '10063'=>'a74',
+  '10064'=>'a203',
+  '10065'=>'a75',
+  '10066'=>'a204',
+  '10070'=>'a79',
+  '10072'=>'a82',
+  '10073'=>'a83',
+  '10074'=>'a84',
+  '10075'=>'a97',
+  '10076'=>'a98',
+  '10077'=>'a99',
+  '10078'=>'a100',
+  '10081'=>'a101',
+  '10082'=>'a102',
+  '10083'=>'a103',
+  '10084'=>'a104',
+  '10085'=>'a106',
+  '10086'=>'a107',
+  '10087'=>'a108',
+  '10102'=>'a130',
+  '10103'=>'a131',
+  '10104'=>'a132',
+  '10105'=>'a133',
+  '10106'=>'a134',
+  '10107'=>'a135',
+  '10108'=>'a136',
+  '10109'=>'a137',
+  '10110'=>'a138',
+  '10111'=>'a139',
+  '10112'=>'a140',
+  '10113'=>'a141',
+  '10114'=>'a142',
+  '10115'=>'a143',
+  '10116'=>'a144',
+  '10117'=>'a145',
+  '10118'=>'a146',
+  '10119'=>'a147',
+  '10120'=>'a148',
+  '10121'=>'a149',
+  '10122'=>'a150',
+  '10123'=>'a151',
+  '10124'=>'a152',
+  '10125'=>'a153',
+  '10126'=>'a154',
+  '10127'=>'a155',
+  '10128'=>'a156',
+  '10129'=>'a157',
+  '10130'=>'a158',
+  '10131'=>'a159',
+  '10132'=>'a160',
+  '10136'=>'a196',
+  '10137'=>'a165',
+  '10138'=>'a192',
+  '10139'=>'a166',
+  '10140'=>'a167',
+  '10141'=>'a168',
+  '10142'=>'a169',
+  '10143'=>'a170',
+  '10144'=>'a171',
+  '10145'=>'a172',
+  '10146'=>'a173',
+  '10147'=>'a162',
+  '10148'=>'a174',
+  '10149'=>'a175',
+  '10150'=>'a176',
+  '10151'=>'a177',
+  '10152'=>'a178',
+  '10153'=>'a179',
+  '10154'=>'a193',
+  '10155'=>'a180',
+  '10156'=>'a199',
+  '10157'=>'a181',
+  '10158'=>'a200',
+  '10159'=>'a182',
+  '10161'=>'a201',
+  '10162'=>'a183',
+  '10163'=>'a184',
+  '10164'=>'a197',
+  '10165'=>'a185',
+  '10166'=>'a194',
+  '10167'=>'a198',
+  '10168'=>'a186',
+  '10169'=>'a195',
+  '10170'=>'a187',
+  '10171'=>'a188',
+  '10172'=>'a189',
+  '10173'=>'a190',
+  '10174'=>'a191',
+  '63166'=>'dotlessj',
+  '63167'=>'LL',
+  '63168'=>'ll',
+  '63169'=>'Scedilla',
+  '63170'=>'scedilla',
+  '63171'=>'commaaccent',
+  '63172'=>'afii10063',
+  '63173'=>'afii10064',
+  '63174'=>'afii10192',
+  '63175'=>'afii10831',
+  '63176'=>'afii10832',
+  '63177'=>'Acute',
+  '63178'=>'Caron',
+  '63179'=>'Dieresis',
+  '63180'=>'DieresisAcute',
+  '63181'=>'DieresisGrave',
+  '63182'=>'Grave',
+  '63183'=>'Hungarumlaut',
+  '63184'=>'Macron',
+  '63185'=>'cyrBreve',
+  '63186'=>'cyrFlex',
+  '63187'=>'dblGrave',
+  '63188'=>'cyrbreve',
+  '63189'=>'cyrflex',
+  '63190'=>'dblgrave',
+  '63191'=>'dieresisacute',
+  '63192'=>'dieresisgrave',
+  '63193'=>'copyrightserif',
+  '63194'=>'registerserif',
+  '63195'=>'trademarkserif',
+  '63196'=>'onefitted',
+  '63197'=>'rupiah',
+  '63198'=>'threequartersemdash',
+  '63199'=>'centinferior',
+  '63200'=>'centsuperior',
+  '63201'=>'commainferior',
+  '63202'=>'commasuperior',
+  '63203'=>'dollarinferior',
+  '63204'=>'dollarsuperior',
+  '63205'=>'hypheninferior',
+  '63206'=>'hyphensuperior',
+  '63207'=>'periodinferior',
+  '63208'=>'periodsuperior',
+  '63209'=>'asuperior',
+  '63210'=>'bsuperior',
+  '63211'=>'dsuperior',
+  '63212'=>'esuperior',
+  '63213'=>'isuperior',
+  '63214'=>'lsuperior',
+  '63215'=>'msuperior',
+  '63216'=>'osuperior',
+  '63217'=>'rsuperior',
+  '63218'=>'ssuperior',
+  '63219'=>'tsuperior',
+  '63220'=>'Brevesmall',
+  '63221'=>'Caronsmall',
+  '63222'=>'Circumflexsmall',
+  '63223'=>'Dotaccentsmall',
+  '63224'=>'Hungarumlautsmall',
+  '63225'=>'Lslashsmall',
+  '63226'=>'OEsmall',
+  '63227'=>'Ogoneksmall',
+  '63228'=>'Ringsmall',
+  '63229'=>'Scaronsmall',
+  '63230'=>'Tildesmall',
+  '63231'=>'Zcaronsmall',
+  '63265'=>'exclamsmall',
+  '63268'=>'dollaroldstyle',
+  '63270'=>'ampersandsmall',
+  '63280'=>'zerooldstyle',
+  '63281'=>'oneoldstyle',
+  '63282'=>'twooldstyle',
+  '63283'=>'threeoldstyle',
+  '63284'=>'fouroldstyle',
+  '63285'=>'fiveoldstyle',
+  '63286'=>'sixoldstyle',
+  '63287'=>'sevenoldstyle',
+  '63288'=>'eightoldstyle',
+  '63289'=>'nineoldstyle',
+  '63295'=>'questionsmall',
+  '63328'=>'Gravesmall',
+  '63329'=>'Asmall',
+  '63330'=>'Bsmall',
+  '63331'=>'Csmall',
+  '63332'=>'Dsmall',
+  '63333'=>'Esmall',
+  '63334'=>'Fsmall',
+  '63335'=>'Gsmall',
+  '63336'=>'Hsmall',
+  '63337'=>'Ismall',
+  '63338'=>'Jsmall',
+  '63339'=>'Ksmall',
+  '63340'=>'Lsmall',
+  '63341'=>'Msmall',
+  '63342'=>'Nsmall',
+  '63343'=>'Osmall',
+  '63344'=>'Psmall',
+  '63345'=>'Qsmall',
+  '63346'=>'Rsmall',
+  '63347'=>'Ssmall',
+  '63348'=>'Tsmall',
+  '63349'=>'Usmall',
+  '63350'=>'Vsmall',
+  '63351'=>'Wsmall',
+  '63352'=>'Xsmall',
+  '63353'=>'Ysmall',
+  '63354'=>'Zsmall',
+  '63393'=>'exclamdownsmall',
+  '63394'=>'centoldstyle',
+  '63400'=>'Dieresissmall',
+  '63407'=>'Macronsmall',
+  '63412'=>'Acutesmall',
+  '63416'=>'Cedillasmall',
+  '63423'=>'questiondownsmall',
+  '63456'=>'Agravesmall',
+  '63457'=>'Aacutesmall',
+  '63458'=>'Acircumflexsmall',
+  '63459'=>'Atildesmall',
+  '63460'=>'Adieresissmall',
+  '63461'=>'Aringsmall',
+  '63462'=>'AEsmall',
+  '63463'=>'Ccedillasmall',
+  '63464'=>'Egravesmall',
+  '63465'=>'Eacutesmall',
+  '63466'=>'Ecircumflexsmall',
+  '63467'=>'Edieresissmall',
+  '63468'=>'Igravesmall',
+  '63469'=>'Iacutesmall',
+  '63470'=>'Icircumflexsmall',
+  '63471'=>'Idieresissmall',
+  '63472'=>'Ethsmall',
+  '63473'=>'Ntildesmall',
+  '63474'=>'Ogravesmall',
+  '63475'=>'Oacutesmall',
+  '63476'=>'Ocircumflexsmall',
+  '63477'=>'Otildesmall',
+  '63478'=>'Odieresissmall',
+  '63480'=>'Oslashsmall',
+  '63481'=>'Ugravesmall',
+  '63482'=>'Uacutesmall',
+  '63483'=>'Ucircumflexsmall',
+  '63484'=>'Udieresissmall',
+  '63485'=>'Yacutesmall',
+  '63486'=>'Thornsmall',
+  '63487'=>'Ydieresissmall',
+  '63703'=>'a89',
+  '63704'=>'a90',
+  '63705'=>'a93',
+  '63706'=>'a94',
+  '63707'=>'a91',
+  '63708'=>'a92',
+  '63709'=>'a205',
+  '63710'=>'a85',
+  '63711'=>'a206',
+  '63712'=>'a86',
+  '63713'=>'a87',
+  '63714'=>'a88',
+  '63715'=>'a95',
+  '63716'=>'a96',
+  '63717'=>'radicalex',
+  '63718'=>'arrowvertex',
+  '63719'=>'arrowhorizex',
+  '63720'=>'registersans',
+  '63721'=>'copyrightsans',
+  '63722'=>'trademarksans',
+  '63723'=>'parenlefttp',
+  '63724'=>'parenleftex',
+  '63725'=>'parenleftbt',
+  '63726'=>'bracketlefttp',
+  '63727'=>'bracketleftex',
+  '63728'=>'bracketleftbt',
+  '63729'=>'bracelefttp',
+  '63730'=>'braceleftmid',
+  '63731'=>'braceleftbt',
+  '63732'=>'braceex',
+  '63733'=>'integralex',
+  '63734'=>'parenrighttp',
+  '63735'=>'parenrightex',
+  '63736'=>'parenrightbt',
+  '63737'=>'bracketrighttp',
+  '63738'=>'bracketrightex',
+  '63739'=>'bracketrightbt',
+  '63740'=>'bracerighttp',
+  '63741'=>'bracerightmid',
+  '63742'=>'bracerightbt',
+  '64256'=>'ff',
+  '64257'=>'fi',
+  '64258'=>'fl',
+  '64259'=>'ffi',
+  '64260'=>'ffl',
+  '64287'=>'afii57705',
+  '64298'=>'afii57694',
+  '64299'=>'afii57695',
+  '64309'=>'afii57723',
+  '64331'=>'afii57700',
+  ''=>'.notdef'
+);
+
+}

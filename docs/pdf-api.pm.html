@@ -18,7 +18,8 @@
 		<LI><A HREF="#Base_Methods">Base Methods</A>
 		<LI><A HREF="#Generic_Methods">Generic Methods</A>
 		<LI><A HREF="#Font_State_Methods">Font State Methods</A>
-		<LI><A HREF="#Text_Methods">Text Methods</A>
+		<LI><A HREF="#Text_Block_Methods">Text Block Methods</A>
+		<LI><A HREF="#Text_Utility_Methods">Text Utility Methods</A>
 		<LI><A HREF="#Graphic_State_Methods">Graphic State Methods</A>
 		<LI><A HREF="#Color_Methods">Color Methods</A>
 		<LI><A HREF="#Drawing_Methods">Drawing Methods</A>
@@ -26,6 +27,7 @@
 	</UL>
 
 	<LI><A HREF="#HISTORY">HISTORY</A>
+	<LI><A HREF="#CONTRIBUTORS_BUGHUNTERS_THAN">CONTRIBUTORS / BUGHUNTERS / THANKS</A>
 	<LI><A HREF="#BUGS">BUGS</A>
 	<LI><A HREF="#TODO_in_no_particular_order_">TODO ( in no particular order )</A>
 </UL>
@@ -62,6 +64,10 @@ Hosken.
 <P>
 This creates a new pdf-object initializes it with the given defaults and
 returns it. See the functions <STRONG>getDefault</STRONG> and <STRONG>setDefault</STRONG> for a list of supported parameters.
+
+<DT><STRONG><A NAME="item__pdf_info">$pdf-&gt;info $title, $subject, $creator, $author, $keywords</A></STRONG><DD>
+<P>
+This creates the pdf-info-object and initializes it with the given values.
 
 <DT><STRONG><A NAME="item__pdf_saveas">$pdf-&gt;saveas $file</A></STRONG><DD>
 <P>
@@ -285,8 +291,58 @@ Skew, Scale &amp; Rotate.
 </DL>
 <P>
 <HR>
-<H2><A NAME="Text_Methods">Text Methods</A></H2>
+<H2><A NAME="Text_Block_Methods">Text Block Methods</A></H2>
 <DL>
+<DT><STRONG><A NAME="item__pdf_beginText">$pdf-&gt;beginText</A></STRONG><DD>
+<P>
+Starts a text block.
+
+<DT><STRONG><A NAME="item__pdf_endText">$pdf-&gt;endText</A></STRONG><DD>
+<P>
+Ends a text block
+
+<DT><STRONG><A NAME="item__pdf_charSpacing">$pdf-&gt;charSpacing [ $spacing ]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_wordSpacing">$pdf-&gt;wordSpacing [ $spacing ]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_textLeading">$pdf-&gt;textLeading [ $leading ]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_textRise">$pdf-&gt;textRise [ $rise ]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_textRendering">$pdf-&gt;textRendering [ $rendering ]</A></STRONG><DD>
+<DT><STRONG><A NAME="item__pdf_textMatrix">$pdf-&gt;textMatrix [ @matrix ]</A></STRONG><DD>
+<P>
+Sets the parameter for the text-block only. If parameter is not given the
+default as defined by $pdf-&gt;set* is used.
+
+<DT><STRONG><A NAME="item__pdf_textPos">$pdf-&gt;textPos $mx, $my</A></STRONG><DD>
+<P>
+Sets a new text position, but honoring the current FontMatrix.
+
+<DT><STRONG><A NAME="item__pdf_textFont">$pdf-&gt;textFont [ $font, $size [, $encoding ] ]</A></STRONG><DD>
+<P>
+Switches the font within the text-block or resets to the last
+$pdf-&gt;useFont.
+<STRONG>BEWARE:</STRONG> you can only change to a new font before a matrix or pos command since
+changing it after such command gives pdf-errors !!!
+
+<DT><STRONG><A NAME="item__pdf_textAdd">$pdf-&gt;textAdd $text</A></STRONG><DD>
+<P>
+Adds text to the text-block.
+
+<DT><STRONG><A NAME="item__pdf_textNewLine">$pdf-&gt;textNewLine [ $leading ]</A></STRONG><DD>
+<P>
+Moves the text-pointer to a new line using TextLeading as default. 
+
+</DL>
+<P>
+<HR>
+<H2><A NAME="Text_Utility_Methods">Text Utility Methods</A></H2>
+<DL>
+<DT><STRONG><A NAME="item__pdf_calcTextWidth">$pdf-&gt;calcTextWidth $text</A></STRONG><DD>
+<P>
+Calculates the width of the text based on the parameters set by useFont.
+
+<P>
+<STRONG>BEWARE:</STRONG> Does not consider parameters specified by setFont* and <CODE>*Matrix</CODE>
+functions.
+
 <DT><STRONG><A NAME="item__pdf_showText">$pdf-&gt;showText $text</A></STRONG><DD>
 <P>
 Displays the <CODE>$text</CODE> based on the parameters given by the *Font*
@@ -303,14 +359,6 @@ alignment !
 <DT><STRONG><A NAME="item__pdf_printText">$pdf-&gt;printText $x, $y, $font, $size, $encoding, $text</A></STRONG><DD>
 <P>
 Like a $pdf-&gt;useFont followed by a $pdf-&gt;showTextXY.
-
-<DT><STRONG><A NAME="item__pdf_calcTextWidth">$pdf-&gt;calcTextWidth $text</A></STRONG><DD>
-<P>
-Calculates the width of the text based on the parameters set by useFont.
-
-<P>
-<STRONG>BEWARE:</STRONG> Does not consider parameters specified by setFont* and <CODE>*Matrix</CODE>
-functions.
 
 </DL>
 <P>
@@ -370,6 +418,8 @@ $pdf-&gt;restorePdfState.
 <DT><STRONG><A NAME="item__pdf_endPath">$pdf-&gt;endPath</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_rectXY">$pdf-&gt;rectXY $x1, $y1, $x2, $y2</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_lineXY">$pdf-&gt;lineXY $x1, $y1, $x2, $y2</A></STRONG><DD>
+<DT><STRONG><A NAME="item__xs_ys_xe_ye_pdf_arcXYabD">($xs,$ys,$xe,$ye)=$pdf-&gt;arcXYabDG $x, $y, $a, $b, $delta, $gamma, $move</A></STRONG><DD>
+<DT><STRONG><A NAME="item__xs_ys_xe_ye_pdf_arcXYrDG">($xs,$ys,$xe,$ye)=$pdf-&gt;arcXYrDG $x, $y, $r, $delta, $gamma, $move</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_ellipsisXYAB">$pdf-&gt;ellipsisXYAB $x, $y, $a, $b</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_circleXYR">$pdf-&gt;circleXYR $x, $y, $r</A></STRONG><DD>
 <DT><STRONG><A NAME="item__pdf_stroke">$pdf-&gt;stroke</A></STRONG><DD>
@@ -546,17 +596,50 @@ documemtation update and release of the much hacked 0.5_pre??? code :)
 minor bugfixes:
 
 <P>
-under certain conditions the 'image' functions stopped working, thanks to
-Lester Hightower <A
-HREF="mailto:[hightowe@TheAIMSGroup.com]">[hightowe@TheAIMSGroup.com]</A>
-for reporting that bug. hope that my newly invented ``nigma-hash''
-keygenerator fixes this.  
+under certain conditions the 'image' functions stopped working, hope that
+my newly invented ``nigma-hash'' keygenerator fixes this.  
 
 <P>
 the symbol and zapfdingbat corefonts did not work ... since they missed
 attributes and had wrong font-flags set ... doesn't anybody use them ?
 
+<DT><STRONG>Version 0.6</STRONG><DD>
+<P>
+removed: ``nigma-hash'' keygenerator had some disadvantages.
+
+<P>
+added: Digest::REHLHA module for key-generation (this comes with the API).
+
+<P>
+added: $p-&gt;arcXYrDG() and $p-&gt;arcXYabDG() to relief users of the (in
+my opinion) 'mind boggling' bezier-curve function for arcs.  
+
+<P>
+added: $p-&gt;info() to include copyright/generator information in the pdf.
+
+<P>
+added: new text-block functions to ease the use of text.
+
+<P>
+changed: unicode&lt;-&gt;name mapping was broken under perl-5.004xx.  
+
+<P>
+<STRONG>PLEASE NOTE:</STRONG> this is now the minimum required version for the upcoming APIx
+module-chain.
+
 </DL>
+<P>
+<HR>
+<H1><A NAME="CONTRIBUTORS_BUGHUNTERS_THAN">CONTRIBUTORS / BUGHUNTERS / THANKS</A></H1>
+<P>
+Martin Hosken <A HREF="mailto:[mhosken@sil.org]">[mhosken@sil.org]</A> --
+for writing Text::PDF in the first place
+
+<P>
+Lester Hightower <A
+HREF="mailto:[hightowe@TheAIMSGroup.com]">[hightowe@TheAIMSGroup.com]</A>
+-- fixes/reports: perl-5.004xx, key-generation, Makefile.PL
+
 <P>
 <HR>
 <H1><A NAME="BUGS">BUGS</A></H1>
@@ -575,13 +658,10 @@ documentation ?
 drawing functions ?
 
 <P>
-more encodings ?
+more bitmap import functions (jpeg,tiff,xbm,xpm,...?)
 
 <P>
-fix encoding for core fonts ?
-
-<P>
-bitmap import functions (jpeg,xbm,xpm, ...?)
+function to populate a Text::PDF::API object from an existing pdf-file ?
 
 </BODY>
 

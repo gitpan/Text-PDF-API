@@ -2,12 +2,10 @@
 
 use ExtUtils::MakeMaker;
 
-@scripts = grep { -f } glob("scripts/*.pl*");
 
 WriteMakefile (
 	NAME		=>	"Text::PDF::API",
 	VERSION_FROM	=>	"lib/Text/PDF/API.pm",
-	EXE_FILES	=>	\@scripts,
 	AUTHOR		=>	"areibens\@cpan.org",
 	ABSTRACT	=>	"PDF Generation API",
 	PREREQ_PM	=>	{
@@ -16,10 +14,6 @@ WriteMakefile (
         				'Text::PDF::File'	=> 0.12,
 					'Unicode::String'	=>	0,
 					'Unicode::Map8'		=>	0,
-				},
-	dist		=>	{
-				#	COMPRESS	=>	'bzip2 -9',
-					ZIP		=>	'zip -9',
 				},
 );
         

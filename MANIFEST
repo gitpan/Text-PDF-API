@@ -5,8 +5,15 @@ Makefile.PL
 docs/pdf-api.pm.html
 examples/example1.pl
 examples/example2.pl
+examples/example3.pl
+examples/example4.pl
+examples/example5.pl
+examples/example6.pl
+examples/example7.pl
+examples/example8.pl
 scripts/font-rep-pdf.pl
 scripts/psf2afm.pl
+lib/Digest/REHLHA.pm
 lib/Text/PDF/API.pm
 lib/Text/PDF/AFont.pm
 lib/Text/PDF/API/Image.pm
