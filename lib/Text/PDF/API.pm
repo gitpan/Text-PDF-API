@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.699_85";
+$VERSION = "0.699_86";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -10,7 +10,9 @@ use Text::PDF::SFont;
 use Text::PDF::TTFont;
 use Text::PDF::TTFont0;
 use Text::PDF::TTFont0;
-use Text::PDF::API::UniMap;
+use Text::PDF::API::UniMap qw( utf8_to_ucs2 utf16_to_ucs2 );
+
+
 @Text::PDF::API::parameterlist=qw(
 	pagesize
 	pagewidth
@@ -402,7 +404,7 @@ sub newFontTTF {
 			$this->{'UNIMAPS'}->{$encoding}=Text::PDF::API::UniMap->new($encoding);
 		}
 	} else {
-		$encoding='uc16';
+		$encoding='ucs2';
 	}
 
 	if(!$this->{'FONTS'}->{$fontkey}) {
@@ -617,7 +619,11 @@ sub useFont {
 	my ($this,$name,$size,$enc)=@_;
 	my $fontkey=genKEY($name);
 	my $cenc;
-	if($enc && (lc($enc) ne 'uc16')) {
+	if($enc 
+		&& (lc($enc) ne 'ucs2')
+		&& (lc($enc) ne 'utf8')
+		&& (lc($enc) ne 'utf16')
+	) {
 		$cenc=$enc;
 		$cenc=~s/[^a-z0-9\-]+//cgi;
 		$cenc="$fontkey-$cenc";
@@ -633,8 +639,11 @@ sub useFont {
 			$this->newFontT1reencode($fontkey,$this->{'FONTS'}->{$fontkey}{'type'},$enc);
 		}
 		$fontkey=$cenc;
-	} elsif ((lc($enc) eq 'uc16') && ($this->{'FONTS'}->{"$fontkey-uc16"}{'type'} eq 'TT')) {
-		$fontkey.='-uc16';
+	} elsif (
+		((lc($enc) eq 'ucs2') || (lc($enc) eq 'utf8') || (lc($enc) eq 'utf16')) 
+		&& ($this->{'FONTS'}->{"$fontkey-ucs2"}{'type'} eq 'TT')
+	) {
+		$fontkey.='-ucs2';
 	}
 	$this->initFontCurrent;
 	$this->{'CURRENT'}{'font'}{'Name'}=$name;
@@ -768,7 +777,11 @@ sub getFontMatrix {
 sub calcTextWidthFSETX {
         my ($this,$fontkey,$size,$enc,$text)=@_;
         my $cenc;
-        if($enc && (lc($enc) ne 'uc16')) {
+	if($enc 
+		&& (lc($enc) ne 'ucs2')
+		&& (lc($enc) ne 'utf8')
+		&& (lc($enc) ne 'utf16')
+	) {
                 $cenc=$enc;
                 $cenc=~s/[^a-z0-9\-]+//cgi;
                 $cenc="$fontkey-$cenc";
@@ -789,8 +802,15 @@ sub calcTextWidthFSETX {
 	my $type=$this->{'FONTS'}{$fontkey}{'type'};
         my $wm=0;
 	my $c;
+	if( lc($enc) eq 'utf8' ) {
+		$enc='ucs2';
+		$text=utf8_to_ucs2($text);
+	} elsif ( lc($enc) eq 'utf16' ) {
+		$enc='ucs2';
+		$text=utf16_to_ucs2($text);
+	}
 	my @chars=split(//,$text);
-	if(lc($enc) eq 'uc16') {
+	if(lc($enc) eq 'ucs2') {
         	if(($type eq 'AC') || ($type eq 'PS')) {
         	        while( $c=shift(@chars) ) {
 				$c.=shift(@chars);
@@ -913,7 +933,6 @@ sub textFont {
 		my $cenc;
 		$enc||=$this->{'FONTS'}->{$fontkey}->{'Encoding'};
 		if($enc) {
-			$enc=uc($enc) if((lc($enc) eq 'uc16') && ($this->{'FONTS'}->{$fontkey}->{'type'} eq 'TT'));
 			$cenc=$enc;
 			$cenc=~s/[^a-z0-9\-]+//cgi;
 			$cenc="$fontkey-$cenc";
@@ -944,16 +963,23 @@ sub textAdd {
 	$this->initFontCurrent;
 	my $k=$this->{'CURRENT'}{'font'}{'Key'};
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
-	if((lc($enc) eq 'uc16') && ($this->{'FONTS'}->{$k}->{'type'} ne 'TT')) {
+	if( lc($enc) eq 'utf8' ) {
+		$enc='ucs2';
+		$text=utf8_to_ucs2($text);
+	} elsif ( lc($enc) eq 'utf16' ) {
+		$enc='ucs2';
+		$text=utf16_to_ucs2($text);
+	}
+	if((lc($enc) eq 'ucs2') && ($this->{'FONTS'}->{$k}->{'type'} ne 'TT')) {
 		$this->_addtopage(" <feff");
 	} else {
 		$this->_addtopage(" <");
 	}
 	my @chars=split(//,$text);
 	while(defined($c=shift @chars)) {
-		if((lc($enc) eq 'uc16') && ($this->{'FONTS'}->{$k}->{'type'} ne 'TT')) {
+		if((lc($enc) eq 'ucs2') && ($this->{'FONTS'}->{$k}->{'type'} ne 'TT')) {
 			$this->_addtopage(unpack('H2',"$c"));
-		} elsif((lc($enc) eq 'uc16') && ($this->{'FONTS'}->{$k}->{'type'} eq 'TT')) {
+		} elsif((lc($enc) eq 'ucs2') && ($this->{'FONTS'}->{$k}->{'type'} eq 'TT')) {
 			$c.=shift(@chars); 
 			$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{unpack('n',"$c")}));
 		} else {
@@ -1016,7 +1042,14 @@ sub paragraphFit2 {
 	($fontsize)=$this->paragraphFit($font,$encoding,$leadingfactor,$width,$height,$text,1-$mindelta) if(!defined($fontsize));
 	my $fontsizelast;
 	my $space=' ';
-	if(lc($encoding) eq 'uc16') {
+	if( lc($encoding) eq 'utf8' ) {
+		$encoding='ucs2';
+		$text=utf8_to_ucs2($text);
+	} elsif ( lc($encoding) eq 'utf16' ) {
+		$encoding='ucs2';
+		$text=utf16_to_ucs2($text);
+	}
+	if(lc($encoding) eq 'ucs2') {
 		$space="\x00\x20";
 	}
 	do {
@@ -1067,11 +1100,18 @@ sub textParagraph {
 	my $hor=0;
 	my $encoding=$this->{'CURRENT'}{'font'}{'Encoding'};
 	my $space=' ';
-	if(lc($encoding) eq 'uc16') {
+	if( lc($encoding) eq 'utf8' ) {
+		$encoding='ucs2';
+		$text=utf8_to_ucs2($text);
+	} elsif ( lc($encoding) eq 'utf16' ) {
+		$enc='ucs2';
+		$text=utf16_to_ucs2($text);
+	}
+	if(lc($encoding) eq 'ucs2') {
 		$space="\x00\x20";
 	}
 	while(defined($para=shift @paras)) {
-		if(lc($encoding) eq 'uc16') {
+		if(lc($encoding) eq 'ucs2') {
 			@words=split(/$space/,$para);
 		} else {
 			@words=split(/\s+/,$para);
@@ -1861,7 +1901,7 @@ sen-850200-c t-101-g2 t-61-7bit t-61-8bit us-dk videotex-suppl
 B<NOTE:> The fonts are automagically reencoded to use the new encoding if it differs
 from that encoding specified at $pdf->newFont???.
 
-B<SPECIAL NOTE:> As of 0.699_84 you can specify the special encoding 'uc16' which enables 
+B<SPECIAL NOTE:> As of 0.699_84 you can specify the special encoding 'ucs2' which enables 
 you to use 16-bit unicode-strings (network-byte ordered) with truetype-fonts only !!!
 
 =item $pdf->setFontTranslate $tx, $ty
@@ -2349,7 +2389,7 @@ the jpeg-plugin is strongly discouraged) with the same limitations as the XS ver
 cleaned up image functions to use x-o's and streamlined key-generation to
 compensate an arkward behavior of the Text::PDF pdf-parser.
 
-enabled use of uc16 encoding with ttfs.
+enabled use of ucs2 encoding with ttfs.
 
 =back
 
