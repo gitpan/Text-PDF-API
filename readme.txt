@@ -8,19 +8,20 @@ a nice API around the Text::PDF::* modules created by Martin Hosken.
 FEATURES
 
 	.  Works with more than one PDF file open at once
-	.  It presents an object oriented API to the user
+	.  It presents a nice API to the user
 	.  Supports the 14 base PDF Fonts 
 	.  Supports TrueType fonts with 8bit encodings 
 	.  Supports TrueType CID fonts via Type0 glyphs (Unicode)
 	.  Supports Fontcaching
+	.  Supports Embedding of bitmap images
 
 
 UN-FEATURES (which will one day be fixed)
 
-	.  Documentation is curretly rather spare or entirely lacking 
-	.  PDF Base Font encoding is hardwired to PDFDocEncoding 
-	.  Truetype Font encoding is hardwired to ISO-Latin1
-	.  No support for Type1 or Type3 fonts
+	.  Documentation is curretly rather sparse or entirely lacking 
+	.  PDF Base Font encoding is hardwired based on platform 
+	.  No support for Type1 or Type3 fonts other than the core fonts
+	.  Bitmap images limited to NetPBM/binary and certain PNG formats
 	.  This is alpha code in development which works 
 	   for my apps. but may not for yours :)
 
@@ -34,7 +35,8 @@ This module set requires you to have installed the following other perl modules:
 	Text::PDF	- PDF object primitives
 	Font::TTF	- Truetype Font Information
 	Compress::Zlib	- Compression of PDF object streams
-	Digest::MD5	- Font caching
+	Digest::MD5	- Font/Image caching
+	Math::Matrix	- Font/Gfx Transformations
 
 
 INSTALLATION
@@ -56,7 +58,7 @@ Unsubscribe:	perl-text-pdf-api-unsubscribe@egroups.com
 List owner:	perl-text-pdf-api-owner@egroups.com 
 URL to page:	http://www.egroups.com/group/perl-text-pdf-api
 
-or you can contact the author: alfredreibenschuh@yahoo,com
+or you can contact the author: alfredreibenschuh@yahoo.com
 
 
 COPYRIGHTS & LICENSING

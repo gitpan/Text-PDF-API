@@ -2,6 +2,15 @@ MANIFEST
 readme.txt
 license.txt
 Makefile.PL
-examples/pdf-api-test.pl
-examples/pfbtest.pl
+docs/pdf-api.pm.html
 lib/Text/PDF/API.pm
+lib/Text/PDF/API/Encoding.pm
+lib/Text/PDF/API/Encoding/AdobeStandard.pm
+lib/Text/PDF/API/Encoding/AdobeSymbol.pm
+lib/Text/PDF/API/Encoding/AdobeZapfDingbats.pm
+lib/Text/PDF/API/Encoding/Generic.pm
+lib/Text/PDF/API/Encoding/ISOLatin1.pm
+lib/Text/PDF/API/Encoding/MacRoman.pm
+lib/Text/PDF/API/Encoding/MicrosoftSymbol.pm
+lib/Text/PDF/API/Encoding/MicrosoftAnsi.pm
+lib/Text/PDF/API/Image.pm
