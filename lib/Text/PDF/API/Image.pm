@@ -1,11 +1,5 @@
 package Text::PDF::API::Image;
 
-#
-# USAGE:
-#	use Text::PDF::API::Image;
-#	($w,$h,$bpc,$cs,$img)=Text::PDF::API::Image::parseImage('filename',$type);
-#
-
 
 require 5.002;
 
@@ -295,9 +289,9 @@ sub getImageObjectFromPPMFile {
 	my $file=shift @_;
 	my ($w,$h,$bpc,$cs,$img)=parsePNM($file);
 	my ($xo);
-	my $key=$file;
-	$key=~s/[^a-z0-9\-]+//cgi;
-	$key='IMGxPPMx'.uc($key)."-$w-$h-$cs-$bpc";
+	my $key=uc($file);
+	$key=~s/[^a-z0-9]+//cgi;
+	$key='IMGxPPMx'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
 	return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
 }
 
@@ -305,9 +299,9 @@ sub getImageObjectFromPNGFile {
 	my $file=shift @_;
 	my ($w,$h,$bpc,$cs,$img)=parsePNG($file);
 	my ($xo);
-	my $key=$file;
-	$key=~s/[^a-z0-9\-]+//cgi;
-	$key='IMGxPNGx'.uc($key)."-$w-$h-$cs-$bpc";
+	my $key=uc($file);
+	$key=~s/[^a-z0-9]+//cgi;
+	$key='IMGxPNGx'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
 	return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
 }
 
@@ -315,8 +309,8 @@ sub getImageObjectFromJPEGFile {
 	my $file=shift @_;
 	my ($buf, $p, $h, $w, $c,$xo);
 	use Text::PDF::Utils;
-	my $key=$file;
-	$key=~s/[^a-z0-9\-]+//cgi;
+	my $key=uc($file);
+	$key=~s/[^a-z0-9]+//cgi;
 
 	open(JF,$file);
 	binmode(JF);
@@ -339,7 +333,7 @@ sub getImageObjectFromJPEGFile {
 	}
 	close(JF);
 	
-	$key='IMGxJPGx'.uc($key)."-$w-$h-$c-$p";
+	$key='IMGxJPGx'.uc($key).'x'.$w.'x'.$h.'x'.$c.'x'.$p;
 
 	$xo=PDFDict();
 	$xo->{'Type'}=PDFName('XObject');
@@ -403,9 +397,9 @@ sub getImageObjectFromFile {
 		my ($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
 		my $bpc=8;
 		$cs=$css[$cs]; 
-		my $key=$file;
-		$key=~s/[^a-z0-9\-]+//cgi;
-		$key='IMGxPlugin-'.$type.'x'.uc($key)."-$w-$h-$cs-$bpc";
+		my $key=uc($file);
+		$key=~s/[^a-z0-9]+//cgi;
+		$key='IMGxPluginx'.$type.'x'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
 		return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
 	}
 }
