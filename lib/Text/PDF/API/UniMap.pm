@@ -174,7 +174,7 @@ sub glyphs {
 sub unimaps {
 	return( 
 		map {	
-			$_=~s/\/([^\/]+)\.map$/$1/cgi; 
+			$_=~s/^.*\/([^\/]+)\.map$/$1/cgi; 
 			lc($_); 
 		} (
 			map { 

@@ -61,6 +61,7 @@ lib/Text/PDF/fonts/t1/Times-Italic.afm
 lib/Text/PDF/fonts/t1/Times-Roman.afm
 lib/Text/PDF/fonts/t1/ZapfDingbats.afm
 lib/Text/PDF/fonts/ttf/somewhereinspace.ttf
+adobe-pdf-license
 license.txt
 readme.txt
 scripts/font-rep-pdf.pl

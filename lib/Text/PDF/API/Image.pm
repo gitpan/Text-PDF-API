@@ -34,21 +34,16 @@ sub parseImage {
 		}
 	}
 
-	eval(qq| use Text::PDF::API::$type; |);
-	if($@) {
-		if($type eq 'PNG') {
-			($w,$h,$bpc,$cs,$img)=parsePNG($file,$buf);
-		} elsif($type eq 'PPM') {
-			($w,$h,$bpc,$cs,$img)=parsePNM($file,$buf);
-		} else {
-			print "imageformat '$type' unsupported.\n";
-			return (undef);
-		}
+	if($type eq 'PNG') {
+		($w,$h,$bpc,$cs,$img)=parsePNG($file,$buf);
+	} elsif($type eq 'PPM') {
+		($w,$h,$bpc,$cs,$img)=parsePNM($file,$buf);
 	} else {
-	
-		($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
-		$bpc=8;
-		$cs=$css[$cs]; 
+		die "unsupported image type='$type' ";
+	#	eval(qq| use Text::PDF::API::$type; |);
+	#	($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
+	#	$bpc=8;
+	#	$cs=$css[$cs]; 
 	}
 	return ($w,$h,$bpc,$cs,$img);
 }
@@ -394,20 +389,21 @@ sub getImageObjectFromFile {
 		$key='IMGxPluginx'.$type.'x'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
 		return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
 	} else {
-		eval(qq| use Text::PDF::API::$type; |);
-		if($@) {
-			print STDERR "imageformat '$type' unsupported.\n";
-			return (undef);
-		} else {
-			my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
-			my ($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
-			my $bpc=8;
-			$cs=$css[$cs]; 
-			my $key=uc($file);
-			$key=~s/[^a-z0-9]+//cgi;
-			$key='IMGxPluginx'.$type.'x'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
-			return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
-		}
+		die "unsupported image type='$type' ";
+	#	eval(qq| use Text::PDF::API::$type; |);
+	#	if($@) {
+	#		print STDERR "imageformat '$type' unsupported.\n";
+	#		return (undef);
+	#	} else {
+	#		my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
+	#		my ($w,$h,$cs,$img)= eval(' return (Text::PDF::API::'.$type.'::read'.$type.'("'.$file.'")); ');
+	#		my $bpc=8;
+	#		$cs=$css[$cs]; 
+	#		my $key=uc($file);
+	#		$key=~s/[^a-z0-9]+//cgi;
+	#		$key='IMGxPluginx'.$type.'x'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
+	#		return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
+	#	}
 	}
 }
 

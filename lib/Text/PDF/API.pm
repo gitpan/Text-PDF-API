@@ -403,11 +403,7 @@ sub newFontTTF {
 		$fontname=$fontype.'x'.$fontkey;
 		$fontfile=$this->resolveFontFile($file);
 		die "can not find requested font '$file'" unless($fontfile);
-		if($this->getDefault('subset',0)) {
-			$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname, -subset => 1);
-		} else {
-			$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname);
-		}
+		$font=Text::PDF::TTFont0->new($this->{'PDF'}, $fontfile, $fontname, -subset => 1);
 
 		$this->{'FONTS'}->{$fontkey}={
 			'type'	=> $fontype,
@@ -500,7 +496,11 @@ sub newFontPS {
 		$this->{'FONTS'}->{$fontkey}={};
 		$fontype='PS';
 		$fontname=$fontype.'x'.$fontkey;
-		$fontfile=$this->resolveFontFile($file) || die "can not find requested font '$file'";
+		if($file) {
+			$fontfile=$this->resolveFontFile($file) || die "can not find requested font '$file'" ;
+		} else {
+			$fontfile=undef;
+		}
 		$fontfile2=$this->resolveFontFile($file2) || die "can not find requested font '$file2'";
 
 		if($encoding=~/encoding$/i) {
@@ -646,7 +646,9 @@ sub useFont {
 	$this->{'CURRENT'}{'font'}{'Size'}=$size;
 	$this->{'CURRENT'}{'font'}{'Type'}=$this->{'FONTS'}->{$fontkey}{'type'};
 	$this->{'CURRENT'}{'font'}{'Encoding'}=$enc;
-	if(!($this->{'UNIMAPS'}->{$enc} || 0)) {
+	if(!($this->{'UNIMAPS'}->{$enc} || 0) && Text::PDF::API::UniMap::isMap($enc)) {
+		$enc=lc($enc);
+		$enc=~s/[^a-z0-9\-]+//cgi;
 		$this->{'UNIMAPS'}->{$enc}=Text::PDF::API::UniMap->new($enc);
 	}
 	return($this->{'CURRENT'}{'font'}{'PDFN'});
@@ -1726,7 +1728,7 @@ sub placeImage {
 }
 
 sub AUTOLOAD {
-	print "undefined function $AUTOLOAD() -- continuing! \n"
+	## print "undefined function $AUTOLOAD() -- continuing! \n";
 	return(undef);
 }
 

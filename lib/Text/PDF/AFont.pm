@@ -504,23 +504,27 @@ sub new {
 	my ($class, $parent, $file1, $file2, $pdfname, $encoding, @glyphs) = @_;
 	my (@w);
 	my ($l1,$l2,$l3,$stream);
-	if($file2) {
-		$self=newNonEmbed($class, $parent, $file2, $pdfname, $encoding, @glyphs);
-		($l1,$l2,$l3,$stream)=$self->parsePS($file1,0);
+	if($file1) {
+		if($file2) {
+			$self=newNonEmbed($class, $parent, $file2, $pdfname, $encoding, @glyphs);
+			($l1,$l2,$l3,$stream)=$self->parsePS($file1,0);
+		} else {
+			$self=$class->SUPER::new();
+			($l1,$l2,$l3,$stream)=$self->parsePS($file1,1);
+			$self->newNonEmbed($parent, $file2, $pdfname, $encoding, @glyphs);
+		}
+		my $s = PDFDict();
+		$self->{'FontDescriptor'}->{'FontFile'} = $s;
+		$s->{'Length1'} = PDFNum($l1);
+		$s->{'Length2'} = PDFNum($l2);
+		$s->{'Length3'} = PDFNum($l3);
+		$s->{'Filter'} = PDFArray(PDFName("FlateDecode"));
+		$s->{' stream'} = $stream;
+		$parent->new_obj($s);
 	} else {
-		$self=$class->SUPER::new();
-		($l1,$l2,$l3,$stream)=$self->parsePS($file1,1);
-		$self->newNonEmbed($parent, $file2, $pdfname, $encoding, @glyphs);
+		$self=newNonEmbed($class, $parent, $file2, $pdfname, $encoding, @glyphs);
 	}
 	
-	my $s = PDFDict();
-	$self->{'FontDescriptor'}->{'FontFile'} = $s;
-	$s->{'Length1'} = PDFNum($l1);
-	$s->{'Length2'} = PDFNum($l2);
-	$s->{'Length3'} = PDFNum($l3);
-	$s->{'Filter'} = PDFArray(PDFName("FlateDecode"));
-	$s->{' stream'} = $stream;
-	$parent->new_obj($s);
 	$parent->new_obj($self->{'FontDescriptor'});
 	return($self);
 }
