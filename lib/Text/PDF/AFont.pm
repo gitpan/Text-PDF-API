@@ -109,16 +109,16 @@ sub readAFM {
 	$self->{' AFM'}={};
 	open(AFMF, $file) or die "Can't find the AFM file for $file";
 	local($/, $_) = ("\n", undef);  # ensure correct $INPUT_RECORD_SEPARATOR
-	while (<AFMF>) {
+	while ($_=<AFMF>) {
 		next if /^StartKernData/ .. /^EndKernData/;  # kern data not parsed yet
 		next if /^StartComposites/ .. /^EndComposites/; # same for composites
 		if (/^StartCharMetrics/ .. /^EndCharMetrics/) {
 		# only lines that start with "C" or "CH" are parsed
-			next unless /^CH?\s/;
-			my($ch)   = /^CH?\s+(\d+)\s*;/;
-			my($name) = /\bN\s+(\.?\w+)\s*;/;
-			my($wx)   = /\bWX\s+(\d+)\s*;/;
-			my($bbox)    = /\bB\s+([^;]+);/;
+			next unless $_=~/^CH?\s/;
+			my($ch)   = $_=~/^CH?\s+(\d+)\s*;/;
+			my($name) = $_=~/\bN\s+(\.?\w+)\s*;/;
+			my($wx)   = $_=~/\bWX\s+(\d+)\s*;/;
+			my($bbox)    = $_=~/\bB\s+([^;]+);/;
 			$bbox =~ s/\s+$//;
 			# Should also parse lingature data (format: L successor lignature)
 			$self->{' AFM'}->{'wx'}{$name} = $wx ;
@@ -128,7 +128,7 @@ sub readAFM {
 			} 
 			next;
 		}
-		last if /^EndFontMetrics/;
+		last if $_=~/^EndFontMetrics/;
 		if (/(^\w+)\s+(.*)/) {
 			my($key,$val) = ($1, $2);
 			$key = lc $key;
