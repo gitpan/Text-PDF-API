@@ -383,6 +383,16 @@ sub getImageObjectFromFile {
 		return(getImageObjectFromPNGFile($file));
 	} elsif($type eq 'PPM') {
 		return(getImageObjectFromPPMFile($file));
+	} elsif($type eq 'GIF') {
+		use Text::PDF::API::GIF;
+		my @css=qw( DeviceNone DeviceGray DeviceNone DeviceRGB DeviceCMYK );
+		my ($w,$h,$cs,$img)=Text::PDF::API::GIF::readGIF($file);
+		my $bpc=8;
+		$cs=$css[$cs]; 
+		my $key=uc($file);
+		$key=~s/[^a-z0-9]+//cgi;
+		$key='IMGxPluginx'.$type.'x'.uc($key).'x'.$w.'x'.$h.'x'.$cs.'x'.$bpc;
+		return(getImageObjectFromRawData($key,$w,$h,$bpc,$cs,$img));
 	} else {
 		eval(qq| use Text::PDF::API::$type; |);
 		if($@) {

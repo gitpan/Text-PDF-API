@@ -1,0 +1,183 @@
+#!/usr/bin/perl
+
+           use Pod::Parser;
+
+           package MyParser;
+           @ISA = qw(Pod::Parser);
+
+	   $dfontface="Verdana, Arial, Helvetica, sans-serif";
+	   $mfontface="Courier New, Courier, Textwriter, mono-spaced";
+	   sub begin_pod {
+	   	my ($parser)=@_;
+		$parser->{'myBODY'}='<p><hr></p>';
+           }
+	   sub end_pod {
+	   	my ($parser)=@_;
+		my $out_fh = $parser->output_handle();
+		print $out_fh $parser->{'myINDEX'}.$parser->{'myBODY'}.qq|<p>Generated on "|.localtime().qq|"</p>\n</body></html>\n|;
+           }
+           sub command {
+               my ($parser, $command, $paragraph, $line_num) = @_;
+               my $expansion = $parser->interpolate($paragraph, $line_num);
+		if($command eq 'title'){
+			$parser->{'myINDEX'}=qq|<html><head><title>$expansion</title></head>
+	<body bgcolor="#cccccc" text="#000000" link="#0000ff" alink="#00ff00" vlink="#ff0000">
+		<p><font size="6" face="$dfontface"><b>$expansion</b></font></p>\n|;
+			$expansion='';
+		} elsif(($x)=$command=~/head(\d)/i){
+			$parser->{'myINDEX'}.=('&nbsp;&nbsp;' x $x).qq|<a href="#ref_$line_num">|.uc($expansion).qq|</a><br>\n|;
+			$expansion=qq|<p><a name="ref_$line_num"><font size="|.(7-$x).qq|" face="$dfontface"><b>$expansion</b></font></a></p>\n|;
+			$expansion=qq|<hr>$expansion| if($parser->{'lasthead'}>=$x);
+			$parser->{'lasthead'}=$x;
+		} elsif ($command eq 'item') {
+			$parser->{'myINDEX'}.=('&nbsp;&nbsp;' x 8).qq|<a href="#ref_$line_num">$expansion</a><br>\n|;
+			$expansion=qq|<p><a name="ref_$line_num"><font size="3" face="$dfontface"><b>$expansion</b></font></a></p>\n|;
+		} else {
+		##	$expansion=qq|<p name="$line_num"><font size="2" face="$dfontface"><b>$command:</b><i>$expansion</i></font></p>\n|;
+			$expansion='';
+		}
+               $parser->{'myBODY'}.=$expansion;
+           }
+
+           sub verbatim {
+               my ($parser, $paragraph, $line_num) = @_;
+	       chomp($paragraph);
+               $parser->{'myBODY'}.=qq|<pre><font size="3" face="$mfontface">$paragraph</font></pre>|;
+           }
+
+           sub textblock {
+               my ($parser, $paragraph, $line_num) = @_;
+               my $expansion = $parser->interpolate($paragraph, $line_num);
+               $parser->{'myBODY'}.=qq|<p name="$line_num"><font size="3" face="Verdana, Arial, Helvetica, sans-serif">$expansion</font></p>\n|;
+           }
+
+           sub interior_sequence {
+               my ($parser, $seq_command, $seq_argument) = @_;
+	       	if($seq_command eq 'B') {
+               		return "<b>$seq_argument</b>";
+		} elsif ($seq_command eq 'C') {
+               		return "<code>$seq_argument</code>";
+		} elsif ($seq_command eq 'I') {
+               		return "<i>$seq_argument</i>";
+		} elsif ($seq_command eq 'M') {
+			if($seq_argument=~/\@[a-z0-9\.]+$/gi) {
+				$seq_argument=qq|[<a href="mailto:$seq_argument">$seq_argument</a>]|;
+			}
+               		return "<i>$seq_argument</i>";
+		} elsif ($seq_command eq 'L') {
+			my ($text,$link)=split(/\|/,$seq_argument);
+			return qq|<a href="$link" target="_new"><b><i>$text</i></b></a>|;
+		} elsif ($seq_command eq 'G') {
+               		return qq|<img href="$seq_argument" border="0">|;
+		} else {
+               		return "$seq_argument";
+		}
+           }
+
+           package main;
+
+=pod 
+
+=title PDF-API-FAQ
+
+=head2 Introduction
+
+=head2 Issues
+
+=head3 Generic Issues
+
+=item Q: How do i do a "hello world" example in ::API ?
+
+B<A:> The quick source to this would be:
+
+	use Text::PDF::API;
+	$pdf=Text::PDF::API->new;
+	$pdf->newFont('Helvetica');
+	$pdf->newpage();
+	$pdf->useFont('Helvetica',20);
+	$pdf->showTextXY(20,750,"Hello PDF World !");
+	$pdf->endpage();
+	$pdf->saveas("hello.pdf");
+	$pdf->end;
+	
+The resultant output can be seen L<here|PDF-API-FAQ.hello.pdf>.
+
+=cut
+
+        use Text::PDF::API;
+        $pdf=Text::PDF::API->new;
+        $pdf->newFont('Helvetica');
+        $pdf->newpage();
+        $pdf->useFont('Helvetica',20);
+        $pdf->showTextXY(20,750,"Hello PDF World !");
+        $pdf->endpage();
+        $pdf->saveas("$0.hello.pdf");
+        $pdf->end;
+
+=pod
+
+=head3 Font Issues
+
+=item Q: How can i use the truetype-font "xx" with ::API ?
+
+B<A:> Simply use newFontTTF instead of newFont
+
+	$pdf->newFontTTF('my_xx_ttf,font',$xx_ttf_file);
+	$pdf->useFont('my_xx_ttf,font',20); 
+
+=item Q: How can i use the postscript-font "yy" with ::API ?
+
+B<A:> Substitute newFontPS for newFont
+
+	$pdf->newFontPS('my_yyfont',$yy_afm_file,$yy_pfb_file);
+	$pdf->useFont('my_yyfont',20); 
+
+=item Q: Why do i need these funny "afm" files when using postscript fonts ?
+
+B<A:> Adobe Type1 Postscript fonts are usually spread over a bunch of files,
+all with the following naming format:
+
+	(our_fonts_base_name).(extension)
+
+The actual glyphs (characters) of the font reside usually in files
+with the extension B<.PFB> or B<.PFA> and describe how to draw them
+in the first place.
+
+The dimensions and relations of the glyphs (width, height, name) reside
+in a file with the extension B<.AFM> I<(ie. font-metrics)>.
+
+There are also files with the extension B<.PFM> which usually come
+with the windows version of fonts, which contain a limited set
+of the data found in a AFM file for a specific character-encoding only
+(usually windows-specific).
+
+Since ::API uses a cross-encoding schema for using and accessing fonts, 
+it cant use PFM files, which are usually unavailable under unix
+and do not contain enough information of ::API.
+
+See the B<readme> on how to work around this ! 
+
+=head3 Text Issues
+
+=item Q: if i use textParagraph or textNewLine, why are the lines printer over each other ?
+
+B<A:> Because you didn't set text-leading to something reasonable !
+
+Text-Leading controls the actual distance from one line to the next and its defaults
+both in the pdf-spec and ::API are 0 (zero).
+
+For a graphical explanation refer to: I<"5.2.4 Leading" in "PDF Reference second edition" pg. 282>
+
+=head3 Graphical Issues
+
+=head3 Image Issues
+
+=head2 Author
+
+=head2 Last Words
+
+=cut
+           $parser = new MyParser();
+           $parser->parse_from_file("$0","$0.html");
+
+__END__
