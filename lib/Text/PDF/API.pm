@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.699_2";
+$VERSION = "0.699_3";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -138,7 +138,16 @@ sub saveas {
 	$this->{'PDF'}->out_file($file);
 }
 
-
+sub stringify {
+	my ($this)=@_;
+	use Text::PDF::API::IOString;
+	my $fh = Text::PDF::API::IOString->new();
+	$fh->open();
+	$this->{'PDF'}->out_file($fh);
+	my $str=${$fh->string_ref};
+	$fh->realclose;
+	return($str);
+}
 
 %Text::PDF::API::pagesizes=(
 	'a0'		=>	[ 2380	, 3368	],
@@ -315,42 +324,11 @@ sub resolveFontFile {
 		} (
 			'.',$this->{'FONTDIR'},@{$this->{'FONTPATH'}},
 			map {
-				glob("$_/Text/PDF/API/fonts"),
-				glob("$_/Text/PDF/fonts"),
 				glob("$_/Text/PDF/API/fonts/ttf"),
 				glob("$_/Text/PDF/fonts/ttf"),
 				glob("$_/Text/PDF/API/fonts/t1"),
 				glob("$_/Text/PDF/fonts/t1"),
-			} (@INC),
-		# last resort looking for files in standard unix/windos locations
-			qw( 
-				c:/windows/fonts 
-				c:/winnt/fonts 
-			),
-			map {
-				glob($_)
-			} qw(
-				/usr/openwin/lib/locale/*/X11/fonts/TrueType
-				/usr/openwin/lib/locale/*/X11/fonts/Type1
-				/usr/openwin/lib/locale/*/X11/fonts/Type1/afm
-				/usr/openwin/lib/X11/fonts/*/*
-				/usr/openwin/lib/X11/fonts/*/*/afm
-				/usr/openwin/lib/X11/fonts/*/afm
-				/usr/openwin/lib/X11/fonts/*/outline
-				/usr/openwin/lib/X11/fonts/*
-				/usr/openwin/lib/X11/fonts/*/afm
-				/usr/lpp/X11/lib/X11/fonts
-				/usr/lpp/X11/lib/X11/fonts/*
-				/usr/lib/ps
-				/usr/local/share/*/afm
-				/usr/local/share/*/fonts
-				/usr/local/share/*/fonts/afm
-				/usr/share/texmf/fonts/*/*/*
-				/usr/share/*/fonts
-				/usr/share/fonts/*
-				/usr/share/fonts/default/*
-				/usr/X11R6/lib/fonts/*
-			)
+			} (@INC)
 		);
 	}
 	return undef;
@@ -1653,6 +1631,12 @@ This creates the pdf-info-object and initializes it with the given values.
 =item $pdf->saveas $file 
 
 This saves the pdf-object to a file indicated by B<$file>.
+
+=item $pdf->stringify
+
+This returns the PDF as a string rather than saving to a file. You usually may
+want to do this if you are donig CGI or Mail work and have enough memory
+or dont want to clean up your temporary files.
 
 =item $pdf->end
 

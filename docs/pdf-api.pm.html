@@ -74,6 +74,12 @@ This creates the pdf-info-object and initializes it with the given values.
 <P>
 This saves the pdf-object to a file indicated by <STRONG>$file</STRONG>.
 
+<DT><STRONG><A NAME="item__pdf_stringify">$pdf-&gt;stringify</A></STRONG><DD>
+<P>
+This returns the PDF as a string rather than saving to a file. You usually
+may want to do this if you are donig CGI or Mail work and have enough
+memory or dont want to clean up your temporary files.
+
 <DT><STRONG><A NAME="item__pdf_end">$pdf-&gt;end</A></STRONG><DD>
 <P>
 This destroys the pdf-object and frees its memory.
