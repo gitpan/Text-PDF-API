@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.605";
+$VERSION = "0.606";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -995,7 +995,8 @@ sub paragraphFit2 {
         my ($text)=shift @_;
 	my ($mindelta)=shift @_ || 0.01 ;
 	my ($maxiterations)=shift @_ || 10;
-	my ($fontsize,$fudge)=$this->paragraphFit($font,$encoding,$leadingfactor,$width,$height,$text,1-$mindelta);
+	my $fontsize=shift @_;
+	($fontsize)=$this->paragraphFit($font,$encoding,$leadingfactor,$width,$height,$text,1-$mindelta) if(!defined($fontsize));
 	my $fontsizelast;
 	do {
 		$fontsizelast=$fontsize;
@@ -1025,7 +1026,7 @@ sub paragraphFit2 {
 		my $area=($line*$width)+($lastwidth*$fontsize*$leadingfactor);
 		$fontsize=$fontsizelast*($width*$height/($area*$leadingfactor))**0.5;
 		## $fontsize=$fontsizelast*($width*$height/($area))**0.5;
-		print STDERR "this=$fontsize, last=$fontsizelast\n";
+		## print STDERR "this=$fontsize, last=$fontsizelast\n";
 	} while ( (abs(1-($fontsize/$fontsizelast))>$mindelta) && ($maxiterations>0) );
 	return($fontsize,abs(1-($fontsize/$fontsizelast)),$maxiterations);
 }
@@ -1907,9 +1908,17 @@ common text-patterns (wordlength, ...) found in both english and german language
 The returned $fudgefactor is the actual factor used to calculate $fontsize since the algurithm can only
 mathematically estimate a fitting contition, but a perfect fit may ll somewhere between $fudgefactor and 1.
 
-B<BEWARE:> this function does !
+B<BEWARE:> this function does a one-shot mathematical estimation which may not be correct under some circumstances !
 
 B<BEWARE:> same limitations as $pdf->calcTextWidthFSET !
+
+=item ($fontsize, $lastdelta) = $pdf->paragraphFit2 $font, $encoding, $leadingfactor, $width, $height, $text [, $maxdelta [, $maxiterations [, $startingfontsize ]]] 
+
+As $pdf->paragraphFit above but uses a iterative deterministic algorithm (like $pdf->textParagraph) to estimate the fontsize. 
+
+B<NOTE:> this function works best for texts with more that 200 words to put you on the save side with no overflowing text.
+
+B<BEWARE:> this function fails hopelessly for ridiculous parameters and small texts !
 
 =item ($xend, $yend, $overflowtext) = $pdf->textParagraph $x, $y, $width, $height, $text [, $block ] 
 

@@ -366,10 +366,23 @@ can only mathematically estimate a fitting contition, but a perfect fit may
 ll somewhere between <CODE>$fudgefactor</CODE> and 1.
 
 <P>
-<STRONG>BEWARE:</STRONG> this function does !
+<STRONG>BEWARE:</STRONG> this function does a one-shot mathematical estimation which may not be
+correct under some circumstances !
 
 <P>
 <STRONG>BEWARE:</STRONG> same limitations as $pdf-&gt;calcTextWidthFSET !
+
+<DT><STRONG>($fontsize, $lastdelta) = $pdf-&gt;paragraphFit2 $font, $encoding, $leadingfactor, $width, $height, $text [, $maxdelta [, $maxiterations [, $startingfontsize ]]]</STRONG><DD>
+<P>
+As $pdf-&gt;paragraphFit above but uses a iterative deterministic algorithm
+(like $pdf-&gt;textParagraph) to estimate the fontsize. 
+
+<P>
+<STRONG>NOTE:</STRONG> this function works best for texts with more that 200 words to put you on
+the save side with no overflowing text.
+
+<P>
+<STRONG>BEWARE:</STRONG> this function fails hopelessly for ridiculous parameters and small texts !
 
 <DT><STRONG><A NAME="item__xend_">($xend, $yend, $overflowtext) = $pdf-&gt;textParagraph $x, $y, $width, $height, $text [, $block ]</A></STRONG><DD>
 <P>
