@@ -11,7 +11,7 @@ package Text::PDF::API::IOString;
 require 5.005_03;
 use strict;
 use vars qw($VERSION $DEBUG $IO_CONSTANTS);
-$VERSION = "1.01";  # $Date: 2000/01/27 23:12:39 $
+$VERSION = "1.02";  
 
 use Symbol ();
 
@@ -384,6 +384,7 @@ my $notmuch = sub { return };
 *READ   = \&read;
 *WRITE  = \&write;
 *CLOSE  = \&close;
+*SEEK   = \&seek;
 
 sub string_ref
 {

@@ -1,6 +1,6 @@
 package Text::PDF::API;
 
-$VERSION = "0.699_5";
+$VERSION = "0.699_81";
 
 use Text::PDF::File;
 use Text::PDF::AFont;
@@ -624,7 +624,7 @@ sub useFont {
 	my ($this,$name,$size,$enc)=@_;
 	my $fontkey=genKEY($name);
 	my $cenc;
-	if($enc) {
+	if($enc && (lc($enc) ne 'uc')) {
 		$cenc=$enc;
 		$cenc=~s/[^a-z0-9\-]+//cgi;
 		$cenc="$fontkey-$cenc";
@@ -770,11 +770,10 @@ sub getFontMatrix {
 	);
 }
 
-sub calcTextWidthFSET {
-        my ($this,$name,$size,$enc,$text)=@_;
-        my $fontkey=genKEY($name);
+sub calcTextWidthFSETX {
+        my ($this,$fontkey,$size,$enc,$text)=@_;
         my $cenc;
-        if($enc) {
+        if($enc && (lc($enc) ne 'uc')) {
                 $cenc=$enc;
                 $cenc=~s/[^a-z0-9\-]+//cgi;
                 $cenc="$fontkey-$cenc";
@@ -794,21 +793,40 @@ sub calcTextWidthFSET {
 	my $font=$this->{'FONTS'}{$fontkey}{'pdfobj'};
 	my $type=$this->{'FONTS'}{$fontkey}{'type'};
         my $wm=0;
+	my $c;
+	my @chars=split(//,$text);
+	if(lc($enc) eq 'uc') {
+        	if(($type eq 'AC') || ($type eq 'PS')) {
+        	        while( $c=shift(@chars) ) {
+				$c.=shift(@chars);
+				$c=unpack('n',$c);
+        	                $wm+=$font->{' AFM'}{'wx'}{$this->lookUPu2n($c)}*$size/1000;
+        	        }
+       		} elsif($type eq 'TT') {
+        	        while( $c=shift(@chars) ) {
+				$c.=shift(@chars);
+				$c=unpack('n',$c);
+        	                $wm+=$this->{'FONTS'}{$k}{"u2w"}{$c}*$size;
+        	        }
+        	}
+	} else {
+        	if(($type eq 'AC') || ($type eq 'PS')) {
+        	        foreach $c (@chars) {
+        	                $wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
+        	        }
+       		} elsif($type eq 'TT') {
+        	        foreach $c (@chars) {
+        	                $wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
+        	        }
+        	}
+	}
+        return $wm;
+}
 
-
-        if($type eq 'AC') {
-                foreach my $c (split(//,$text)) {
-                        $wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
-                }
-        } elsif($type eq 'PS') {
-                foreach my $c (split(//,$text)) {
-                        $wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
-                }
-        } elsif($type eq 'TT') {
-                foreach my $c (split(//,$text)) {
-                        $wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
-                }
-        }
+sub calcTextWidthFSET {
+        my ($this,$name,$size,$enc,$text)=@_;
+        my $fontkey=genKEY($name);
+	my $wm=$this->calcTextWidthFSETX($fontkey,$size,$enc,$text);
         return $wm;
 }
 
@@ -820,24 +838,8 @@ sub calcTextWidth {
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
 	my $font=$this->{'FONTS'}{$k}{'pdfobj'};
 	my $type=$this->{'FONTS'}{$k}{'type'};
-	my $wm=0;
-
 	$this->calcFontMatrix;
-
-	if($type eq 'AC') {
-		#$wm=$font->width($text)*$size;
-		foreach my $c (split(//,$text)) {
-			$wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
-		}
-	} elsif($type eq 'PS') {
-		foreach my $c (split(//,$text)) {
-			$wm+=$font->{' AFM'}{'wx'}{$font->{' AFM'}{'char'}[ord($c)]}*$size/1000;
-		}
-	} elsif($type eq 'TT') {
-		foreach my $c (split(//,$text)) {
-			$wm+=$this->{'FONTS'}{$k}{"u2w"}{$this->lookUPc2u($enc,ord($c))}*$size;
-		}
-	}
+	my $wm=$this->calcTextWidthFSETX($k,$size,$enc,$text);
 	return $wm;
 }
 sub setCharSpacing  {
@@ -945,18 +947,28 @@ sub textAdd {
 	$this->initFontCurrent;
 	my $k=$this->{'CURRENT'}{'font'}{'Key'};
 	my $enc=$this->{'CURRENT'}{'font'}{'Encoding'};
-	$this->_addtopage(" <");
-	foreach my $c (split(//,$text)) {
-		if($this->{'CURRENT'}{'font'}{'Type'} eq 'AC') {
-			$this->_addtopage(sprintf('%02x',unpack('C',$c)));
-		} elsif($this->{'CURRENT'}{'font'}{'Type'} eq 'PS') {
-			$this->_addtopage(sprintf('%02x',unpack('C',$c)));
+	if(lc($enc) eq 'uc') {
+		$this->_addtopage(" <feff");
+	} else {
+		$this->_addtopage(" <");
+	}
+	my @chars=split(//,$text);
+	while($c=shift @chars) {
+		if(lc($enc) eq 'uc') {
+			$this->_addtopage(unpack('H2',$c));
 		} else {
-			$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))}));
+			if($this->{'CURRENT'}{'font'}{'Type'} eq 'AC') {
+				$this->_addtopage(unpack('H2',$c));
+			} elsif($this->{'CURRENT'}{'font'}{'Type'} eq 'PS') {
+				$this->_addtopage(unpack('H2',$c));
+			} else {
+				$this->_addtopage(sprintf('%04x',$this->{'FONTS'}{$k}{"u2g"}{$this->lookUPc2u($enc,ord($c))}));
+			}
 		}
 	}
 	$this->_addtopage("> Tj \n");
 }
+
 sub endText {
 	my ($this)=@_;
 	$this->_addtopage(" ET \n");
@@ -1003,6 +1015,10 @@ sub paragraphFit2 {
 	my $fontsize=shift @_;
 	($fontsize)=$this->paragraphFit($font,$encoding,$leadingfactor,$width,$height,$text,1-$mindelta) if(!defined($fontsize));
 	my $fontsizelast;
+	my $space=' ';
+	if(lc($encoding) eq 'uc') {
+		$space="\x00\x20";
+	}
 	do {
 		$fontsizelast=$fontsize;
 		$maxiterations--;
@@ -1014,9 +1030,9 @@ sub paragraphFit2 {
 			@words=split(/\s+/,$para);
 			my @wline;
 			while(0 < scalar @words){
-				if($this->calcTextWidthFSET($font,$fontsize,$encoding,join(' ',@wline,$words[0]) < $width)){
+				if($this->calcTextWidthFSET($font,$fontsize,$encoding,join($space,@wline,$words[0]) < $width)){
 					push(@wline,shift @words);
-					$lastwidth=$this->calcTextWidthFSET($font,$fontsize,$encoding,join(' ',@wline));
+					$lastwidth=$this->calcTextWidthFSET($font,$fontsize,$encoding,join($space,@wline));
 				} elsif($this->calcTextWidthFSET($font,$fontsize,$encoding,$words[0]) > $width){
 					@wline=();
 					$line+=$fontsize*$leadingfactor;
@@ -1049,24 +1065,33 @@ sub textParagraph {
 	my $line=0;
 	my $word;
 	my $hor=0;
+	my $encoding=$this->{'CURRENT'}{'font'}{'Encoding'};
+	my $space=' ';
+	if(lc($encoding) eq 'uc') {
+		$space="\x00\x20";
+	}
 	while(defined($para=shift @paras)) {
-		@words=split(/\s+/,$para);
+		if(lc($encoding) eq 'uc') {
+			@words=split(/$space/,$para);
+		} else {
+			@words=split(/\s+/,$para);
+		}
 		$hor=0;
 		my @wline;
 		while(( 0 < scalar @words ) && ( $h > $line )){
-			if($this->calcTextWidth(join(' ',@wline,$words[0])) < $w) {
+			if($this->calcTextWidth(join($space,@wline,$words[0])) < $w) {
 				push(@wline,shift @words);
 			} elsif($this->calcTextWidth($words[0]) > $w) {
 				push(@wline,shift @words);
-				$this->textAdd(join(' ',@wline));
+				$this->textAdd(join($space,@wline));
 				@wline=();
 				$this->textNewLine;	$line+=$this->{'CURRENT'}{'font'}{'TextLeading'};
 				$hor=0;
 			} else {
 				if($block) {
-					$this->wordSpacing(($w-$this->calcTextWidth(join(' ',@wline)))/((scalar @wline - 1)?(scalar @wline - 1):1));
+					$this->wordSpacing(($w-$this->calcTextWidth(join($space,@wline)))/((scalar @wline - 1)?(scalar @wline - 1):1));
 				}	
-				$this->textAdd(join(' ',@wline));
+				$this->textAdd(join($space,@wline));
 				@wline=();
 				$this->textNewLine;	$line+=$this->{'CURRENT'}{'font'}{'TextLeading'};
 				$hor=0;
@@ -1075,8 +1100,8 @@ sub textParagraph {
 				if($block) {
 					$this->wordSpacing(0);
 				}	
-				$this->textAdd(join(' ',@wline));
-				$hor=$this->calcTextWidth(join(' ',@wline));
+				$this->textAdd(join($space,@wline));
+				$hor=$this->calcTextWidth(join($space,@wline));
 			} elsif (( $h < $line ) && ( scalar @wline )) {
 				unshift(@words,@wline);
 			}
@@ -1085,7 +1110,7 @@ sub textParagraph {
 		$this->textNewLine;	$line+=$this->{'CURRENT'}{'font'}{'TextLeading'};
 	}
 	$this->endText;
-	return($x+$hor,$y-$line,join("\n",join(' ',@words),@paras));
+	return($x+$hor,$y-$line,join("\n",join($space,@words),@paras));
 }
 
 sub showText {
@@ -1587,8 +1612,6 @@ sub newImageOld {
 
 sub newImage {
 	my ($this,$file)=@_;
-	my $key;
-
 	use Text::PDF::API::Image;
 	my ($xo,$key,$w,$h)=Text::PDF::API::Image::getImageObjectFromFile($file);
 	$this->{'PDF'}->new_obj($xo);

@@ -35,6 +35,8 @@ sub parseImage {
 			$type='PNG';
 		} elsif ($buf=~/^P[456][\s\n]/) {
 			$type='PPM';
+		} elsif ($buf=~/^BM/) {
+			$type='BMP';
 		}
 	}
 
@@ -376,6 +378,8 @@ sub getImageObjectFromFile {
                         $type='PNG';
                 } elsif ($buf=~/^P[456][\s\n]/) {
                         $type='PPM';
+		} elsif ($buf=~/^BM/) {
+			$type='BMP';
                 }
         }
 	close(INF);
